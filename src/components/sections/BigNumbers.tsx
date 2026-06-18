@@ -5,10 +5,10 @@ import { Section, SectionHeader } from "../primitives/section";
 import { bigNumberCharts } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 
-export function BigNumbers({ t }: { t: Messages }) {
+export function BigNumbers({ t, noPadding }: { t: Messages; noPadding?: boolean }) {
   const bn = t.bigNumbers;
   return (
-    <Section id="big-numbers">
+    <Section id="big-numbers" noPadding={noPadding}>
       <SectionHeader
         eyebrow={bn.eyebrow}
         title={bn.title}

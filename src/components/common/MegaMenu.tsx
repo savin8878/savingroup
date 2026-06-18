@@ -25,6 +25,7 @@ import {
   ShoppingBag,
   Sparkles,
   Stethoscope,
+  Tag,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -103,6 +104,7 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
     { label: t.nav.services, href: "/services", panel: "services", Icon: Briefcase },
     { label: t.nav.industries, href: "/industries", panel: "industries", Icon: Factory },
     { label: t.nav.work, href: "/case-studies", panel: "work", Icon: LineChart },
+    { label: t.nav.pricing, href: "/pricing", Icon: Tag },
     { label: "Cities", href: "/cities", panel: "cities", Icon: MapPin },
     { label: "Blog", href: "/blogs", Icon: BookOpen },
     { label: t.nav.about, href: "/about", Icon: Users },
@@ -689,20 +691,26 @@ export function MobileMegaNav({
       </MobileLinkRow>
 
       <MobileFlatRow
-        label="Blog"
+        label={t.nav.pricing}
         index="05"
+        href="/pricing"
+        onNavigate={onNavigate}
+      />
+      <MobileFlatRow
+        label="Blog"
+        index="06"
         href="/blogs"
         onNavigate={onNavigate}
       />
       <MobileFlatRow
         label={t.nav.about}
-        index="06"
+        index="07"
         href="/about"
         onNavigate={onNavigate}
       />
       <MobileFlatRow
         label={t.nav.contact}
-        index="07"
+        index="08"
         href="/contact"
         onNavigate={onNavigate}
       />

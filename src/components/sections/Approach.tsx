@@ -6,11 +6,11 @@ import { Section, SectionHeader } from "../primitives/section";
 import { ApproachDuality } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 
-export function Approach({ t }: { t: Messages }) {
+export function Approach({ t, noPadding }: { t: Messages; noPadding?: boolean }) {
   const count = t.approach.comparison.length;
 
   return (
-    <Section id="approach">
+    <Section id="approach" noPadding={noPadding}>
       <SectionHeader
         eyebrow={t.approach.eyebrow}
         title={t.approach.title}

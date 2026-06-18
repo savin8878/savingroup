@@ -8,20 +8,13 @@ import { LogosMarquee } from "@/components/sections/LogosMarquee";
 import { CityBanner } from "@/components/sections/CityBanner";
 import { CountryMarketContext } from "@/components/sections/CountryMarketContext";
 import { CountryTrustBlock } from "@/components/sections/CountryTrustBlock";
-import { Problem } from "@/components/sections/Problem";
-import { Approach } from "@/components/sections/Approach";
-import { Services } from "@/components/sections/Services";
-import { FeatureGrid } from "@/components/sections/FeatureGrid";
-import { Industries } from "@/components/sections/Industries";
-import { BigNumbers } from "@/components/sections/BigNumbers";
-import { Process } from "@/components/sections/Process";
-import { CaseStudies } from "@/components/sections/CaseStudies";
 import { TechStack } from "@/components/sections/TechStack";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Faq } from "@/components/sections/Faq";
 import { KnowMore } from "@/components/sections/KnowMore";
 import { IndiaGeoFooter } from "@/components/sections/IndiaGeoFooter";
 import { Cta } from "@/components/sections/Cta";
+import { StrategyHub, ImpactHub, ProcessStepper } from "@/components/sections/CompressedHomeSections";
 
 export async function generateMetadata({
   params,
@@ -66,14 +59,16 @@ export default async function HomePage({
       <CityBanner t={t} country={country} locale={locale as Locale} />
       <CountryMarketContext t={t} country={country} locale={locale as Locale} pageKey="home" />
       <CountryTrustBlock t={t} country={country} />
-      <Problem t={t} />
-      <Approach t={t} />
-      <Services t={t} country={country} />
-      <FeatureGrid t={t} />
-      <Industries t={t} country={country} />
-      <BigNumbers t={t} />
-      <Process t={t} />
-      <CaseStudies t={t} country={country} />
+      
+      {/* Consolidated Strategy Section */}
+      <StrategyHub t={t} country={country} />
+
+      {/* Consolidated Impact Section */}
+      <ImpactHub t={t} country={country} />
+
+      {/* Simplified Process Section */}
+      <ProcessStepper t={t} />
+
       <TechStack t={t} />
       <Testimonials t={t} country={country} />
       <Faq t={t} country={country} />

@@ -125,6 +125,7 @@ export const STATIC_PAGES = [
   "",
   "services",
   "industries",
+  "pricing",
   "case-studies",
   "about",
   "contact",

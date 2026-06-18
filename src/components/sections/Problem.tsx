@@ -8,9 +8,9 @@ import { SnapRowHint } from "../primitives/snap-row-hint";
 import { LeakFunnel } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 
-export function Problem({ t }: { t: Messages }) {
+export function Problem({ t, noPadding }: { t: Messages; noPadding?: boolean }) {
   return (
-    <Section id="problem">
+    <Section id="problem" noPadding={noPadding}>
       {/* Decorative backdrop */}
       <div
         aria-hidden

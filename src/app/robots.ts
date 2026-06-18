@@ -9,10 +9,13 @@ import { BASE_URL } from "@/lib/constants";
  *    metadata, and Google must be allowed to fetch the page to see that tag.
  *    Disallowing them here would freeze the existing index entries.
  *  - Disallow API + internal Next.js paths (no SEO value, leak surface area).
- *  - Block the major AI-training crawlers. This site's content is the moat;
- *    we don't want it scraped into training corpora. Live-browsing UAs
- *    (ChatGPT-User, Google search itself) are NOT blocked — those drive
- *    referral traffic.
+ *  - ALLOW the AI / generative-engine crawlers. We are a lead-gen agency, not
+ *    a publisher with a paywall — being absent from ChatGPT / Gemini / Claude /
+ *    Perplexity answers is lost discovery, not a protected moat. To be *cited*
+ *    when someone asks an AI engine "best manufacturing software agency in
+ *    Ahmedabad," those crawlers have to be able to read the content.
+ *    (Reversed the prior "content is the moat" block on 2026-06-13 — see git
+ *    history if we ever want to re-gate training-only bots.)
  *
  * The sitemap pointer fans out via `/sitemap-index.xml` → per-country
  * `/in/sitemap.xml`, which currently emits the home + 8 static pages +
@@ -20,28 +23,21 @@ import { BASE_URL } from "@/lib/constants";
  * services + process + case-studies + contact + about + blog) sub-pages.
  */
 export default function robots(): MetadataRoute.Robots {
-  // Crawlers that scrape content for LLM training. Live-browsing bots
-  // (ChatGPT-User, PerplexityBot, etc.) are intentionally left allowed.
-  const aiTrainingBots = [
-    "GPTBot",          // OpenAI training
-    "CCBot",           // Common Crawl (feeds most open LLM datasets)
-    "Google-Extended", // Gemini / Vertex AI training opt-out
-    "ClaudeBot",       // Anthropic training crawler
-    "anthropic-ai",    // legacy Anthropic UA
-    "Bytespider",      // ByteDance / Doubao training
-  ];
-
   return {
     rules: [
       {
+        // Everything else — including GPTBot, OAI-SearchBot, Google-Extended,
+        // ClaudeBot, PerplexityBot, CCBot — is allowed to read the public tree.
         userAgent: "*",
         allow: "/",
         disallow: ["/api/", "/_next/"],
       },
-      ...aiTrainingBots.map((userAgent) => ({
-        userAgent,
+      {
+        // Bytespider (ByteDance) is the one exception: it crawls aggressively,
+        // ignores crawl-delay, and drives ~zero referral traffic. Keep it out.
+        userAgent: "Bytespider",
         disallow: "/",
-      })),
+      },
     ],
     sitemap: `${BASE_URL}/sitemap-index.xml`,
     host: BASE_URL,

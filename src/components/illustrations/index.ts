@@ -22,3 +22,4 @@ export { featureIllustrationMap } from "./FeatureIllustrations";
 export { TimelineSVG, ValuesConstellation, EmbeddedTeamVisual } from "./AboutIllustrations";
 export { RevenueGrowthChart, BeforeAfterMetric, ProofStripVisual } from "./CaseStudyIllustrations";
 export { ContactProcessFlow, TrustVisual, GlobalReachMap } from "./ContactIllustrations";
+export { tierGlyphs, PricingValueViz } from "./PricingVisuals";

@@ -16,15 +16,16 @@ interface ServicesProps {
   expanded?: boolean;
   /** Country slug — when supplied for a target country, renders a per-country intro paragraph */
   country?: string;
+  noPadding?: boolean;
 }
 
-export function Services({ t, expanded = false, country }: ServicesProps) {
+export function Services({ t, expanded = false, country, noPadding }: ServicesProps) {
   const items = expanded ? t.services.items : t.services.items.slice(0, 6);
   const countryContent =
     country && isResolvableCountry(country) ? getCountryContent(country) : null;
 
   return (
-    <Section id="services">
+    <Section id="services" noPadding={noPadding}>
       <SectionHeader
         eyebrow={t.services.eyebrow}
         title={t.services.title}

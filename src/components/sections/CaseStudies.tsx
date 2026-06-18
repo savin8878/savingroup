@@ -12,10 +12,12 @@ export function CaseStudies({
   t,
   expanded = false,
   country,
+  noPadding,
 }: {
   t: Messages;
   expanded?: boolean;
   country?: string;
+  noPadding?: boolean;
 }) {
   const countryContent =
     country && isResolvableCountry(country) ? getCountryContent(country) : null;

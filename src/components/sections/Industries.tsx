@@ -33,9 +33,11 @@ const iconMap = {
 export function Industries({
   t,
   country,
+  noPadding,
 }: {
   t: Messages;
   country?: string;
+  noPadding?: boolean;
 }) {
   const countryContent =
     country && isResolvableCountry(country) ? getCountryContent(country) : null;

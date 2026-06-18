@@ -26,6 +26,7 @@ const STATIC_PAGE_LASTMOD: Record<string, string> = {
   "": "2026-04-15",           // home
   services: "2026-04-10",
   industries: "2026-05-07",
+  pricing: "2026-06-18",
   "case-studies": "2026-04-12",
   about: "2026-03-20",
   contact: "2026-03-20",
@@ -84,6 +85,7 @@ const PAGE_PRIORITY: Record<string, number> = {
   "": 1.0,
   services: 0.9,
   industries: 0.9,
+  pricing: 0.85,
   "case-studies": 0.8,
   about: 0.7,
   contact: 0.8,
@@ -99,6 +101,7 @@ const PAGE_CHANGEFREQ: Record<string, string> = {
   "": "weekly",
   services: "monthly",
   industries: "monthly",
+  pricing: "monthly",
   "case-studies": "weekly",
   about: "monthly",
   contact: "monthly",
@@ -270,6 +273,18 @@ export async function GET(
   // stay EN-only until their templates have real Hindi bodies (the new
   // services/process/case-studies/contact pages introduce fresh English
   // copy that localizeCity doesn't yet translate).
+  // CRAWL-BUDGET PRUNE (2026-06-14): on a new, low-authority .in domain,
+  // submitting 11 cities × 7 templated page types = 77 near-duplicate URLs
+  // diluted Google's tiny index budget — it parked nearly all of them as
+  // "Crawled – currently not indexed" and indexed only a handful of pages
+  // site-wide. We now submit ONLY the city overview page. The 6 sub-pages
+  // (services/process/case-studies/contact/about/blog) still resolve and
+  // render for users and direct/AI traffic — they're just no longer begged
+  // into the index while they're templated.
+  //
+  // RE-ADD a sub-path here the moment that template carries genuinely unique,
+  // hand-written, per-city content (a real local case study, named local
+  // clients, etc.). Until then, more URLs = slower indexing of the good pages.
   const CITY_SUB_PAGES: {
     path: string;
     priority: number;
@@ -277,12 +292,14 @@ export async function GET(
     locales: ReadonlyArray<"en" | "hi"> | "city-aware";
   }[] = [
     { path: "", priority: CITY_PAGE_PRIORITY, locales: "city-aware" },
-    { path: "services", priority: 0.8, locales: ["en"] },
-    { path: "process", priority: 0.75, locales: ["en"] },
-    { path: "case-studies", priority: 0.8, locales: ["en"] },
-    { path: "contact", priority: 0.7, locales: ["en"] },
-    { path: "about", priority: 0.7, locales: ["en"] },
-    { path: "blog", priority: 0.65, locales: ["en"] },
+    // --- Pruned 2026-06-14 to concentrate crawl budget. Re-add per-path only
+    //     once the page has unique per-city content (see note above). ---
+    // { path: "services", priority: 0.8, locales: ["en"] },
+    // { path: "process", priority: 0.75, locales: ["en"] },
+    // { path: "case-studies", priority: 0.8, locales: ["en"] },
+    // { path: "contact", priority: 0.7, locales: ["en"] },
+    // { path: "about", priority: 0.7, locales: ["en"] },
+    // { path: "blog", priority: 0.65, locales: ["en"] },
   ];
 
   const cityUrls = isIndia

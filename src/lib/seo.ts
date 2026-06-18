@@ -128,6 +128,7 @@ export type PageKey =
   | "about"
   | "services"
   | "industries"
+  | "pricing"
   | "caseStudies"
   | "contact"
   | "privacy"
@@ -138,6 +139,7 @@ const PAGE_PATHS: Record<PageKey, string> = {
   about: "about",
   services: "services",
   industries: "industries",
+  pricing: "pricing",
   caseStudies: "case-studies",
   contact: "contact",
   privacy: "privacy",
@@ -150,6 +152,7 @@ const GEO_PERSONALIZED: PageKey[] = [
   "about",
   "services",
   "industries",
+  "pricing",
   "caseStudies",
   "contact",
 ];
@@ -506,6 +509,7 @@ export function buildPageBreadcrumbJsonLd(
       page === "about" ? t.nav.about :
       page === "services" ? t.nav.services :
       page === "industries" ? t.nav.industries :
+      page === "pricing" ? t.nav.pricing :
       page === "contact" ? t.nav.contact :
       page;
     items.push({ name: label, url: pageUrl });

@@ -5,20 +5,23 @@ export function Section({
   id,
   className,
   children,
+  noPadding = false,
 }: {
   id?: string;
   className?: string;
   children: ReactNode;
+  noPadding?: boolean;
 }) {
   return (
     <section
       id={id}
       className={cn(
-        "relative scroll-mt-24 py-8 sm:py-14 lg:py-24",
+        "relative scroll-mt-24",
+        !noPadding && "py-8 sm:py-14 lg:py-24",
         className
       )}
     >
-      <div className="container-px relative mx-auto max-w-7xl">{children}</div>
+      <div className={cn("relative mx-auto max-w-7xl", !noPadding && "container-px")}>{children}</div>
     </section>
   );
 }

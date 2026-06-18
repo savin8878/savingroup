@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /tmp/pricing.html -w \"%{http_code}\" --max-time 90 http://localhost:3002/in/en/pricing)",
+      "Read(//tmp/**)",
+      "Bash(command -v pnpm)"
+    ]
+  }
+}

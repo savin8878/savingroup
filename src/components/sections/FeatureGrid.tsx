@@ -28,10 +28,10 @@ const iconMap: Record<string, LucideIcon> = {
   headphones: Headphones,
 };
 
-export function FeatureGrid({ t }: { t: Messages }) {
+export function FeatureGrid({ t, noPadding }: { t: Messages; noPadding?: boolean }) {
   const fg = t.featureGrid;
   return (
-    <Section id="capabilities" className="bg-surface/20">
+    <Section id="capabilities" noPadding={noPadding} className="bg-surface/20">
       <SectionHeader
         eyebrow={fg.eyebrow}
         title={fg.title}

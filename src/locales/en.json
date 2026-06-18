@@ -14,6 +14,7 @@
     "home": "Home",
     "services": "Services",
     "industries": "Industries",
+    "pricing": "Pricing",
     "work": "Case Studies",
     "about": "About",
     "contact": "Contact",
@@ -531,6 +532,7 @@
       "company": {
         "title": "Company",
         "links": [
+          { "label": "Pricing", "href": "/pricing" },
           { "label": "About", "href": "/about" },
           { "label": "Case Studies", "href": "/case-studies" },
           { "label": "Contact", "href": "/contact" },
@@ -541,6 +543,293 @@
     },
     "rights": "All rights reserved.",
     "status": "All systems operational"
+  },
+  "pricing": {
+    "eyebrow": "Transparent · Requirement-based",
+    "title": "Pricing that scales with your ambition.",
+    "subtitle": "Every engagement is requirement-based — features, scope and timeline are finalised after a free audit. The ranges below are honest starting points, not bait. No hidden costs, ever.",
+    "note": "All plans are requirement-based. Pages, integrations and timelines are finalised after a free consultation. The prices shown are starting ranges — your actual quote depends on complexity.",
+    "ctaPrimary": "Get a free quote",
+    "ctaEnterprise": "Talk to a strategist",
+    "tiers": [
+      {
+        "id": "launch",
+        "glyph": "rocket",
+        "name": "Launch",
+        "tagline": "For founders, local shops & first sites",
+        "priceLabel": "Starting range",
+        "priceRange": "₹25,000 – ₹45,000",
+        "priceInfo": "Final price based on requirements",
+        "scope": "Up to 8–12 pages",
+        "reqTag": "Pages as per requirements",
+        "costRows": [
+          { "label": "Design & development", "value": "As per scope" },
+          { "label": "1st-year hosting", "value": "Included" },
+          { "label": "Foundational SEO setup", "value": "Included" }
+        ],
+        "extras": [
+          "Free SSL certificate",
+          "Google Analytics 4 setup",
+          "WhatsApp chat button",
+          "Mobile-responsive build"
+        ],
+        "groups": [
+          {
+            "heading": "Infrastructure",
+            "items": [
+              { "label": "99.9% uptime", "on": true },
+              { "label": "10–20GB storage", "on": true },
+              { "label": "Weekly backups", "on": true },
+              { "label": "2–3 email accounts", "on": true },
+              { "label": "Global CDN", "on": false },
+              { "label": "Priority support", "on": false }
+            ]
+          },
+          {
+            "heading": "SEO included",
+            "items": [
+              { "label": "Keyword research", "on": true },
+              { "label": "On-page SEO", "on": true },
+              { "label": "Meta + schema setup", "on": true },
+              { "label": "Google Business Profile", "on": false },
+              { "label": "Ongoing SEO consulting", "on": false }
+            ]
+          }
+        ],
+        "ctaStyle": "outline"
+      },
+      {
+        "id": "growth",
+        "glyph": "bolt",
+        "badge": "Most popular",
+        "featured": true,
+        "name": "Growth",
+        "tagline": "For growing businesses & D2C brands",
+        "priceLabel": "Starting range",
+        "priceRange": "₹55,000 – ₹85,000",
+        "priceInfo": "Final price based on requirements",
+        "scope": "Up to 20–30 pages",
+        "reqTag": "Pages as per requirements",
+        "costRows": [
+          { "label": "Design & development", "value": "As per scope" },
+          { "label": "1st-year premium hosting", "value": "Included" },
+          { "label": "Standard SEO strategy", "value": "Included" },
+          { "label": "WhatsApp + lead capture", "value": "As per scope" }
+        ],
+        "extras": [
+          "Professional logo design",
+          "Analytics + Business Profile setup",
+          "WhatsApp Business integration",
+          "Google & Meta pixel setup",
+          "2 free SEO blog posts"
+        ],
+        "groups": [
+          {
+            "heading": "Infrastructure",
+            "items": [
+              { "label": "99.95% uptime", "on": true },
+              { "label": "50GB storage", "on": true },
+              { "label": "Daily backups", "on": true },
+              { "label": "5–10 email accounts", "on": true },
+              { "label": "Global CDN", "on": true },
+              { "label": "Priority support (6 hrs)", "on": true }
+            ]
+          },
+          {
+            "heading": "SEO included",
+            "items": [
+              { "label": "Advanced keyword research", "on": true },
+              { "label": "Technical SEO audit", "on": true },
+              { "label": "Local SEO + Maps", "on": true },
+              { "label": "Content calendar", "on": true },
+              { "label": "3 months SEO consulting", "on": true }
+            ]
+          }
+        ],
+        "ctaStyle": "solid"
+      },
+      {
+        "id": "scale",
+        "glyph": "chart",
+        "name": "Scale",
+        "tagline": "For multi-location & e-commerce",
+        "priceLabel": "Starting range",
+        "priceRange": "₹1,00,000 – ₹2,00,000",
+        "priceInfo": "Final price based on requirements",
+        "scope": "Up to 40–60 pages / store",
+        "reqTag": "Fully requirement-based",
+        "costRows": [
+          { "label": "Custom design & development", "value": "As per scope" },
+          { "label": "1st-year enterprise hosting", "value": "Included" },
+          { "label": "Advanced SEO program", "value": "Included" },
+          { "label": "E-commerce / custom features", "value": "As per scope" }
+        ],
+        "extras": [
+          "Complete brand kit",
+          "WhatsApp Business + SMS automation",
+          "Cart-recovery & CRM wiring",
+          "App / landing-page suite",
+          "4 free SEO blog posts",
+          "Premium global CDN"
+        ],
+        "groups": [
+          {
+            "heading": "Infrastructure",
+            "items": [
+              { "label": "99.99% uptime", "on": true },
+              { "label": "100GB+ storage", "on": true },
+              { "label": "Hourly backups", "on": true },
+              { "label": "20 email accounts", "on": true },
+              { "label": "Premium CDN + WAF", "on": true },
+              { "label": "Priority support (4 hrs)", "on": true }
+            ]
+          },
+          {
+            "heading": "SEO included",
+            "items": [
+              { "label": "Competitor analysis", "on": true },
+              { "label": "Technical SEO + Core Web Vitals", "on": true },
+              { "label": "Local + content SEO", "on": true },
+              { "label": "Conversion-rate optimisation", "on": true },
+              { "label": "4 months SEO consulting", "on": true }
+            ]
+          }
+        ],
+        "ctaStyle": "outline"
+      },
+      {
+        "id": "enterprise",
+        "glyph": "crown",
+        "name": "Enterprise",
+        "tagline": "For portals, ERP & custom platforms",
+        "priceLabel": "Starting range",
+        "priceRange": "₹2,00,000+",
+        "priceInfo": "Scoped from a paid discovery sprint",
+        "scope": "Custom portal / platform",
+        "reqTag": "Fully requirement-based",
+        "costRows": [
+          { "label": "Custom platform engineering", "value": "As per scope" },
+          { "label": "Dedicated cloud infrastructure", "value": "Included" },
+          { "label": "Strategic SEO + growth program", "value": "Included" },
+          { "label": "Integrations / APIs / CRM / ERP", "value": "As per scope" }
+        ],
+        "extras": [
+          "Full brand & design system",
+          "CRM / ERP integration",
+          "SMS + WhatsApp gateway",
+          "Staff training (15 hrs)",
+          "Advanced security suite",
+          "Dedicated engagement lead"
+        ],
+        "groups": [
+          {
+            "heading": "Infrastructure",
+            "items": [
+              { "label": "99.99% uptime SLA", "on": true },
+              { "label": "Auto-scaling storage", "on": true },
+              { "label": "Real-time backups", "on": true },
+              { "label": "Unlimited email accounts", "on": true },
+              { "label": "Premium CDN + DDoS protection", "on": true },
+              { "label": "24/7 dedicated support", "on": true }
+            ]
+          },
+          {
+            "heading": "SEO + growth",
+            "items": [
+              { "label": "Full competitor & market analysis", "on": true },
+              { "label": "6 months ongoing SEO", "on": true },
+              { "label": "Content marketing plan", "on": true },
+              { "label": "Link building", "on": true },
+              { "label": "Monthly revenue reporting", "on": true }
+            ]
+          }
+        ],
+        "ctaStyle": "outline"
+      }
+    ],
+    "comparison": {
+      "eyebrow": "How we're different",
+      "title": "More system. Same budget.",
+      "intro": "At the same price point, most agencies hand you a brochure. We hand you a revenue system — built to convert, rank and run on autopilot.",
+      "cards": [
+        {
+          "title": "Other agencies",
+          "price": "₹25,000+",
+          "scale": "3–5 pages only",
+          "highlight": false,
+          "features": [
+            { "label": "Basic template design", "on": false },
+            { "label": "Email-only support", "on": false },
+            { "label": "No SEO included", "on": false },
+            { "label": "No free extras", "on": false },
+            { "label": "Limited revisions", "on": false }
+          ]
+        },
+        {
+          "title": "Our Growth plan",
+          "price": "₹55K – ₹85K",
+          "scale": "Up to 20–30 pages",
+          "highlight": true,
+          "badge": "Best value",
+          "features": [
+            { "label": "Conversion-tuned design", "on": true },
+            { "label": "Fast human support", "on": true },
+            { "label": "Advanced SEO included", "on": true },
+            { "label": "Free extras + automation", "on": true },
+            { "label": "Requirement-based scope", "on": true }
+          ]
+        },
+        {
+          "title": "Typical premium",
+          "price": "₹1,20,000+",
+          "scale": "15–20 pages",
+          "highlight": false,
+          "features": [
+            { "label": "Good design", "on": true },
+            { "label": "Phone support", "on": true },
+            { "label": "Basic SEO only", "on": false },
+            { "label": "Few extras", "on": false },
+            { "label": "Hidden add-on costs", "on": false }
+          ]
+        }
+      ]
+    },
+    "advantages": {
+      "title": "Why teams pick Sanat Dynamo",
+      "items": [
+        { "icon": "layers", "title": "More system, more value", "body": "You don't just get more pages — you get automation, SEO and analytics wired in. Competitors charge for each separately." },
+        { "icon": "sliders", "title": "Requirement-based pricing", "body": "No rigid packages. We scope exactly what your business needs — nothing more, nothing less. You pay for outcomes." },
+        { "icon": "gift", "title": "Free extras on every plan", "body": "Logo, WhatsApp, analytics, SSL — included. Agencies routinely bill ₹5–15K extra for the same things." },
+        { "icon": "zap", "title": "Blazing-fast builds", "body": "CDN, image optimisation and caching ship by default — pages load under 1.5s while competitors crawl past 3s." },
+        { "icon": "search", "title": "SEO built in, not bolted on", "body": "Technical SEO foundations come with every plan. Agencies charge ₹8K+ for this as a separate line item." },
+        { "icon": "smartphone", "title": "Mobile-first by design", "body": "70%+ of your buyers are on a phone. Every build is engineered thumb-first, not shrunk down from desktop." },
+        { "icon": "shield", "title": "Enterprise-grade security", "body": "Free SSL, DDoS protection, malware scanning and automated backups — your data is protected from day one." },
+        { "icon": "headphones", "title": "Honest, human support", "body": "Talk to the engineer who built your system. 6–24 hr response — and we stay with you long after launch." }
+      ]
+    },
+    "table": {
+      "title": "Plan comparison at a glance",
+      "featureLabel": "Capability",
+      "othersLabel": "Other agencies",
+      "tierLabels": ["Launch", "Growth", "Scale", "Enterprise"],
+      "rows": [
+        { "feature": "Pages (req-based)", "others": "3–5 pages", "values": ["Up to 8–12", "Up to 20–30", "Up to 40–60", "Portal / custom"], "on": [true, true, true, true] },
+        { "feature": "SSL certificate", "others": "Extra ₹2–3K", "values": ["Free", "Free", "Free", "Free"], "on": [true, true, true, true] },
+        { "feature": "CDN (speed)", "others": "Extra ₹5–10K", "values": ["—", "Global CDN", "Premium CDN", "Premium + DDoS"], "on": [false, true, true, true] },
+        { "feature": "SEO", "others": "Extra ₹8–15K", "values": ["Foundational", "Standard", "Advanced", "Strategic"], "on": [true, true, true, true] },
+        { "feature": "Logo / brand", "others": "Extra ₹5–10K", "values": ["—", "Logo", "Brand kit", "Design system"], "on": [false, true, true, true] },
+        { "feature": "WhatsApp integration", "others": "Extra ₹8–15K", "values": ["Chat button", "Business", "Business + SMS", "Full gateway"], "on": [true, true, true, true] },
+        { "feature": "Automation / CRM", "others": "Not offered", "values": ["—", "Lead capture", "Cart + CRM", "ERP + CRM"], "on": [false, true, true, true] },
+        { "feature": "Backups", "others": "Weekly", "values": ["Weekly", "Daily", "Hourly", "Real-time"], "on": [true, true, true, true] },
+        { "feature": "Support response", "others": "24–48 hrs", "values": ["24 hrs", "6 hrs", "4 hrs", "24/7 dedicated"], "on": [true, true, true, true] },
+        { "feature": "Transparent pricing", "others": "Hidden charges", "values": ["All-inclusive", "All-inclusive", "All-inclusive", "All-inclusive"], "on": [true, true, true, true] }
+      ]
+    },
+    "highlight": {
+      "title": "Why choose Sanat Dynamo?",
+      "lineA": "A complete revenue system from ₹25,000 — versus competitors' 3–5 static pages at ₹25,000+.",
+      "lineB": "And everything is requirement-based, so you only ever pay for what your business actually needs."
+    }
   },
   "pages": {
     "home": {
@@ -584,6 +873,13 @@
       "metaKeywords": "free revenue audit, business growth consultation, conversion audit, automation consultation, SEO audit, website performance review, lead generation strategy, revenue leak diagnosis, free business consultation",
       "ogTitle": "Sanat Dynamo — Stop Leaving Money on the Table",
       "ogDescription": "Free 30-min Revenue Audit. We show you exactly where your business is leaking — and how to fix it."
+    },
+    "pricing": {
+      "metaTitle": "Sanat Dynamo — Pricing | Transparent, Requirement-Based Revenue Systems from ₹25K",
+      "metaDescription": "Transparent, all-inclusive, requirement-based pricing for revenue systems. 4 plans — Launch, Growth, Scale, Enterprise — from ₹25,000. Hosting, SEO, automation & WhatsApp built in. No hidden costs. See exactly how we beat agencies at the same price.",
+      "metaKeywords": "website development pricing India, web development cost, revenue system pricing, affordable website development, transparent agency pricing, requirement based pricing, SEO included website, ecommerce development cost India, custom software pricing, WhatsApp automation pricing, website packages India, no hidden cost agency",
+      "ogTitle": "Sanat Dynamo — Pricing That Scales With Your Ambition",
+      "ogDescription": "4 requirement-based plans from ₹25K. Hosting, SEO, automation & WhatsApp built in. More system, same budget — see how we're different."
     },
     "privacy": {
       "metaTitle": "Privacy Policy — Sanat Dynamo",
