@@ -24,6 +24,7 @@
  */
 
 import type { Locale } from "@/lib/i18n";
+import { INDEXABLE_LOCALES, isIndexable } from "@/lib/constants";
 
 export interface CityFaq {
   q: string;
@@ -1208,14 +1209,12 @@ export function isCityIndexable(
   country: string,
   locale: string
 ): boolean {
-  if (country.toLowerCase() !== "in") return false;
-  if (locale === "en") return true;
-  if (locale === "hi") {
-    return (
-      (city.bodyLocales ?? []).includes("hi") && !!city.translations?.hi
-    );
-  }
-  return false;
+  // Since 2026-09-09 city pages follow the same global country x locale
+  // gate as every other page — they are no longer pinned to /in/. The
+  // `city` argument is kept in the signature so per-city overrides can be
+  // reintroduced without touching the ~10 call sites.
+  void city;
+  return isIndexable(country, locale);
 }
 
 /**
@@ -1225,10 +1224,7 @@ export function isCityIndexable(
  */
 export function getCityIndexableLocales(
   city: CityContent
-): ReadonlyArray<"en" | "hi"> {
-  const out: ("en" | "hi")[] = ["en"];
-  if ((city.bodyLocales ?? []).includes("hi") && city.translations?.hi) {
-    out.push("hi");
-  }
-  return out;
+): ReadonlyArray<(typeof INDEXABLE_LOCALES)[number]> {
+  void city;
+  return INDEXABLE_LOCALES;
 }

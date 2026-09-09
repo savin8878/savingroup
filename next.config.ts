@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // @react-pdf/renderer (used by the /pricing/download PDF route) is required
+  // at runtime rather than bundled by Turbopack. On Windows + pnpm, bundling it
+  // makes Turbopack try to symlink the package, which fails without the symlink
+  // privilege (os error 1314). Marking it external sidesteps that and is the
+  // recommended setup for server-side PDF generation.
+  serverExternalPackages: ["@react-pdf/renderer"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
@@ -36,6 +42,15 @@ const nextConfig: NextConfig = {
           key: "Permissions-Policy",
           value: "camera=(), microphone=(), geolocation=(self)",
         },
+        // India geo-targeting headers
+        {
+          key: "geo.region",
+          value: "IN",
+        },
+        {
+          key: "geo.country",
+          value: "India",
+        },
       ],
     },
     {
@@ -47,7 +62,36 @@ const nextConfig: NextConfig = {
         },
       ],
     },
+    // Sitemap headers for search console crawl optimization
+    {
+      source: "/sitemap-index.xml",
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "public, max-age=86400",
+        },
+        {
+          key: "Content-Type",
+          value: "application/xml; charset=utf-8",
+        },
+      ],
+    },
+    {
+      source: "/sitemap-:slug.xml",
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "public, max-age=86400",
+        },
+        {
+          key: "Content-Type",
+          value: "application/xml; charset=utf-8",
+        },
+      ],
+    },
   ],
+  // Compress responses for faster India mobile networks
+  compress: true,
 };
 
 export default nextConfig;

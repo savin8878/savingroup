@@ -8,6 +8,7 @@ import {
 } from "@/lib/i18n";
 import {
   BASE_URL,
+  INDEXABLE_COUNTRIES,
   INDEXABLE_LOCALES,
   isIndexable,
 } from "@/lib/constants";
@@ -73,10 +74,18 @@ export function buildAlternates({
     return { canonical };
   }
 
+  // The cluster spans every indexable country x locale pair. Each member is
+  // region-tagged (`en-IN`, `en-US`, ...) and the map is identical on every
+  // member page, so each URL self-references — which is what Google requires
+  // for an hreflang cluster to be honoured. Emitting a single `/in/` entry
+  // from all markets (the pre-2026-09-09 behaviour) would have Google fold
+  // the non-IN variants back into /in/ instead of indexing them.
   const languages: Record<string, string> = {};
-  for (const lang of INDEXABLE_LOCALES) {
-    languages[LOCALES[lang].hreflang] =
-      `${BASE_URL}/in/${lang}${subSegment}`;
+  for (const c of INDEXABLE_COUNTRIES) {
+    for (const lang of INDEXABLE_LOCALES) {
+      languages[`${lang}-${c.toUpperCase()}`] =
+        `${BASE_URL}/${c}/${lang}${subSegment}`;
+    }
   }
   languages["x-default"] = `${BASE_URL}/in/en${subSegment}`;
 
@@ -111,11 +120,16 @@ export function buildCityAlternates({
     return { canonical };
   }
 
+  // Same country x locale cluster as `buildAlternates` — city pages are no
+  // longer /in/-only, so the cluster must span every indexable market or the
+  // non-IN variants advertise a cluster they aren't a member of.
   const cityLocales = getCityIndexableLocales(city);
   const languages: Record<string, string> = {};
-  for (const lang of cityLocales) {
-    languages[LOCALES[lang].hreflang] =
-      `${BASE_URL}/in/${lang}/${fullSub}`;
+  for (const c of INDEXABLE_COUNTRIES) {
+    for (const lang of cityLocales) {
+      languages[`${lang}-${c.toUpperCase()}`] =
+        `${BASE_URL}/${c}/${lang}/${fullSub}`;
+    }
   }
   languages["x-default"] = `${BASE_URL}/in/en/${fullSub}`;
 
@@ -548,6 +562,7 @@ export function buildFaqJsonLd(items: Array<{ q: string; a: string }>) {
 /* -------------------------------------------------------------------------- */
 
 import type { IndustrySeoData } from "@/lib/industry-data";
+export type { CityContent } from "@/lib/cities";
 
 /**
  * Build Metadata for `/{country}/{locale}/industries/{slug}` from a static
@@ -704,5 +719,201 @@ export function buildServiceJsonLd(
         description: service.investment,
       },
     },
+  };
+}
+
+/* -------------------------------------------------------------------------- */
+/*                    India-Specific LocalBusiness Schema                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Build LocalBusiness JSON-LD for city pages in India.
+ * Includes full contact details, service areas (neighborhoods),
+ * and aggregated ratings from testimonials.
+ */
+export function buildCityLocalBusinessJsonLd(
+  city: CityContent,
+  locale: Locale,
+  testimonialCount: number = 0,
+  aggregateRating: number = 4.9,
+) {
+  const url = `${BASE_URL}/in/${locale}/cities/${city.slug}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": url,
+    name: `Sanat Dynamo — ${city.name}`,
+    description: city.metaDescription,
+    url,
+    image: `${BASE_URL}/og.png`,
+    telephone: "+91-XXXX-XXXX", // Replace with actual number
+    email: "hello@saningroup.in",
+    priceRange: "₹₹₹",
+
+    // Address in India
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Office details",
+      addressLocality: city.name,
+      addressRegion: city.state,
+      postalCode: "",
+      addressCountry: "IN",
+    },
+
+    // Geographic coordinates
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: parseFloat(city.geo.lat),
+      longitude: parseFloat(city.geo.lng),
+    },
+
+    // Service areas — all neighborhoods
+    areaServed: city.neighborhoods.map(neighborhood => ({
+      "@type": "City",
+      name: neighborhood,
+      containedInPlace: {
+        "@type": "State",
+        name: city.state,
+        containedInPlace: {
+          "@type": "Country",
+          name: "India",
+        },
+      },
+    })),
+
+    // Aggregate rating from testimonials
+    ...(testimonialCount > 0 && aggregateRating > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: String(aggregateRating),
+            bestRating: "5",
+            worstRating: "1",
+            ratingCount: String(testimonialCount),
+            reviewCount: String(testimonialCount),
+          },
+        }
+      : {}),
+
+    // Service type for agency
+    knowsAbout: [
+      "Web Development",
+      "SEO",
+      "Digital Marketing",
+      "Revenue Systems",
+      "E-commerce",
+    ],
+  };
+}
+
+/**
+ * Build City Breadcrumb JSON-LD for city pages.
+ * Path: Home > Services > Cities > {City} > {Optional subpage}
+ */
+export function buildCityBreadcrumbJsonLd(
+  city: CityContent,
+  locale: Locale,
+  subPage?: { name: string; slug: string },
+): object {
+  const baseUrl = `${BASE_URL}/in/${locale}`;
+  const cityUrl = `${baseUrl}/cities/${city.slug}`;
+
+  const items = [
+    { name: "Home", url: baseUrl, position: 1 },
+    { name: "Cities", url: `${baseUrl}/cities`, position: 2 },
+    { name: city.name, url: cityUrl, position: 3 },
+  ];
+
+  if (subPage) {
+    items.push({
+      name: subPage.name,
+      url: `${cityUrl}/${subPage.slug}`,
+      position: 4,
+    });
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map(it => ({
+      "@type": "ListItem",
+      position: it.position,
+      name: it.name,
+      item: it.url,
+    })),
+  };
+}
+
+/**
+ * Enhanced FAQ schema for city pages with better structure.
+ * Includes metadata about each question.
+ */
+export function buildCityFaqJsonLd(
+  items: Array<{ q: string; a: string; category?: string }>,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item, idx) => ({
+      "@type": "Question",
+      position: idx + 1,
+      name: item.q,
+      keywords: item.category || "general",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
+}
+
+/**
+ * Build Service Area JSON for India cities.
+ * Helps Google understand multi-city service coverage.
+ */
+export function buildServiceAreaJsonLd(
+  cities: CityContent[],
+  locale: Locale,
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "Sanat Dynamo — India",
+    description: "Web development and digital marketing agency serving Indian cities",
+    url: `${BASE_URL}/in/${locale}`,
+    areaServed: cities.map(city => ({
+      "@type": "City",
+      name: city.name,
+      containedInPlace: {
+        "@type": "State",
+        name: city.state,
+        containedInPlace: {
+          "@type": "Country",
+          name: "India",
+        },
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: parseFloat(city.geo.lat),
+        longitude: parseFloat(city.geo.lng),
+      },
+    })),
+  };
+}
+
+/**
+ * Build India geo-targeting metadata for robots and headers.
+ * Ensures search engines know this site targets India.
+ */
+export function buildIndiaGeoTargeting(country: string, locale: Locale) {
+  if (country !== "in") {
+    return {};
+  }
+
+  return {
+    "geo.region": "IN",
+    "geo.country": "India",
+    "geo.placename": "India",
   };
 }

@@ -29,12 +29,15 @@ export const RESOLVABLE_COUNTRIES = [
  *   - a per-country sitemap.xml
  *   - `index,follow` robots metadata on every page
  *
- * The .in TLD pins this site to India in Google's eyes. Until we move TLD
- * or build serious local authority + backlinks per country, expanding this
- * list just creates duplicates Google folds back to /in/. We re-add countries
- * one at a time as we earn local case studies and local backlinks.
+ * Opened to the full resolvable set on 2026-09-09 (previously `["in"]`). Every
+ * market the site can render is now indexed, so this deliberately tracks
+ * RESOLVABLE_COUNTRIES — adding a country there makes it indexable too.
+ *
+ * The .in TLD still pins the site to India in Google's eyes, so the non-IN
+ * markets depend on the per-country hreflang cluster built in `buildAlternates`
+ * (seo.ts) to keep Google from folding them back into /in/.
  */
-export const INDEXABLE_COUNTRIES = ["in"] as const;
+export const INDEXABLE_COUNTRIES = RESOLVABLE_COUNTRIES;
 
 /**
  * Locales the site can RESOLVE. Adding a new language = add it here AND in
@@ -57,8 +60,14 @@ export const RESOLVABLE_LOCALES = [
  * machine-translation fallback. Re-add `hi` per locale once real Hindi
  * bodies exist (start with the manufacturing pillar). `gu` gets promoted
  * here once the Ahmedabad pillar pages have hand-written GU content.
+ *
+ * Opened to the full resolvable set on 2026-09-09 — every locale the site
+ * can render is now indexed, so this tracks RESOLVABLE_LOCALES. The content
+ * caveat above still stands as a standing TODO: hi/gu/zh/ar/es/fr/de blog
+ * and city bodies are still largely English with only title/subtitle/excerpt
+ * localized. Translating those bodies is now the highest-value SEO work.
  */
-export const INDEXABLE_LOCALES = ["en"] as const;
+export const INDEXABLE_LOCALES = RESOLVABLE_LOCALES;
 
 /* -------------------------------------------------------------------------- */
 /*                       Backwards-compat aliases                             */
