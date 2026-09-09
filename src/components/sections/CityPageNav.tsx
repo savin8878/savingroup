@@ -48,7 +48,7 @@ export function CityPageNav({
   return (
     <nav
       aria-label={`${cityName} page navigation`}
-      className="sticky top-[72px] z-30 -mx-4 border-y border-border bg-background/85 backdrop-blur-xl sm:mx-0 sm:rounded-2xl sm:border"
+      className="sticky top-[var(--header-h)] z-30 -mx-4 border-y border-border bg-background/85 backdrop-blur-xl sm:mx-0 sm:rounded-2xl sm:border"
     >
       <div className="flex snap-x snap-mandatory items-center gap-1.5 overflow-x-auto px-4 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:gap-2 sm:px-3">
         <span

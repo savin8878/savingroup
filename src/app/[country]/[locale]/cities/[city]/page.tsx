@@ -181,9 +181,10 @@ export default async function CityPage({
   const { country, locale, city: citySlug } = await params;
   const baseCity = getCityBySlug(citySlug);
 
-  // Cities only exist on the India market. Other countries get a 404 so
-  // Google never treats those URLs as soft-200 duplicates.
-  if (!baseCity || country !== "in") {
+  // An unknown slug is still a hard 404. The country gate was dropped on
+  // 2026-09-09 — city pages now render (and index) in every market, so the
+  // hreflang cluster and the per-country sitemaps don't point at 404s.
+  if (!baseCity) {
     notFound();
   }
 

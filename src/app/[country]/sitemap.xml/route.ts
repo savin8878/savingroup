@@ -115,41 +115,6 @@ const BLOG_CATEGORY_PRIORITY = 0.75;
 const BLOG_CHANGEFREQ = "monthly";
 
 
-/**
- * Hreflang cluster for one sitemap entry.
- *
- * This MUST stay byte-identical in shape to `buildAlternates` /
- * `buildCityAlternates` in [src/lib/seo.ts](src/lib/seo.ts): the same
- * region-tagged keys (`en-IN`, `en-US`, ...) across every indexable
- * country x locale pair, plus the same `x-default`. If the sitemap cluster
- * and the on-page <link rel="alternate"> cluster disagree, Search Console
- * reports an hreflang conflict and Google discards BOTH.
- *
- * Before 2026-09-09 this emitted a bare `hreflang="en"` scoped to a single
- * country. With 12 indexable countries that would have had all 12 country
- * sitemaps claim `hreflang="en"` for 12 different URLs — a direct conflict.
- *
- * `path` builds the country/locale-specific path (leading slash, no origin).
- */
-function hreflangCluster(
-  base: string,
-  path: (country: string, locale: string) => string,
-  xDefaultPath: string,
-  locales: readonly string[] = LANGUAGES
-): string[] {
-  const links: string[] = [];
-  for (const altCountry of INDEXABLE_COUNTRIES) {
-    for (const altLocale of locales) {
-      links.push(
-        `      <xhtml:link rel="alternate" hreflang="${altLocale}-${altCountry.toUpperCase()}" href="${base}${path(altCountry, altLocale)}" />`
-      );
-    }
-  }
-  links.push(
-    `      <xhtml:link rel="alternate" hreflang="x-default" href="${base}${xDefaultPath}" />`
-  );
-  return links;
-}
 
 export async function GET(
   request: Request,
@@ -191,18 +156,12 @@ export async function GET(
           ? `${base}/${country}/${locale}`
           : `${base}/${country}/${locale}/${page}`;
 
-      const alternates = hreflangCluster(
-        base,
-        (c, l) => (page === "" ? `/${c}/${l}` : `/${c}/${l}/${page}`),
-        page === "" ? `/in/en` : `/in/en/${page}`
-      );
 
       return {
         loc,
         lastmod: STATIC_PAGE_LASTMOD[page] ?? "2026-01-01",
         priority: PAGE_PRIORITY[page] ?? 0.5,
         changefreq: PAGE_CHANGEFREQ[page] ?? "monthly",
-        alternates: alternates.join("\n"),
       };
     })
   );
@@ -211,17 +170,11 @@ export async function GET(
   const blogPostUrls = LANGUAGES.flatMap((locale) =>
     BLOG_POSTS.map((post) => {
       const loc = `${base}/${country}/${locale}/blogs/${post.slug}`;
-      const alternates = hreflangCluster(
-        base,
-        (c, l) => `/${c}/${l}/blogs/${post.slug}`,
-        `/in/en/blogs/${post.slug}`
-      );
       return {
         loc,
         lastmod: post.updatedAt ?? post.publishedAt,
         priority: BLOG_POST_PRIORITY,
         changefreq: BLOG_CHANGEFREQ,
-        alternates: alternates.join("\n"),
       };
     })
   );
@@ -233,17 +186,11 @@ export async function GET(
   const blogCategoryUrls = LANGUAGES.flatMap((locale) =>
     categoryKeys.map((catKey) => {
       const loc = `${base}/${country}/${locale}/blogs/category/${catKey}`;
-      const alternates = hreflangCluster(
-        base,
-        (c, l) => `/${c}/${l}/blogs/category/${catKey}`,
-        `/in/en/blogs/category/${catKey}`
-      );
       return {
         loc,
         lastmod: latestBlogDate,
         priority: BLOG_CATEGORY_PRIORITY,
         changefreq: BLOG_CHANGEFREQ,
-        alternates: alternates.join("\n"),
       };
     })
   );
@@ -255,17 +202,11 @@ export async function GET(
   const industryUrls = INDUSTRY_SLUGS.flatMap((slug) =>
     INDUSTRY_SITEMAP_LOCALES.map((sitemapLocale) => {
       const loc = `${base}/${country}/${sitemapLocale}/industries/${slug}`;
-      const alternates = hreflangCluster(
-        base,
-        (c, l) => `/${c}/${l}/industries/${slug}`,
-        `/in/en/industries/${slug}`
-      );
       return {
         loc,
         lastmod: INDUSTRY_LASTMOD_DEFAULT,
         priority: INDUSTRY_PAGE_PRIORITY,
         changefreq: "monthly",
-        alternates: alternates.join("\n"),
       };
     })
   );
@@ -328,18 +269,11 @@ export async function GET(
           return pageLocales.map((sitemapLocale) => {
             const segment = path === "" ? "" : `/${path}`;
             const loc = `${base}/${country}/${sitemapLocale}/cities/${city.slug}${segment}`;
-            const alternates = hreflangCluster(
-              base,
-              (c, l) => `/${c}/${l}/cities/${city.slug}${segment}`,
-              `/in/en/cities/${city.slug}${segment}`,
-              pageLocales
-            );
             return {
               loc,
               lastmod: CITY_LASTMOD_DEFAULT,
               priority,
               changefreq: "monthly",
-              alternates: alternates.join("\n"),
             };
           });
         });
@@ -354,8 +288,7 @@ export async function GET(
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
   .map(
     (u) => `  <url>
@@ -363,7 +296,6 @@ ${urls
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
-${u.alternates}
   </url>`
   )
   .join("\n")}

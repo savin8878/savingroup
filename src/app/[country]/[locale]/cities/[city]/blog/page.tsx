@@ -111,7 +111,7 @@ export default async function CityBlogIndexPage({
 }) {
   const { country, locale, city: citySlug } = await params;
   const city = getCityBySlug(citySlug);
-  if (!city || country !== "in") notFound();
+  if (!city) notFound();
 
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const t = getTranslation(lc);

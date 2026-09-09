@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -9,6 +9,7 @@ import {
   Bot,
   Briefcase,
   Building2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Database,
@@ -21,6 +22,7 @@ import {
   MapPin,
   MapPinned,
   MonitorSmartphone,
+  MoreHorizontal,
   Search,
   ShoppingBag,
   Sparkles,
@@ -79,17 +81,131 @@ const SERVICE_ICON: Record<string, LucideIcon> = {
   "growthos-retainer": Handshake,
 };
 
+/**
+ * Shared by the real nav items and the hidden measuring row — the two have to
+ * render identically or the overflow maths is wrong. Only colour and
+ * background differ between states, never the box.
+ */
+const NAV_ITEM_CLASS =
+  "group relative shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-[13px] font-medium transition-all duration-200 xl:gap-2 xl:px-3.5 xl:text-sm";
+
+/**
+ * The display utility is deliberately kept out of the class above: Tailwind
+ * emits `.inline-flex` after `.hidden`, so a base `hidden` appended to a class
+ * that already carries `inline-flex` would silently lose.
+ */
+const NAV_ITEM_SHOWN = `inline-flex ${NAV_ITEM_CLASS}`;
+
+/** Matches `gap-1` on the nav row. */
+const NAV_GAP = 4;
+
+/** Never collapse the bar down to nothing but a "More" button. */
+const MIN_VISIBLE = 2;
+
+/**
+ * How many items the server-rendered markup shows before the client has
+ * measured anything. This is what actually fits at every desktop width for
+ * the longest locale, so the measuring pass only ever widens it — the bar
+ * never has to visibly collapse after hydration.
+ */
+const SSR_VISIBLE = 4;
+
 export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
   const [active, setActive] = useState<PanelKey | null>(null);
-  const [topPx, setTopPx] = useState(120);
+  const [panelBox, setPanelBox] = useState({ top: 120, maxHeight: 640 });
+  /** `null` until the first client-side measurement. */
+  const [visible, setVisible] = useState<number | null>(null);
+
+  const shellRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  const ghostRef = useRef<HTMLDivElement>(null);
+  const moreGhostRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const items: NavItem[] = useMemo(
+    () => [
+      // Panel-backed entries first: they lose the most by being demoted into
+      // the overflow menu, so they are the last to go.
+      { label: t.nav.services, href: "/services", panel: "services", Icon: Briefcase },
+      { label: t.nav.industries, href: "/industries", panel: "industries", Icon: Factory },
+      { label: t.nav.work, href: "/case-studies", panel: "work", Icon: LineChart },
+      { label: "Cities", href: "/cities", panel: "cities", Icon: MapPin },
+      // `pricing` is absent from every locale file except `en`.
+      { label: t.nav.pricing ?? "Pricing", href: "/pricing", Icon: Tag },
+      { label: "Blog", href: "/blogs", Icon: BookOpen },
+      { label: t.nav.about, href: "/about", Icon: Users },
+      { label: t.nav.contact, href: "/contact", Icon: Mail },
+    ],
+    [t]
+  );
+
+  /**
+   * Fit as many items as the gap between the logo and the action cluster
+   * allows; the rest go to the overflow menu. Widths come from a hidden
+   * full-size copy of the row, so they never depend on what is currently
+   * rendered — no measurement feedback loop — and they follow whatever the
+   * active locale's labels happen to be.
+   */
+  const measure = useCallback(() => {
+    const shell = shellRef.current;
+    const ghost = ghostRef.current;
+    if (!shell || !ghost) return;
+
+    const available = shell.clientWidth;
+    if (available <= 0) return; // below `lg` the shell is display:none
+
+    const widths = Array.from(ghost.children).map(
+      (el) => (el as HTMLElement).getBoundingClientRect().width
+    );
+    if (!widths.length) return;
+
+    const totalAll =
+      widths.reduce((sum, w) => sum + w, 0) + NAV_GAP * (widths.length - 1);
+    if (totalAll <= available) {
+      setVisible(widths.length);
+      return;
+    }
+
+    const moreWidth =
+      (moreGhostRef.current?.getBoundingClientRect().width ?? 96) + NAV_GAP;
+    const budget = available - moreWidth;
+    let used = 0;
+    let count = 0;
+    for (const w of widths) {
+      const next = used + w + (count ? NAV_GAP : 0);
+      if (next > budget) break;
+      used = next;
+      count += 1;
+    }
+    setVisible(Math.min(widths.length, Math.max(MIN_VISIBLE, count)));
+  }, []);
+
+  useEffect(() => {
+    let live = true;
+    measure();
+    const shell = shellRef.current;
+    if (!shell) return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(shell);
+    // Web fonts land after first paint and change every label's width.
+    document.fonts?.ready.then(() => live && measure()).catch(() => {});
+    return () => {
+      live = false;
+      ro.disconnect();
+    };
+  }, [measure, items]);
+
+  // Keep the panel pinned under the bar, and never let it run past the
+  // bottom of the viewport on a short laptop screen.
   useEffect(() => {
     if (!active) return;
     const update = () => {
       if (!navRef.current) return;
-      setTopPx(navRef.current.getBoundingClientRect().bottom + 8);
+      const top = navRef.current.getBoundingClientRect().bottom + 8;
+      setPanelBox({
+        top,
+        maxHeight: Math.max(240, window.innerHeight - top - 16),
+      });
     };
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -99,17 +215,6 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
       window.removeEventListener("resize", update);
     };
   }, [active]);
-
-  const items: NavItem[] = [
-    { label: t.nav.services, href: "/services", panel: "services", Icon: Briefcase },
-    { label: t.nav.industries, href: "/industries", panel: "industries", Icon: Factory },
-    { label: t.nav.work, href: "/case-studies", panel: "work", Icon: LineChart },
-    { label: t.nav.pricing, href: "/pricing", Icon: Tag },
-    { label: "Cities", href: "/cities", panel: "cities", Icon: MapPin },
-    { label: "Blog", href: "/blogs", Icon: BookOpen },
-    { label: t.nav.about, href: "/about", Icon: Users },
-    { label: t.nav.contact, href: "/contact", Icon: Mail },
-  ];
 
   const open = (panel: PanelKey | undefined) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -131,21 +236,58 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const cut = visible ?? SSR_VISIBLE;
+  const shown = items.slice(0, cut);
+  const overflow = items.slice(cut);
+
   return (
-    <div className="relative" onMouseLeave={scheduleClose}>
+    <div
+      ref={shellRef}
+      className="relative hidden min-w-0 flex-1 justify-center lg:flex"
+      onMouseLeave={scheduleClose}
+    >
+      {/* Hidden measuring copies. `w-max` so they always report natural
+          widths, clipped by the wrapper so they can't push the page wide. */}
+      <div
+        aria-hidden
+        className="pointer-events-none invisible absolute inset-0 overflow-hidden"
+      >
+        <div
+          ref={ghostRef}
+          className="absolute left-0 top-0 flex w-max items-center"
+        >
+          {items.map((item) => (
+            <span key={item.href} className={NAV_ITEM_SHOWN}>
+              <item.Icon size={13} strokeWidth={2} className="shrink-0" />
+              <span>{item.label}</span>
+            </span>
+          ))}
+        </div>
+        <div
+          ref={moreGhostRef}
+          className="absolute left-0 top-0 flex w-max items-center"
+        >
+          <span className={NAV_ITEM_SHOWN}>
+            <MoreHorizontal size={13} strokeWidth={2} className="shrink-0" />
+            <span>More</span>
+            <ChevronDown size={12} className="shrink-0" />
+          </span>
+        </div>
+      </div>
+
       <nav
         ref={navRef}
-        className="hidden items-center gap-0.5 lg:flex xl:gap-1"
+        className="flex min-w-0 items-center gap-1"
         onMouseEnter={cancelClose}
       >
-        {items.map((item) => {
+        {shown.map((item) => {
           const isActive = !!item.panel && active === item.panel;
           const { Icon } = item;
           return (
             <LocalizedLink
               key={item.href}
               href={item.href}
-              className={`group relative inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-2 text-sm font-medium transition-all duration-200 xl:px-3.5 ${
+              className={`${NAV_ITEM_SHOWN} ${
                 isActive
                   ? "bg-surface/70 text-foreground"
                   : "text-muted-foreground hover:bg-surface/60 hover:text-foreground"
@@ -174,6 +316,8 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
             </LocalizedLink>
           );
         })}
+
+        <OverflowMenu items={overflow} onOpen={() => setActive(null)} />
       </nav>
 
       <AnimatePresence>
@@ -184,8 +328,8 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.22, ease: [0.22, 0.9, 0.32, 1] }}
-            className="fixed inset-x-0 z-[120] overflow-hidden border-y border-border bg-background/95 shadow-[0_28px_72px_-32px_rgba(0,0,0,0.55)] backdrop-blur-xl"
-            style={{ top: topPx }}
+            className="fixed inset-x-0 z-[120] overflow-y-auto overflow-x-hidden overscroll-contain border-y border-border bg-background/95 shadow-[0_28px_72px_-32px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+            style={{ top: panelBox.top, maxHeight: panelBox.maxHeight }}
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
             role="menu"
@@ -201,6 +345,101 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/**
+ * Holds whatever didn't fit on the bar.
+ *
+ * The panel stays mounted and is hidden with CSS rather than unmounted, so
+ * every link it holds is in the server-rendered HTML — these are real pages
+ * (pricing, about, blog) and the header is their main internal link.
+ */
+function OverflowMenu({
+  items,
+  onOpen,
+}: {
+  items: NavItem[];
+  onOpen: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  if (!items.length) return null;
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => {
+          onOpen();
+          setOpen((v) => !v);
+        }}
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-label="More pages"
+        className={`${NAV_ITEM_SHOWN} ${
+          open
+            ? "bg-surface/70 text-foreground"
+            : "text-muted-foreground hover:bg-surface/60 hover:text-foreground"
+        }`}
+      >
+        <MoreHorizontal size={13} strokeWidth={2} className="shrink-0" />
+        <span>More</span>
+        <ChevronDown
+          size={12}
+          className={`shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <div
+        role="menu"
+        aria-hidden={!open}
+        className={`absolute end-0 top-full z-[125] mt-2 w-56 origin-top overflow-hidden rounded-2xl border border-border bg-surface/95 p-1.5 shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out ${
+          open
+            ? "visible translate-y-0 scale-100 opacity-100"
+            : "invisible -translate-y-2 scale-[0.98] opacity-0"
+        }`}
+      >
+        {items.map((item) => (
+          <LocalizedLink
+            key={item.href}
+            href={item.href}
+            onClick={() => setOpen(false)}
+            role="menuitem"
+            tabIndex={open ? undefined : -1}
+            className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-background/70 hover:text-foreground"
+          >
+            <item.Icon
+              size={15}
+              strokeWidth={1.8}
+              className="shrink-0 text-muted-foreground/70 transition-colors group-hover:text-accent"
+            />
+            <span className="min-w-0 flex-1 truncate">{item.label}</span>
+            <ArrowUpRight
+              size={12}
+              className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+            />
+          </LocalizedLink>
+        ))}
+      </div>
     </div>
   );
 }
@@ -342,7 +581,7 @@ function CitiesPanel({ cities }: { cities: CityNavItem[] }) {
 
 function PanelShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto grid w-full gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10 lg:px-12 lg:py-8 2xl:px-20">
+    <div className="container-px mx-auto grid w-full max-w-7xl gap-6 py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,280px)] lg:gap-8 lg:py-7 xl:grid-cols-[minmax(0,1fr)_minmax(0,340px)] xl:gap-10 xl:py-8">
       {children}
     </div>
   );
@@ -359,8 +598,10 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth;
     setProgress(max > 0 ? el.scrollLeft / max : 0);
-    setCanLeft(el.scrollLeft > 4);
-    setCanRight(el.scrollLeft < max - 4);
+    // `pl-2` on the scroller puts the snapped first tile at scrollLeft 8, so
+    // the threshold has to clear the padding or the left arrow shows at rest.
+    setCanLeft(el.scrollLeft > 12);
+    setCanRight(el.scrollLeft < max - 12);
   };
 
   useEffect(() => {
@@ -484,7 +725,7 @@ function IconTile({
     >
       <LocalizedLink
         href={href}
-        className="group relative flex w-[148px] flex-col items-center gap-2.5 text-center"
+        className="group relative flex w-[122px] flex-col items-center gap-2 text-center xl:w-[148px] xl:gap-2.5"
       >
         <div
           className={`relative flex aspect-square w-full items-center justify-center rounded-2xl border bg-surface/60 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-accent/50 group-hover:bg-surface group-hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.4)] ${
@@ -513,7 +754,7 @@ function IconTile({
             />
           )}
           <Icon
-            size={40}
+            size={34}
             strokeWidth={1.4}
             className={`relative transition-all duration-300 group-hover:scale-110 ${
               highlight ? "text-accent" : "text-foreground/80 group-hover:text-accent"
@@ -525,7 +766,7 @@ function IconTile({
             </span>
           )}
         </div>
-        <span className="line-clamp-1 text-[13px] font-medium tracking-tight text-foreground">
+        <span className="line-clamp-1 w-full text-[12px] font-medium tracking-tight text-foreground xl:text-[13px]">
           {label}
         </span>
       </LocalizedLink>
@@ -553,7 +794,7 @@ function Spotlight({
   primaryCta?: boolean;
 }) {
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface/60 via-surface/30 to-background p-6">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface/60 via-surface/30 to-background p-5 xl:p-6">
       <WatermarkIcon
         aria-hidden
         size={220}
@@ -564,7 +805,7 @@ function Spotlight({
         {sparkle && <Sparkles size={11} />}
         {eyebrow}
       </div>
-      <div className="relative mt-3 font-display text-2xl font-bold leading-[1.05] tracking-tight">
+      <div className="relative mt-3 font-display text-xl font-bold leading-[1.05] tracking-tight xl:text-2xl">
         <span className="text-foreground">{titleLead}</span>{" "}
         <span className="text-accent">{titleAccent}</span>
       </div>
@@ -691,7 +932,7 @@ export function MobileMegaNav({
       </MobileLinkRow>
 
       <MobileFlatRow
-        label={t.nav.pricing}
+        label={t.nav.pricing ?? "Pricing"}
         index="05"
         href="/pricing"
         onNavigate={onNavigate}
@@ -742,7 +983,7 @@ function MobileLinkRow({
         <LocalizedLink
           href={href}
           onClick={onNavigate}
-          className="text-2xl font-semibold tracking-tight text-foreground"
+          className="min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
         >
           {label}
         </LocalizedLink>
@@ -795,12 +1036,12 @@ function MobileFlatRow({
     <LocalizedLink
       href={href}
       onClick={onNavigate}
-      className="flex items-center justify-between rounded-2xl border border-border bg-surface/40 px-5 py-4"
+      className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface/40 px-5 py-4"
     >
-      <span className="text-2xl font-semibold tracking-tight text-foreground">
+      <span className="min-w-0 flex-1 truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         {label}
       </span>
-      <span className="font-mono text-xs text-muted-foreground">{index}</span>
+      <span className="shrink-0 font-mono text-xs text-muted-foreground">{index}</span>
     </LocalizedLink>
   );
 }

@@ -15,6 +15,9 @@ interface LocalizedLinkProps extends Omit<LinkProps, 'href'> {
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
+  title?: string;
+  role?: string;
+  tabIndex?: number;
   'aria-label'?: string;
   'aria-haspopup'?: boolean | 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
   'aria-expanded'?: boolean;

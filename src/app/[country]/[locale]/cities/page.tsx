@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { getTranslation, type Locale, LOCALE_CODES } from "@/lib/i18n";
 import {
   BASE_URL,
@@ -86,12 +85,6 @@ export default async function CitiesIndexPage({
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const t = getTranslation(lc);
 
-  // Cities directory is India-specific. Surface a 404 elsewhere so Google
-  // doesn't index a near-empty hub for non-India markets — this is a
-  // deliberate noindex+404 pattern, not a soft 404.
-  if (country !== "in") {
-    notFound();
-  }
 
   const breadcrumbLd = buildBreadcrumbJsonLd([
     { name: t.nav.home, url: `${BASE_URL}/${country}/${lc}` },

@@ -23,6 +23,7 @@ import {
   INDIA_CITIES,
   getCityBySlug,
   localizeCity,
+  isCityIndexable,
 } from "@/lib/cities";
 import { getCityIdentity } from "@/lib/city-identity";
 import { getCityOrganization } from "@/lib/city-organization";
@@ -68,7 +69,11 @@ export async function generateMetadata({
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const city = localizeCity(baseCity, lc);
   // EN-only for now (see services/page.tsx for rationale).
-  const indexable = country.toLowerCase() === "in" && lc === "en";
+  // Robots MUST come from the same predicate that builds the hreflang
+  // cluster below (`buildCityAlternates` -> `isCityIndexable`). If these two
+  // disagree, the page ships `noindex` next to a full alternates cluster and
+  // Google discards the cluster for every member, including the indexable one.
+  const indexable = isCityIndexable(baseCity, country, lc);
 
   const title = `How We Work in ${city.name} — Engagement Process, Cadence & Stack · Sanat Dynamo`;
   const description = `The 4-phase engagement journey, weekly cadence, tooling, and commercial terms for Sanat Dynamo builds in ${city.name}. Fixed-price proposals, weekly Friday demos, GST-compliant invoicing.`;
@@ -131,7 +136,7 @@ export default async function CityProcessPage({
 }) {
   const { country, locale, city: citySlug } = await params;
   const baseCity = getCityBySlug(citySlug);
-  if (!baseCity || country !== "in") notFound();
+  if (!baseCity) notFound();
 
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const city = localizeCity(baseCity, lc);

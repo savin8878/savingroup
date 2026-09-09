@@ -19,6 +19,7 @@ import {
   INDIA_CITIES,
   getCityBySlug,
   localizeCity,
+  isCityIndexable,
 } from "@/lib/cities";
 import { getCityIdentity } from "@/lib/city-identity";
 import { getCityExtras } from "@/lib/city-extras";
@@ -60,7 +61,11 @@ export async function generateMetadata({
   // but the new sub-page templates introduce fresh English copy (step
   // descriptions, section headings) that isn't yet translated. Promoting
   // to /in/hi would reproduce the fake-Hindi problem we just fixed.
-  const indexable = country.toLowerCase() === "in" && lc === "en";
+  // Robots MUST come from the same predicate that builds the hreflang
+  // cluster below (`buildCityAlternates` -> `isCityIndexable`). If these two
+  // disagree, the page ships `noindex` next to a full alternates cluster and
+  // Google discards the cluster for every member, including the indexable one.
+  const indexable = isCityIndexable(baseCity, country, lc);
 
   const title = `Web Development, SEO & Automation Services in ${city.name} · Sanat Dynamo`;
   const description = `6 productized revenue systems built for ${city.name} businesses — high-conversion websites, WhatsApp & CRM automation, local SEO, multi-language sites, custom ERPs, and growth retainers. Fixed scope, fixed price.`;
@@ -123,7 +128,7 @@ export default async function CityServicesPage({
 }) {
   const { country, locale, city: citySlug } = await params;
   const baseCity = getCityBySlug(citySlug);
-  if (!baseCity || country !== "in") notFound();
+  if (!baseCity) notFound();
 
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const city = localizeCity(baseCity, lc);

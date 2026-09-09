@@ -310,7 +310,14 @@ export interface CityAuthorityStrategy {
   state: string;
   population: string;
   industries: string[];
-  recommendedLanguages: Locale[];
+  /**
+   * Languages worth shipping for this city. This is a PLANNING field, not a
+   * runtime locale switch, so it may name languages the site does not resolve
+   * yet (Chennai recommends `ta`, which is absent from `Locale`). Typed as
+   * string[] for that reason — do not narrow it back to Locale[] unless every
+   * recommendation has been added to i18n.ts + middleware.ts first.
+   */
+  recommendedLanguages: string[];
   contentPillars: string[];
   backlogPriority: 1 | 2 | 3;
   notes: string;

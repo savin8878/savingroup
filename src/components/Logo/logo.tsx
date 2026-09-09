@@ -7,10 +7,22 @@ interface LogoProps {
   size?: "sm" | "md" | "lg";
 }
 
+/**
+ * Each size steps down one notch on small viewports — the mark stays legible
+ * while the wordmark gives the rest of the header bar its room back.
+ */
 const sizes = {
-  sm: { box: "h-8 w-8", text: "text-base", sub: "text-[9px]" },
-  md: { box: "h-10 w-10", text: "text-lg", sub: "text-[10px]" },
-  lg: { box: "h-12 w-12", text: "text-xl", sub: "text-[11px]" },
+  sm: { box: "h-8 w-8", text: "text-sm sm:text-base", sub: "text-[9px]" },
+  md: {
+    box: "h-9 w-9 sm:h-10 sm:w-10",
+    text: "text-base sm:text-lg",
+    sub: "text-[9px] sm:text-[10px]",
+  },
+  lg: {
+    box: "h-10 w-10 sm:h-12 sm:w-12",
+    text: "text-lg sm:text-xl",
+    sub: "text-[10px] sm:text-[11px]",
+  },
 };
 
 const Logo: React.FC<LogoProps> = ({
@@ -21,7 +33,7 @@ const Logo: React.FC<LogoProps> = ({
   const s = sizes[size];
 
   return (
-    <div className={cn("flex items-center gap-3 select-none", className)}>
+    <div className={cn("flex items-center gap-2 select-none sm:gap-3", className)}>
       <div
         className={cn(
           "relative flex items-center justify-center overflow-hidden rounded-xl",
@@ -64,7 +76,7 @@ const Logo: React.FC<LogoProps> = ({
           </span>
           <span
             className={cn(
-              "mt-1 font-mono uppercase tracking-[0.22em] text-muted-foreground",
+              "mt-1 hidden font-mono uppercase tracking-[0.22em] text-muted-foreground min-[380px]:block",
               s.sub
             )}
           >

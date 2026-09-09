@@ -135,7 +135,7 @@ export default async function CityAboutPage({
   const identity = getCityIdentity(citySlug);
   const extras = getCityExtras(citySlug);
 
-  if (!city || !identity || country !== "in") notFound();
+  if (!city || !identity) notFound();
 
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const t = getTranslation(lc);
