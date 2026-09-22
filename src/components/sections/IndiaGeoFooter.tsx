@@ -146,13 +146,17 @@ interface IndiaGeoFooterProps {
  *      stops folding /services, /industries, /about etc. as templated
  *      near-duplicates of the home page.
  *
- * Both parts are addressed here. The block is gated to /in/en — the only
- * country/locale combo in INDEXABLE_COUNTRIES × INDEXABLE_LOCALES — so we
- * don't burn bytes rendering a 50-link block on pages that ship `noindex`.
+ * Both parts are addressed here. The block is gated on COUNTRY only — the
+ * cities are Indian, so it makes no sense under /us/ or /de/, but it must
+ * render for every Indian locale. It used to also require `locale === "en"`,
+ * justified by a comment saying /in/en was "the only country/locale combo in
+ * INDEXABLE_COUNTRIES × INDEXABLE_LOCALES". That stopped being true when
+ * constants.ts opened both sets, and the effect was that /in/hi, /in/gu and
+ * the other six Indian locale trees shipped indexable pages with no links
+ * into any city page at all.
  */
 export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps) {
   if (country.toLowerCase() !== "in") return null;
-  if (locale.toLowerCase() !== "en") return null;
 
   const copy = PAGE_COPY[pageKey];
   const prefix = `/${country.toLowerCase()}/${locale.toLowerCase()}`;
@@ -172,12 +176,16 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
 
   // ItemList JSON-LD — explicit signal that this section indexes a finite,
   // ordered list of city URLs with anchor text scoped to the current page.
-  // Per-page @id keeps Google from collapsing them as duplicate ItemList
-  // payloads across the site.
+  //
+  // No `@id`: the previous value was `${BASE_URL}${prefix}#cities-${pageKey}`,
+  // where `prefix` is only the country/locale root. Every one of these nodes
+  // therefore claimed to be a fragment of the homepage even though six of the
+  // seven never appear on it, and /pricing and /services collided on one id
+  // (both pass pageKey="services"), as did /industries and /industries/[slug].
+  // An ItemList needs no identifier to be valid, and no id beats a wrong one.
   const itemListLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "@id": `${BASE_URL}${prefix}#cities-${pageKey}`,
     name: `Sanat Dynamo — Indian cities (${pageKey})`,
     itemListOrder: "https://schema.org/ItemListOrderAscending",
     numberOfItems: INDIA_CITIES.length,

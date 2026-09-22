@@ -9,12 +9,12 @@ import { Section } from "../primitives/section";
  *
  * Renders 2–3 unique paragraphs per country (~100–140 words) plus a row of
  * market-specific facts: currency/VAT, timezone, regulatory compliance,
- * served cities. For non-target countries we render nothing — those pages
- * are `noindex` anyway, and we don't want to ship half-baked templated copy
- * to them.
+ * served cities. For countries outside RESOLVABLE_COUNTRIES we render
+ * nothing — there is no hand-written copy for them, and shipping a templated
+ * stand-in is what makes country trees look like duplicates of each other.
  *
- * This section also emits a country-scoped LocalBusiness JSON-LD with
- * `areaServed` listing named cities, which is a strong local-SEO signal.
+ * This section also emits a country-scoped `Service` JSON-LD whose
+ * `areaServed` lists named cities — coverage, not a claimed address.
  */
 export function CountryTrustBlock({
   t,
@@ -27,34 +27,47 @@ export function CountryTrustBlock({
 
   const c = getCountryContent(country);
 
-  // LocalBusiness JSON-LD — country-specific. Distinct from CityBanner's
-  // geo-derived one: that one fires on city-match; this one is always the
-  // target-country canonical (Dubai for AE, Bengaluru for IN, London for GB).
-  const localBusinessLd = {
+  // Service JSON-LD — country-scoped coverage, NOT a claimed premises.
+  //
+  // This was a `ProfessionalService` (a LocalBusiness subtype) carrying a
+  // `PostalAddress` built from `c.business.addressLocality`, which hardcodes
+  // "Bengaluru" for IN, "London" for GB, "Dubai" for AE, "Riyadh" for SA and
+  // the literal string "Remote" for the other eight markets. The business
+  // occupies none of those, "Remote" is not a locality, and on the homepage
+  // it contradicted the second LocalBusiness that CityBanner used to emit.
+  //
+  // `areaServed` is the schema.org-sanctioned way to say "we serve these
+  // places" without asserting premises in them, and it is already populated
+  // per country. A `Service` node carries it without inheriting
+  // LocalBusiness's required `address`, so this states the same true thing
+  // and drops the false one.
+  const serviceLd = {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "Service",
     name: `${t.brand.name} — ${c.countryName}`,
+    serviceType: "Revenue systems, web development and automation",
     url: `${BASE_URL}/${c.code}/en`,
     image: `${BASE_URL}/og.png`,
     description: c.trustBlock.body[0],
-    priceRange: "₹₹₹",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: c.business.addressLocality ?? c.countryName,
-      addressRegion: c.business.addressRegion,
-      addressCountry: c.code.toUpperCase(),
+    provider: {
+      "@type": "Organization",
+      name: t.brand.name,
+      url: BASE_URL,
     },
-    areaServed: c.business.areaServed.map((city) => ({
-      "@type": "City",
-      name: city,
-    })),
+    areaServed: [
+      { "@type": "Country", name: c.countryName },
+      ...c.business.areaServed.map((city) => ({
+        "@type": "City",
+        name: city,
+      })),
+    ],
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceLd) }}
       />
       <Section id="country-trust">
         <div className="mx-auto max-w-4xl">

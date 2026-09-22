@@ -1,3 +1,5 @@
+export { HeroProductShowcase } from "./HeroProductShowcase";
+export { HeroAtmosphere } from "./HeroAtmosphere";
 export { HeroNetwork } from "./HeroNetwork";
 export { HeroBackground } from "./HeroBackground";
 export {

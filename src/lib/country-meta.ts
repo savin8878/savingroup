@@ -287,22 +287,49 @@ export function getRegionLabel(region: Region, locale: Locale = "en"): string {
 }
 
 /**
- * Format a price in the country's local currency using `Intl.NumberFormat`.
- * Falls back to a simple symbol + number string when `Intl` is unavailable.
+ * Entry engagement price, per market, as an explicit {amount, currency} pair.
+ *
+ * WHY THIS TABLE EXISTS. `formatLocalPrice` used to take a single hardcoded
+ * `60000` — an INR figure — and hand it to `Intl.NumberFormat` with whatever
+ * currency the URL country implied. The number never changed; only the symbol
+ * did. So /us/en/services advertised the entry engagement at "$60,000" and
+ * /gb/en/services at "£60,000", roughly 85x the real ₹60,000 (~US$700). There
+ * was no exchange-rate step anywhere. With every country now indexable, that
+ * figure is customer-facing in eleven markets.
+ *
+ * A price in another market is a commercial decision, not an arithmetic
+ * result, so nothing here is derived or invented: only India is set, because
+ * only India's price is known from the site's own copy (en.json `priceRange`,
+ * and the city pages' "We bill in INR with GST"). Every other market falls
+ * back to the real INR price rather than displaying a fabricated local one.
+ *
+ * TO SET A MARKET PRICE: add one line. `us: { amount: 2500, currency: "USD" }`.
+ */
+const STARTING_PRICE: Record<string, { amount: number; currency: string }> = {
+  in: { amount: 60000, currency: "INR" },
+};
+
+/** The price quoted when a market has no explicit entry above. */
+const DEFAULT_STARTING_PRICE = STARTING_PRICE.in;
+
+/**
+ * Format the entry engagement price for a market.
+ *
+ * Returns the market's own price when one is configured, otherwise the real
+ * INR price — never the INR integer wearing a foreign currency symbol.
  */
 export function formatLocalPrice(
-  amount: number,
   countryCode: string,
   locale: Locale = "en",
 ): string {
-  const meta = getCountryMeta(countryCode);
+  const price = STARTING_PRICE[countryCode.toLowerCase()] ?? DEFAULT_STARTING_PRICE;
   try {
     return new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: meta.currency,
+      currency: price.currency,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(price.amount);
   } catch {
-    return `${meta.currencySymbol}${amount.toLocaleString()}`;
+    return `${price.currency} ${price.amount.toLocaleString()}`;
   }
 }

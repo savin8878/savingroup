@@ -7,55 +7,31 @@ import {
 import { NextResponse } from "next/server";
 import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blogs";
 import { INDIA_CITIES, getCityIndexableLocales } from "@/lib/cities";
+import { CITY_BLOG_POSTS } from "@/lib/city-blog";
 import { INDUSTRY_SLUGS } from "@/lib/industry-data";
+import {
+  STATIC_PAGE_LASTMOD,
+  CITY_LASTMOD,
+  INDUSTRY_LASTMOD,
+} from "@/lib/sitemap-lastmod";
 
 // Revalidate at most once per day — Googlebot doesn't need minute-fresh sitemaps,
 // and the previous `force-dynamic` was regenerating with a new `lastmod` on every
 // crawl, which Google downweights as an unreliable freshness signal.
 export const revalidate = 86400;
 
-/**
- * Static timestamps for page-type `lastmod` values. These are bumped manually
- * when the content of the corresponding page meaningfully changes. Previously
- * every page got `new Date()` on every request, which Google flags as spam.
- *
- * Format: ISO date (YYYY-MM-DD).
- */
-const STATIC_PAGE_LASTMOD: Record<string, string> = {
-  "": "2026-04-15",           // home
-  services: "2026-04-10",
-  industries: "2026-05-07",
-  pricing: "2026-06-18",
-  "case-studies": "2026-04-12",
-  about: "2026-03-20",
-  contact: "2026-03-20",
-  privacy: "2026-01-15",
-  terms: "2026-01-15",
-  blogs: "2026-04-18",         // index bumped when new posts land
-  cities: "2026-05-11",        // city hub — bumped on each new metro added or city template shift
-};
 
-/**
- * Per-city `lastmod`. Bump when the city's content meaningfully changes.
- * Bumped 2026-05-11 with the introduction of the city sub-page cluster
- * (services / process / case-studies / contact / about / blog) and refreshed
- * mobile carousels across all city templates.
- */
-const CITY_LASTMOD_DEFAULT = "2026-05-11";
 
-/** Per-industry-slug `lastmod`. Bump when content of that industry page changes. */
-const INDUSTRY_LASTMOD_DEFAULT = "2026-05-07";
 const INDUSTRY_PAGE_PRIORITY = 0.85;
-/** Industry pages are sitemap-included only for indexable locales. After the
- * 2026-05-09 hi demotion this is en-only — industries don't have Hindi bodies
- * yet, and including /in/hi/industries/* in the sitemap would re-create the
- * fake-Hindi duplicate problem we just fixed. Re-add "hi" only when each
- * industry page has a real Hindi body (mirror the per-city pattern). */
+/** Industry pages are sitemap-included for every indexable locale. This
+ * tracks LANGUAGES (= INDEXABLE_LOCALES) rather than carrying its own list,
+ * so it cannot drift from the robots directive the pages actually ship. */
 const INDUSTRY_SITEMAP_LOCALES: readonly string[] = LANGUAGES;
 
-/** City-page sitemap locales are now decided per-city via
- * `getCityIndexableLocales(city)` so Ahmedabad (which has a real Hindi body)
- * can include /in/hi/cities/ahmedabad while the other 9 cities stay en-only. */
+/** City-page sitemap locales come from `getCityIndexableLocales(city)`.
+ * That helper currently ignores its argument and returns INDEXABLE_LOCALES
+ * for every city; the per-city signature is kept so a city can be gated
+ * individually again without touching the ~10 call sites. */
 
 /**
  * Resolve the public base URL from the incoming request.
@@ -140,9 +116,14 @@ export async function GET(
       .sort()
       .pop() ?? "2026-01-01";
 
-  // Static pages (home, services, industries, case-studies, about, contact, legal)
-  // plus the blog index and the cities hub. Cities hub is India-only, so we
-  // append it later only inside the IN block.
+  // Static pages (home, services, industries, case-studies, about, contact,
+  // legal) plus the blog index and the cities hub.
+  //
+  // The cities hub is emitted for EVERY country, not just India. An earlier
+  // comment here claimed it was "India-only, appended inside the IN block" —
+  // there has never been such a block. The hub lists the 11 Indian metros in
+  // every market, which is intentional (delivery is remote), so its metadata
+  // says so per country rather than falling back to a bare "Cities We Serve".
   const pagesWithBlogIndex = [
     ...STATIC_PAGES,
     "blogs",
@@ -204,7 +185,7 @@ export async function GET(
       const loc = `${base}/${country}/${sitemapLocale}/industries/${slug}`;
       return {
         loc,
-        lastmod: INDUSTRY_LASTMOD_DEFAULT,
+        lastmod: INDUSTRY_LASTMOD,
         priority: INDUSTRY_PAGE_PRIORITY,
         changefreq: "monthly",
       };
@@ -271,7 +252,7 @@ export async function GET(
             const loc = `${base}/${country}/${sitemapLocale}/cities/${city.slug}${segment}`;
             return {
               loc,
-              lastmod: CITY_LASTMOD_DEFAULT,
+              lastmod: CITY_LASTMOD,
               priority,
               changefreq: "monthly",
             };
@@ -279,10 +260,35 @@ export async function GET(
         });
   });
 
+  // Per-city blog POSTS. These were in no sitemap at all — not here, not on
+  // live — even though they return 200 with `index, follow` and full
+  // BlogPosting markup. They are also the only genuinely non-templated,
+  // locally-anchored long-form pages on the site (Sanganer/Bagru GI-tag
+  // provenance for Jaipur, the Naroda/Narol WhatsApp trading cluster for
+  // Ahmedabad), and each had exactly one inbound link — from its city blog
+  // index. Omitting the best content from the sitemap while submitting 40
+  // templated industry permutations was backwards.
+  //
+  // The `/cities/{city}/blog` INDEX pages stay out (each lists one post, so
+  // the index adds nothing the post doesn't already say) — but the posts
+  // themselves belong in every indexable locale, like any other article.
+  const cityBlogPostUrls = INDIA_CITIES.flatMap((city) => {
+    const posts = CITY_BLOG_POSTS[city.slug] ?? [];
+    return getCityIndexableLocales(city).flatMap((sitemapLocale) =>
+      posts.map((post) => ({
+        loc: `${base}/${country}/${sitemapLocale}/cities/${city.slug}/blog/${post.slug}`,
+        lastmod: post.publishedAt,
+        priority: 0.7,
+        changefreq: "monthly",
+      })),
+    );
+  });
+
   const urls = [
     ...staticUrls,
     ...industryUrls,
     ...cityUrls,
+    ...cityBlogPostUrls,
     ...blogCategoryUrls,
     ...blogPostUrls,
   ];

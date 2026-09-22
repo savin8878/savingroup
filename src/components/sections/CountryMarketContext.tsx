@@ -354,7 +354,7 @@ export function CountryMarketContext({
   const meta = getCountryMeta(country);
   const countryName = getCountryName(country, locale);
   const regionLabel = getRegionLabel(meta.region, locale);
-  const samplePrice = formatLocalPrice(60000, country, locale);
+  const samplePrice = formatLocalPrice(country, locale);
 
   const copy = (TIER_COPY[locale] ?? TIER_COPY.en)[meta.tier];
   const eyebrowTpl =

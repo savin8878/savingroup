@@ -752,60 +752,51 @@ function CityJsonLd({
     { name: city.name, url },
   ]);
 
-  // LocalBusiness — the single most important schema for ranking on
-  // "best [service] in [city]" intent. Enriched with the operational
-  // layer (languages, local stack categories, on-site cadence) so the
-  // operating-model content has structured-data parity with the UI.
+  // Service, scoped to this city — coverage, not premises.
+  //
+  // This was a `ProfessionalService` (a LocalBusiness subtype) asserting a
+  // `PostalAddress` in the city, `GeoCoordinates` at the city centre, and
+  // opening hours of Mon–Sat 10:00–19:00 "validFrom 2024-01-01" — on all 11
+  // cities. The business occupies none of them, and this page's own FAQ says
+  // so in visible copy ("Do you have a presence in {city}?" → "We're
+  // remote-first… we travel for kickoff"). The markup contradicted the page.
+  //
+  // Three further reasons the old shape was wrong even setting truth aside:
+  // `hoursAvailable` is scoped by schema.org to ContactPoint /
+  // LocationFeatureSpecification / Service, not LocalBusiness (which uses
+  // `openingHoursSpecification`), so the hours were inert; `availableLanguage`
+  // is likewise out of domain on LocalBusiness; and simply deleting `address`
+  // would have left a LocalBusiness missing a required property.
+  //
+  // `Service` + `areaServed` is the schema.org-sanctioned model for a
+  // business that serves a place without occupying it. `areaServed` was
+  // already here — it is the true half of what the node was saying.
   const localBusinessLd = {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
+    "@type": "Service",
     "@id": `${url}#business`,
     name: `${t.brand.name} — ${city.name}`,
+    serviceType: "Website development, SEO and revenue automation",
     url,
     image: `${BASE_URL}/og.png`,
     description: city.metaDescription,
-    priceRange: "₹₹₹",
-    telephone: t.contact.details.phone,
-    email: t.contact.details.emailHref,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: city.name,
-      addressRegion: city.state,
-      addressCountry: "IN",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: city.geo.lat,
-      longitude: city.geo.lng,
+    provider: {
+      "@type": "Organization",
+      name: t.brand.name,
+      url: BASE_URL,
+      telephone: t.contact.details.phone,
+      email: t.contact.details.emailHref,
     },
     areaServed: [
       { "@type": "City", name: city.name },
       ...city.neighborhoods.map((n) => ({ "@type": "Place", name: n })),
     ],
-    // Languages we operate in here — surfaces in Google's localBusiness
-    // rich result + helps multi-lingual intent searches anchor correctly.
+    // Valid on Service (unlike on LocalBusiness, where it is out of domain).
     ...(org && {
       availableLanguage: org.languages.map((l) => ({
         "@type": "Language",
         name: l,
       })),
-    }),
-    // Hours of operation — required for many local rich-result eligibility.
-    ...(org && {
-      hoursAvailable: {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        opens: "10:00",
-        closes: "19:00",
-        validFrom: "2024-01-01",
-      },
     }),
     knowsAbout: [
       "Website Development",
@@ -847,19 +838,16 @@ function CityJsonLd({
         })) ?? []),
       ],
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      bestRating: "5",
-      ratingCount: "50",
-      reviewCount: String(city.testimonials.length),
-    },
-    review: city.testimonials.map((tm) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: tm.author },
-      reviewBody: tm.quote,
-      reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
-    })),
+    // No `aggregateRating` / `review`. The removed block hardcoded the same
+    // 4.9 / ratingCount "50" on all 11 cities, with an invented 5-star rating
+    // attached to each testimonial (the source testimonials carry no rating
+    // at all) and `author` set to a job title — "Director", "Founder",
+    // "प्रमोटर" — typed as schema.org/Person.
+    //
+    // Self-reviewed LocalBusiness/Organization pages are ineligible for the
+    // star review feature anyway, so this was never going to render; and the
+    // figures were shown to users as fact. Real reviews belong on a Google
+    // Business Profile. See the matching note in the root layout.
   };
 
   // HowTo — the engagement journey rendered as a HowTo so Google can

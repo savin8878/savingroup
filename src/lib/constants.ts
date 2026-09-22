@@ -120,9 +120,8 @@ export function isResolvableCountry(
 }
 
 /**
- * @deprecated Renamed to isIndexableCountry. Kept as alias because
- * country-content.ts comments reference the old name. Behavior changed:
- * previously checked all 12 markets, now only `in`.
+ * @deprecated Renamed to isIndexableCountry. Kept as an alias because
+ * country-content.ts comments still reference the old name.
  */
 export const isTargetCountry = isIndexableCountry;
 

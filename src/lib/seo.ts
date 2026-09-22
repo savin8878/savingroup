@@ -13,7 +13,7 @@ import {
   isIndexable,
 } from "@/lib/constants";
 import { validCountryISOs } from "@/middleware";
-import { getGeo, formatLocation, formatLocationShort, type GeoInfo } from "@/lib/geo";
+import { getUrlGeo, formatLocation, formatLocationShort, type GeoInfo } from "@/lib/geo";
 import {
   getCityIndexableLocales,
   isCityIndexable,
@@ -311,10 +311,11 @@ export async function buildPageMetadata({
   const alternates = buildAlternates({ country, locale, subPath });
   const fullUrl = `${BASE_URL}${alternates.canonical}`;
 
-  // Personalize with geo. `getGeo` always returns a country name derived from
-  // the URL slug (not the visitor IP), so the page is deterministic per URL —
-  // Googlebot sees the same country-specific title/description on every crawl.
-  const geo = await getGeo(country, locale);
+  // Country-specific, and deterministic per URL. `getUrlGeo` derives
+  // everything from the country slug and never reads request headers, so the
+  // same URL always produces the same title/description. (`getGeo` does read
+  // headers, which made these vary per request — see getUrlGeo's docblock.)
+  const geo = getUrlGeo(country, locale);
   const geoize = GEO_PERSONALIZED.includes(page);
 
   const title = geoize ? geoifyTitle(meta.metaTitle, geo) : meta.metaTitle;
@@ -389,10 +390,9 @@ export async function buildPageMetadata({
       description: ogDescription,
       images: [`${BASE_URL}/og.png`],
     },
-    // Only INDEXABLE country+locale combinations are indexed (currently
-    // /in/en and /in/hi). Other URLs still render but ship `noindex,follow`
-    // so Google doesn't fold near-duplicate translation fallbacks back into
-    // the canonical EN/HI pages — this is the indexability lever, keep tight.
+    // Every country x locale in INDEXABLE_COUNTRIES x INDEXABLE_LOCALES is
+    // indexed; anything outside still renders but ships `noindex,follow`.
+    // See constants.ts for what the two sets currently contain.
     robots: isIndexable(country, locale)
       ? {
           index: true,
@@ -491,15 +491,21 @@ export function buildWebsiteJsonLd(t: Messages, locale: Locale, country: string)
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    // The `@id` is required, not decorative: every city page emits a WebPage
+    // with `isPartOf: { "@id": "<base>/<country>/<locale>#website" }`, and
+    // this node had no `@id` at all — so that reference resolved to an empty
+    // blank node and the WebPage→WebSite relationship was never established.
+    "@id": `${BASE_URL}/${country}/${locale}#website`,
     name: t.brand.name,
     url: `${BASE_URL}/${country}/${locale}`,
     inLanguage: locale,
     publisher: { "@type": "Organization", name: t.brand.name },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${BASE_URL}/${country}/${locale}/?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
+    // No `potentialAction`/SearchAction. It declared a Sitelinks Searchbox
+    // target of `?q={search_term_string}`, but the site implements no search
+    // — the parameter is read nowhere, and the URL just returns the homepage.
+    // Google also removed the sitelinks search box feature in November 2024,
+    // so the markup described a non-existent endpoint for a non-existent
+    // feature. Re-add only alongside a real search route.
   };
 }
 
@@ -583,7 +589,7 @@ export async function buildIndustryPageMetadata({
   const alternates = buildAlternates({ country, locale, subPath });
   const fullUrl = `${BASE_URL}${alternates.canonical}`;
 
-  const geo = await getGeo(country, locale);
+  const geo = getUrlGeo(country, locale);
 
   const title = geoifyTitle(industry.metaTitle, geo);
   const description = geoifyDescription(industry.metaDescription, geo);

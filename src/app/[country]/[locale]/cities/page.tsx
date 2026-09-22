@@ -27,14 +27,20 @@ export async function generateMetadata({
   const { country, locale } = await params;
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
 
+  // The body of this page lists the 11 Indian metros regardless of country,
+  // so the metadata has to say so in every market. The non-India branch used
+  // to return a 15-character title ("Cities We Serve") and a 28-character
+  // description ("Cities and regions we serve.") over that same Indian body —
+  // shipped on 11 countries × 8 locales = 88 URLs, all identical to each
+  // other. That is a duplicate-title cluster with no information in it.
   const title =
     country === "in"
       ? "Website Development Company in India · Cities We Serve"
-      : "Cities We Serve";
+      : "Indian Cities We Build For · Delivery Across 11 Metros";
   const description =
     country === "in"
       ? "Hand-built revenue systems and websites for India's 11 largest metros — Mumbai, Delhi NCR, Bengaluru, Pune, Chennai, Hyderabad, Kolkata, Ahmedabad, Jaipur, Indore, and Bhopal. Locally relevant SEO, INR pricing, GST-compliant invoicing."
-      : "Cities and regions we serve.";
+      : "The 11 Indian metros we build revenue systems in — Mumbai, Delhi NCR, Bengaluru, Pune, Chennai, Hyderabad, Kolkata, Ahmedabad, Jaipur, Indore and Bhopal. Each city page is written for that local market.";
 
   const alternates = buildAlternates({ country, locale: lc, subPath: PAGE_PATH });
 

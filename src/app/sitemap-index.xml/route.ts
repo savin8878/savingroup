@@ -1,5 +1,10 @@
 import { BASE_URL, COUNTRIES } from "@/lib/constants";
 import { BLOG_POSTS } from "@/lib/blogs";
+import {
+  STATIC_PAGE_LASTMOD,
+  CITY_LASTMOD,
+  INDUSTRY_LASTMOD,
+} from "@/lib/sitemap-lastmod";
 import { NextResponse } from "next/server";
 
 // Revalidate at most once per day — same rationale as the per-country sitemap.
@@ -35,17 +40,29 @@ function resolveBaseUrl(request: Request): string {
 export async function GET(request: Request) {
   const base = resolveBaseUrl(request);
 
-  // Real freshness signal: the most recent blog post timestamp. Static pages
-  // change rarely; blog posts drive actual sitemap churn. Previously this was
-  // `new Date()` on every render, which Google's crawler learns to ignore.
-  const latestBlogDate =
-    BLOG_POSTS.map((p) => p.updatedAt ?? p.publishedAt)
+  // Real freshness signal, taken across EVERY content type the child sitemap
+  // emits — not just blog posts. It previously used only the newest
+  // BLOG_POSTS date, which understated the child by about four weeks: the 79
+  // most recently touched URLs (every city page) carry CITY_LASTMOD and were
+  // invisible at the index level, so Google was told the whole country
+  // sitemap was staler than it is.
+  //
+  // Still a fixed set of dates rather than `new Date()` — a lastmod that
+  // moves on every render is a freshness signal Google learns to discount.
+  const latestContentDate =
+    [
+      ...BLOG_POSTS.map((p) => p.updatedAt ?? p.publishedAt),
+      CITY_LASTMOD,
+      INDUSTRY_LASTMOD,
+      ...Object.values(STATIC_PAGE_LASTMOD),
+    ]
+      .filter(Boolean)
       .sort()
       .pop() ?? "2026-01-01";
 
   const sitemaps = COUNTRIES.map((country: string) => ({
     loc: `${base}/${country}/sitemap.xml`,
-    lastmod: latestBlogDate,
+    lastmod: latestContentDate,
   }));
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

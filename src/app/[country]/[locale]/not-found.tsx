@@ -1,5 +1,22 @@
-import Link from "next/link";
+import type { Metadata } from "next";
+import LocalizedLink from "@/components/LocalizedLink";
 import { ArrowUpRight, Home, Search } from "lucide-react";
+
+/**
+ * Without this, the 404 inherits the locale layout's metadata: an
+ * `index, follow` robots tag, the homepage `<title>`, and a canonical
+ * pointing at the country/locale root. Next.js then adds its own `noindex`,
+ * so the response shipped two contradictory robots tags and told Google the
+ * homepage was the canonical URL for an arbitrary missing page.
+ *
+ * `alternates: { canonical: null }` suppresses the inherited canonical —
+ * a 404 should not claim to be the canonical version of anything.
+ */
+export const metadata: Metadata = {
+  title: "Page not found",
+  robots: { index: false, follow: true },
+  alternates: { canonical: null },
+};
 
 export default function NotFound() {
   return (
@@ -23,14 +40,14 @@ export default function NotFound() {
         </p>
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
+          <LocalizedLink
             href="/"
             className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg transition-all hover:-translate-y-0.5"
           >
             <Home size={16} />
             Go to homepage
-          </Link>
-          <Link
+          </LocalizedLink>
+          <LocalizedLink
             href="/contact"
             className="group inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-sm transition-all hover:border-accent/40"
           >
@@ -39,15 +56,15 @@ export default function NotFound() {
               size={14}
               className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
-          </Link>
+          </LocalizedLink>
         </div>
 
         <div className="mt-10 flex items-center justify-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
           <Search size={12} />
           Looking for a specific service? Try our{" "}
-          <Link href="/services" className="text-accent underline underline-offset-4">
+          <LocalizedLink href="/services" className="text-accent underline underline-offset-4">
             services page
-          </Link>
+          </LocalizedLink>
         </div>
       </div>
     </section>

@@ -1,6 +1,13 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, DM_Sans, JetBrains_Mono } from "next/font/google";
+import {
+  Space_Grotesk,
+  DM_Sans,
+  JetBrains_Mono,
+  Noto_Sans_Devanagari,
+  Noto_Sans_Gujarati,
+  Noto_Sans_Arabic,
+} from "next/font/google";
 import "./globals.css";
 import {
   getTranslation,
@@ -40,6 +47,65 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
   variable: "--font-jetbrains-mono",
 });
+
+/* -------------------------------------------------------------------------- */
+/*                        Script fonts for non-Latin locales                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Space Grotesk, DM Sans and JetBrains Mono are Latin-only families — they
+ * have no Devanagari, Gujarati, Arabic or Han coverage at any subset. Every
+ * locale is indexable, so /in/hi, /in/gu, /ae/ar and /in/zh were rendering
+ * their entire body in whatever fallback the device happened to have, next to
+ * Latin brand names still in DM Sans: mismatched weight, x-height and
+ * baseline on the same line, plus a layout shift when the Latin face swaps in.
+ *
+ * Declared at module scope because `next/font` requires it, then applied
+ * per-locale below, so a visitor only ever downloads the script they read.
+ * `preload: false` keeps the other three out of the document's preload list.
+ */
+const notoDevanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  display: "swap",
+  preload: false,
+  variable: "--font-script",
+});
+
+const notoGujarati = Noto_Sans_Gujarati({
+  subsets: ["gujarati"],
+  display: "swap",
+  preload: false,
+  variable: "--font-script",
+});
+
+const notoArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  display: "swap",
+  preload: false,
+  variable: "--font-script",
+});
+
+/**
+ * Chinese is deliberately NOT a webfont. Noto Sans SC's `chinese-simplified`
+ * subset is several megabytes — an unreasonable download for a locale whose
+ * body copy is still largely English, and far worse than the problem it would
+ * solve. `zh` gets the system CJK stack from globals.css instead, which is
+ * what the platform fonts on every Chinese-configured device already provide.
+ */
+
+/** The script face for a locale; empty string for Latin and CJK locales. */
+function scriptFontClass(locale: Locale): string {
+  switch (locale) {
+    case "hi":
+      return notoDevanagari.variable;
+    case "gu":
+      return notoGujarati.variable;
+    case "ar":
+      return notoArabic.variable;
+    default:
+      return "";
+  }
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -90,10 +156,14 @@ export async function generateMetadata({
       title: t.seo.title,
       description: t.seo.description,
     },
-    // Only INDEXABLE country+locale combinations are indexed (currently
-    // /in/en and /in/hi). Everything else resolves but ships `noindex,follow`
-    // so Google doesn't fold near-duplicates back into the canonical pages.
-    // This is the indexability lever — keep this check tight.
+    // Every country x locale in INDEXABLE_COUNTRIES x INDEXABLE_LOCALES is
+    // indexed. Both sets currently track their RESOLVABLE_* counterparts, so
+    // that is all 12 markets x 8 locales. Anything outside those sets still
+    // resolves but ships `noindex,follow`.
+    //
+    // This is the indexability lever. Widening it is cheap; what makes the
+    // widened surface hold up is content parity — see the note on
+    // INDEXABLE_LOCALES in constants.ts.
     robots: isIndexable(country, locale)
       ? {
           index: true,
@@ -146,36 +216,33 @@ export default async function LocaleLayout({
     };
   });
 
-  // AggregateRating — from testimonials (4.9/5 across 50+ engagements)
-  const ratingLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: t.brand.name,
-    url: `${BASE_URL}/${country}/${locale}`,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.9",
-      bestRating: "5",
-      ratingCount: "50",
-      reviewCount: String(t.testimonials.items.length),
-    },
-    review: t.testimonials.items.map((tm) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: tm.author },
-      reviewBody: tm.quote,
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: "5",
-        bestRating: "5",
-      },
-    })),
-  };
+  // NO AggregateRating here.
+  //
+  // This used to emit a site-wide ProfessionalService carrying
+  // `aggregateRating` 4.9 / ratingCount "50" plus a 5-star Review per
+  // testimonial — on every route, including /privacy and /terms. Three
+  // problems, in order of seriousness:
+  //
+  //  1. The numbers are invented. `ratingCount` was a hardcoded literal
+  //     backed by no review corpus anywhere on the site, and every enumerated
+  //     review was 5.0, so the 4.9 average could not have been computed from
+  //     them. The same figures were rendered to users as fact.
+  //  2. Google will not show stars for it regardless: pages where the
+  //     reviewed entity controls the reviews about itself are ineligible for
+  //     the review snippet feature when using LocalBusiness or Organization
+  //     types. The markup could never have produced the rich result it was
+  //     added for.
+  //  3. The node carried no `address`, which LocalBusiness requires, so it
+  //     was invalid on top of being untrue.
+  //
+  // The fix for stars is a Google Business Profile with real reviews, not
+  // markup. Do not reintroduce ratings the site cannot substantiate.
 
   return (
     <html
       lang={meta.htmlLang}
       dir={meta.dir}
-      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrains.variable}`}
+      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrains.variable} ${scriptFontClass(locale)}`}
       suppressHydrationWarning
     >
       <head>
@@ -207,10 +274,6 @@ export default async function LocaleLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteLd) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ratingLd) }}
         />
       </head>
       <body className="min-h-screen font-sans text-foreground antialiased" suppressHydrationWarning>

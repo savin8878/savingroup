@@ -1,6 +1,5 @@
 import { MapPin, ArrowUpRight, Globe2, Satellite } from "lucide-react";
 import { getGeo, INDIAN_TIER1 } from "@/lib/geo";
-import { buildLocalBusinessJsonLd } from "@/lib/seo";
 import { interpolate, type Locale, type Messages } from "@/lib/i18n";
 import { getCountryMeta, getRegionLabel } from "@/lib/country-meta";
 import LocalizedLink from "../LocalizedLink";
@@ -38,9 +37,16 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
   });
   const ctaLabel = interpolate(cb.ctaLabel, { city: geo.city });
 
-  // LocalBusiness JSON-LD keyed to the detected location — big SEO win
-  const localBusinessLd = buildLocalBusinessJsonLd(t, geo);
-
+  // NO LocalBusiness JSON-LD here. This used to emit
+  // `buildLocalBusinessJsonLd(t, geo)`, whose `address.addressLocality`,
+  // `addressRegion` and `geo` coordinates come from `getGeo` — i.e. from the
+  // requesting IP. The banner is mounted on seven routes including the
+  // homepage, so the machine-readable postal address of the business changed
+  // on every request: a fetch from one network published
+  // `"Sanat Dynamo — Gādarwāra"` with a Gādarwāra address, another published
+  // Jaipur. Structured data has to state a fact about the business, not a fact
+  // about the visitor. The visible "now serving <city>" copy below is fine —
+  // it reads as personalization, not as a claimed premises.
   const sourceLabel =
     geo.source === "vercel"
       ? cb.sourceLive
@@ -50,10 +56,6 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
-      />
       <section className="relative border-y border-border bg-surface/30 py-12 sm:py-16">
         <div className="bg-grid bg-grid-fade absolute inset-0 opacity-40" />
         <div

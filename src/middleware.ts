@@ -192,6 +192,19 @@ export async function middleware(req: NextRequest) {
 
   // If URL already has valid country + language → continue
   if (isCountryValid && isLanguageValid) {
+    // Normalize casing FIRST. `validCountryISOs`/`validLocales` are checked
+    // against the lowercased segments, so `/IN/EN/about` passes validation and
+    // then renders with the raw params — which `buildAlternates` turns into a
+    // self-referencing canonical for the mixed-case URL. That makes every page
+    // reachable at 16 case permutations of its two leading segments, each one
+    // declaring itself canonical and `index, follow`. 308 to the lowercase form
+    // so there is exactly one URL per page.
+    if (pathParts[0] !== urlCountry || pathParts[1] !== urlLanguage) {
+      const url = req.nextUrl.clone();
+      url.pathname = `/${[urlCountry, urlLanguage, ...pathParts.slice(2)].join("/")}`;
+      return NextResponse.redirect(url, 308);
+    }
+
     const res = NextResponse.next();
     res.headers.set("x-next-url-path", pathname);
     res.headers.set("x-next-url-query", req.nextUrl.search);

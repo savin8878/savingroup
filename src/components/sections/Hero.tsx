@@ -1,201 +1,253 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowUpRight,
-  Play,
-  Sparkles,
-  TrendingUp,
-  Users,
-  IndianRupee,
-  Layers,
-} from "lucide-react";
+import { ArrowUpRight, Play, TrendingUp, Users, IndianRupee, Layers } from "lucide-react";
 import LocalizedLink from "../LocalizedLink";
-import { HeroNetwork, HeroBackground } from "../illustrations";
+import { HeroProductShowcase, HeroAtmosphere } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 import { getCountryContent } from "@/lib/country-content";
 import { isResolvableCountry } from "@/lib/constants";
 
 const statIcons = [Users, IndianRupee, TrendingUp, Layers] as const;
 
+/** One entrance curve for the whole hero. */
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+const rise = (delay: number) => ({
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.65, delay, ease: EASE },
+});
+
+/* ==================================================================
+   THE GRID
+
+   Everything below hangs off one 2-column split with a 4rem gutter
+   (`lg:pe-8` + `lg:ps-8`), and the stats sit on a 4-column band with
+   the same 2rem inset on each side of every rule. That puts four
+   edges on exactly the same x:
+
+     copy left edge   = stat 1 left edge   = 0%
+     copy right edge  = stat 2 right edge  = 50% - 2rem
+     board left edge  = stat 3 left edge   = 50% + 2rem
+     board right edge = stat 4 right edge  = 100%
+
+   Change the gutter and it has to change in all three places, or the
+   columns stop lining up.
+   ================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Count-up                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Splits a display stat into the piece we can animate and the pieces we
+ * must leave alone. Unparseable values render verbatim.
+ */
+function splitStat(value: string) {
+  const m = /^(\D*?)([\d.,]+)(.*)$/.exec(value);
+  if (!m) return null;
+  const [, prefix, digits, suffix] = m;
+  const numeric = Number(digits.replace(/,/g, ""));
+  if (!Number.isFinite(numeric)) return null;
+  const decimals = digits.includes(".") ? digits.split(".")[1].length : 0;
+  return { prefix, suffix, numeric, decimals };
+}
+
+function CountUpStat({ value, delay }: { value: string; delay: number }) {
+  const parts = splitStat(value);
+  const [shown, setShown] = useState(() => (parts ? 0 : null));
+  const frame = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!parts) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShown(parts.numeric);
+      return;
+    }
+
+    const duration = 1400;
+    let start: number | null = null;
+    const startAt = performance.now() + delay * 1000;
+
+    const step = (now: number) => {
+      if (now < startAt) {
+        frame.current = requestAnimationFrame(step);
+        return;
+      }
+      if (start === null) start = now;
+      const p = Math.min((now - start) / duration, 1);
+      // easeOutExpo — quick off the mark, lands exactly on the target
+      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      setShown(parts.numeric * eased);
+      if (p < 1) frame.current = requestAnimationFrame(step);
+    };
+
+    frame.current = requestAnimationFrame(step);
+    return () => {
+      if (frame.current !== undefined) cancelAnimationFrame(frame.current);
+    };
+    // `parts` is derived from `value`; keying on value/delay is enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, delay]);
+
+  if (!parts || shown === null) return <>{value}</>;
+
+  return (
+    <>
+      {parts.prefix}
+      {shown.toFixed(parts.decimals)}
+      {parts.suffix}
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero                                                                */
+/* ------------------------------------------------------------------ */
+
 export function Hero({ t, country }: { t: Messages; country?: string }) {
-  // When a target-country slug is present, swap the global subtitle and
-  // stat grid for country-specific copy. Non-target (or unspecified) falls
-  // back to the global translations unchanged.
+  // With a target-country slug present, swap the global subtitle and stat
+  // grid for country-specific copy; otherwise fall back to translations.
   const countryContent =
     country && isResolvableCountry(country) ? getCountryContent(country) : null;
 
   const subtitle = countryContent?.hero.subheadline ?? t.hero.subtitle;
+  // The site-wide announcement bar already carries the open audit slots, so
+  // this row shows the market's call window rather than repeating it.
+  const availability =
+    countryContent?.timezone.callWindow ?? "3 audit slots open this week";
   const stats = countryContent
     ? countryContent.bigNumbers.map((s) => ({ value: s.value, label: s.label }))
     : t.socialProof.stats;
 
   return (
-    <section className="relative overflow-hidden pt-24 pb-12 sm:pt-44 sm:pb-32 lg:pt-52 lg:pb-40">
-      {/* Advanced animated SVG background — visualizes the living revenue system */}
-      {/* <HeroBackground /> */}
+    <section className="relative isolate overflow-hidden">
+      <HeroAtmosphere />
 
-      <div className="container-px relative mx-auto max-w-7xl">
-        {/* Eyebrow + live availability */}
+      <div className="container-px relative mx-auto max-w-7xl pt-24 sm:pt-28 lg:pt-32">
+        {/* ---- Top rule: sets the hero's left and right boundaries ---- */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-wrap items-center justify-center gap-3"
+          {...rise(0)}
+          className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-border pb-4"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-4 py-2 backdrop-blur-sm">
-            <Sparkles size={12} className="text-accent" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              {t.hero.eyebrow}
-            </span>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-4 py-2 backdrop-blur-sm">
+          <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+            {t.hero.eyebrow}
+          </span>
+          <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.24em] text-success">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
             </span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-success">
-              3 audit slots open this week
-            </span>
-          </div>
-        </motion.div>
-
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.08 }}
-          className="text-balance mx-auto mt-8 max-w-5xl text-center font-display text-[clamp(2.5rem,7vw,5.75rem)] font-semibold leading-[0.95] tracking-tight text-foreground"
-        >
-          {t.hero.title}
-          <br />
-          <span className="relative inline-block">
-            <span className="relative z-10 bg-gradient-to-br from-[oklch(0.85_0.16_72)] via-accent to-[oklch(0.66_0.18_55)] bg-clip-text text-transparent">
-              {t.hero.titleAccent}
-            </span>
-            <svg
-              aria-hidden
-              viewBox="0 0 300 12"
-              className="absolute -bottom-3 left-0 h-3 w-full text-accent/70"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M2 8 Q 75 2, 150 6 T 298 4"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="round"
-                fill="none"
-              />
-            </svg>
+            {availability}
           </span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.18 }}
-          className="text-pretty mx-auto mt-10 max-w-2xl text-center text-lg leading-relaxed text-muted-foreground sm:text-xl"
-        >
-          {subtitle}
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.28 }}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-        >
-          <LocalizedLink
-            href="/contact"
-            className="group relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-base font-semibold text-accent-foreground shadow-[0_16px_48px_-12px_oklch(0.78_0.165_70/0.55)] transition-all hover:-translate-y-0.5 hover:shadow-[0_24px_56px_-12px_oklch(0.78_0.165_70/0.7)] sm:w-auto"
-          >
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-accent to-[oklch(0.7_0.18_55)] opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-80"
-            />
-            {t.hero.primaryCta}
-            <ArrowUpRight
-              size={18}
-              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </LocalizedLink>
-          <LocalizedLink
-            href="/case-studies"
-            className="group inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface/60 px-7 py-4 text-base font-semibold text-foreground backdrop-blur-sm transition-all hover:border-border-strong hover:bg-surface sm:w-auto"
-          >
-            <Play size={14} className="text-accent" fill="currentColor" />
-            {t.hero.secondaryCta}
-          </LocalizedLink>
         </motion.div>
 
-        {/* Trust note */}
-        <motion.p
+        {/* ---- Two columns, equal halves, 4rem gutter ---------------- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2">
+          <div className="pt-12 lg:pt-16 lg:pe-8">
+            <motion.h1
+              {...rise(0.06)}
+              className="font-display text-[clamp(2.25rem,4.6vw,3.75rem)] font-semibold leading-[1.04] tracking-tight text-foreground"
+            >
+              {t.hero.title}
+              <br />
+              <span className="text-accent">{t.hero.titleAccent}</span>
+            </motion.h1>
+
+            <motion.p
+              {...rise(0.12)}
+              className="text-pretty mt-7 max-w-[34rem] text-base leading-relaxed text-muted-foreground sm:text-lg lg:max-w-none"
+            >
+              {subtitle}
+            </motion.p>
+
+            {/* Both buttons share a height and radius, so their edges align
+                with each other and with the text column. */}
+            <motion.div
+              {...rise(0.18)}
+              className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center"
+            >
+              <LocalizedLink
+                href="/contact"
+                className="group inline-flex h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[0.9375rem] font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+              >
+                {t.hero.primaryCta}
+                <ArrowUpRight
+                  size={17}
+                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </LocalizedLink>
+
+              <LocalizedLink
+                href="/case-studies"
+                className="group inline-flex h-[3.25rem] items-center justify-center gap-2.5 rounded-xl border border-border bg-surface px-6 text-[0.9375rem] font-semibold text-foreground transition-colors hover:border-border-strong hover:bg-surface-2"
+              >
+                <Play size={11} className="text-accent" fill="currentColor" />
+                {t.hero.secondaryCta}
+              </LocalizedLink>
+            </motion.div>
+
+            <motion.p
+              {...rise(0.24)}
+              className="mt-7 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
+            >
+              {t.hero.trustNote}
+            </motion.p>
+          </div>
+
+          <div className="pt-12 lg:pt-16 lg:ps-8">
+            <HeroProductShowcase country={country} className="max-w-[36rem] lg:max-w-none" />
+          </div>
+        </div>
+
+        {/* ---- Stats band -------------------------------------------- */}
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-6 text-center font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground"
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="mt-16 border-t border-border lg:mt-24"
         >
-          ✦ {t.hero.trustNote}
-        </motion.p>
+          <div className="grid grid-cols-2 lg:grid-cols-4">
+            {stats.map((s, i) => {
+              const Icon = statIcons[i] ?? TrendingUp;
 
-        {/* Network diagram — visual representation of the revenue system */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="mx-auto mt-16 max-w-3xl"
-        >
-          <HeroNetwork />
-        </motion.div>
+              // Rules and insets are placed per index so the content edges
+              // land on the same x as the two columns above. See THE GRID.
+              const rules = [
+                i % 2 === 1 ? "border-s border-border" : "",
+                i >= 2 ? "border-t border-border lg:border-t-0" : "",
+                i > 0 ? "lg:border-s lg:border-border" : "lg:border-s-0",
+              ].join(" ");
 
-        {/* Stats card */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 }}
-          className="border-grad mt-12 rounded-3xl p-1 shadow-2xl"
-        >
-          <div className="rounded-[22px] bg-surface/80 p-5 backdrop-blur-xl sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  By the numbers
-                </span>
-              </div>
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                Last 18 months
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-x-4">
-              {stats.map((s, i) => {
-                const Icon = statIcons[i] ?? TrendingUp;
-                return (
-                  <motion.div
-                    key={s.label}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
-                    className="relative flex flex-col items-start"
+              const inset = [
+                i % 2 === 0 ? "pe-5" : "ps-5",
+                i === 0 ? "lg:ps-0 lg:pe-8" : i === 3 ? "lg:ps-8 lg:pe-0" : "lg:ps-8 lg:pe-8",
+              ].join(" ");
+
+              return (
+                <div key={s.label} className={`py-8 lg:py-10 ${rules} ${inset}`}>
+                  <span className="mb-5 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-accent">
+                    <Icon size={15} strokeWidth={1.75} />
+                  </span>
+
+                  {/* dir="ltr" isolates the value: in an RTL document the bidi
+                      algorithm otherwise moves a leading "+" to the far end,
+                      so "AED 6M+" renders as "+AED 6M". */}
+                  <span
+                    dir="ltr"
+                    className="block font-display text-[2rem] font-semibold leading-none tracking-tight tabular-nums text-foreground sm:text-[2.5rem] rtl:text-right"
                   >
-                    {i > 0 && (
-                      <div className="absolute -left-3 top-2 hidden h-16 w-px bg-border sm:block" />
-                    )}
-                    <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-background text-accent">
-                      <Icon size={16} strokeWidth={1.75} />
-                    </div>
-                    <div className="font-display text-4xl font-semibold leading-none tracking-tight text-foreground sm:text-5xl">
-                      {s.value}
-                    </div>
-                    <div className="mt-3 text-sm text-muted-foreground">
-                      {s.label}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                    <CountUpStat value={s.value} delay={0.5 + i * 0.08} />
+                  </span>
+
+                  <span className="mt-4 block text-sm leading-snug text-muted-foreground">
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </motion.div>
       </div>

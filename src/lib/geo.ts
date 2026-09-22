@@ -205,6 +205,33 @@ const cachedLookupIpWhoIs = unstable_cache(
  * is actually in the URL country. If the visitor is elsewhere (or we can't
  * tell), we fall back to the country's default city — deterministic per URL.
  */
+/**
+ * Deterministic, URL-only geo. Same input → same output, always, with no
+ * `headers()` read and therefore no visitor IP involved.
+ *
+ * Use this for anything that ends up in `<head>` or in structured data.
+ * `getGeo` enriches `city`/`state` from the requester's IP when the visitor
+ * is inside the URL country, which is fine for visible "now serving X" copy
+ * but wrong for metadata: it made `<title>` and `<meta description>` change
+ * from request to request on the same canonical URL, and it fed a postal
+ * address into LocalBusiness JSON-LD. Metadata must describe the page, not
+ * the person fetching it.
+ *
+ * Reading `headers()` also opts the route out of static rendering, so keeping
+ * it out of `generateMetadata` lets these pages be prerendered and CDN-cached.
+ */
+export function getUrlGeo(countrySlug: string, locale: Locale = "en"): GeoInfo {
+  const urlCountry = (countrySlug || "in").toLowerCase();
+  return {
+    city: getDefaultCity(urlCountry, locale),
+    state: getDefaultState(urlCountry, locale),
+    countryCode: urlCountry,
+    countryName: getCountryName(urlCountry, locale),
+    detected: false,
+    source: "default",
+  };
+}
+
 export async function getGeo(
   countrySlug: string,
   locale: Locale = "en",
