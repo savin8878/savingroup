@@ -92,7 +92,7 @@ export function Process({ t }: { t: Messages }) {
                 >
                   {/* Number bubble — inline on mobile, absolute on desktop */}
                   <div
-                    className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/40 bg-background font-mono text-sm font-semibold text-accent lg:absolute lg:left-1/2 lg:top-0 lg:mb-0 lg:h-14 lg:w-14 lg:-translate-x-1/2 lg:shadow-[0_0_0_6px_var(--background)] ${
+                    className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/40 bg-background font-mono text-sm font-semibold text-accent-strong lg:absolute lg:left-1/2 lg:top-0 lg:mb-0 lg:h-14 lg:w-14 lg:-translate-x-1/2 lg:shadow-[0_0_0_6px_var(--background)] ${
                       right ? "lg:left-[-44px]" : "lg:left-auto lg:right-[-44px]"
                     }`}
                   >

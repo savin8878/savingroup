@@ -8,14 +8,11 @@ import { motion } from "framer-motion";
  */
 export function CtaWaves({ className = "" }: { className?: string }) {
   return (
-    <motion.svg
+    <svg
       viewBox="0 0 600 400"
       fill="none"
-      className={`w-full h-full absolute inset-0 ${className}`}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 1.2 }}
+      aria-hidden
+      className={`absolute inset-0 h-full w-full ${className}`}
       preserveAspectRatio="xMidYMid slice"
     >
       <defs>
@@ -100,6 +97,6 @@ export function CtaWaves({ className = "" }: { className?: string }) {
       <motion.line x1="80" y1="180" x2="200" y2="300" stroke="oklch(0.78 0.165 70 / 0.12)" strokeWidth="0.5" animate={{ opacity: [0.04, 0.1, 0.04] }} transition={{ duration: 4, repeat: Infinity }} />
       <motion.line x1="350" y1="150" x2="480" y2="280" stroke="oklch(0.66 0.18 295 / 0.12)" strokeWidth="0.5" animate={{ opacity: [0.04, 0.08, 0.04] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }} />
       <motion.line x1="200" y1="300" x2="350" y2="150" stroke="oklch(0.78 0.165 70 / 0.03)" strokeWidth="0.5" animate={{ opacity: [0.03, 0.07, 0.03] }} transition={{ duration: 6, repeat: Infinity, delay: 2 }} />
-    </motion.svg>
+    </svg>
   );
 }

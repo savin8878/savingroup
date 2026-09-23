@@ -1,24 +1,22 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { ArrowUpRight, Play, TrendingUp, Users, IndianRupee, Layers } from "lucide-react";
 import LocalizedLink from "../LocalizedLink";
 import { HeroProductShowcase, HeroAtmosphere } from "../illustrations";
+import { CountUpStat } from "./CountUpStat";
 import type { Messages } from "@/lib/i18n";
 import { getCountryContent } from "@/lib/country-content";
 import { isResolvableCountry } from "@/lib/constants";
+import { AUDIT, CTA_LABEL } from "@/lib/offer";
 
 const statIcons = [Users, IndianRupee, TrendingUp, Layers] as const;
 
-/** One entrance curve for the whole hero. */
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.65, delay, ease: EASE },
-});
+/** Same tints the product mockup uses, so the two columns read as one system. */
+const STACK_TINTS = [
+  "var(--accent)",
+  "var(--accent-2)",
+  "var(--success)",
+  "var(--accent)",
+  "var(--accent-2)",
+] as const;
 
 /* ==================================================================
    THE GRID
@@ -37,75 +35,22 @@ const rise = (delay: number) => ({
    columns stop lining up.
    ================================================================== */
 
-/* ------------------------------------------------------------------ */
-/* Count-up                                                            */
-/* ------------------------------------------------------------------ */
+/* ==================================================================
+   WHY THIS IS A SERVER COMPONENT
 
-/**
- * Splits a display stat into the piece we can animate and the pieces we
- * must leave alone. Unparseable values render verbatim.
- */
-function splitStat(value: string) {
-  const m = /^(\D*?)([\d.,]+)(.*)$/.exec(value);
-  if (!m) return null;
-  const [, prefix, digits, suffix] = m;
-  const numeric = Number(digits.replace(/,/g, ""));
-  if (!Number.isFinite(numeric)) return null;
-  const decimals = digits.includes(".") ? digits.split(".")[1].length : 0;
-  return { prefix, suffix, numeric, decimals };
-}
+   It used to be a client component in which every element was a
+   `motion.*` carrying `initial={{ opacity: 0 }}`. That serialises
+   `opacity:0` into the HTML, so the headline, the subtitle and the
+   CTA stayed invisible until React had downloaded, parsed and
+   hydrated the whole hero tree. That is what put mobile LCP at 4.8s,
+   and what made the page look empty to anything not executing JS.
 
-function CountUpStat({ value, delay }: { value: string; delay: number }) {
-  const parts = splitStat(value);
-  const [shown, setShown] = useState(() => (parts ? 0 : null));
-  const frame = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    if (!parts) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShown(parts.numeric);
-      return;
-    }
-
-    const duration = 1400;
-    let start: number | null = null;
-    const startAt = performance.now() + delay * 1000;
-
-    const step = (now: number) => {
-      if (now < startAt) {
-        frame.current = requestAnimationFrame(step);
-        return;
-      }
-      if (start === null) start = now;
-      const p = Math.min((now - start) / duration, 1);
-      // easeOutExpo — quick off the mark, lands exactly on the target
-      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
-      setShown(parts.numeric * eased);
-      if (p < 1) frame.current = requestAnimationFrame(step);
-    };
-
-    frame.current = requestAnimationFrame(step);
-    return () => {
-      if (frame.current !== undefined) cancelAnimationFrame(frame.current);
-    };
-    // `parts` is derived from `value`; keying on value/delay is enough.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, delay]);
-
-  if (!parts || shown === null) return <>{value}</>;
-
-  return (
-    <>
-      {parts.prefix}
-      {shown.toFixed(parts.decimals)}
-      {parts.suffix}
-    </>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Hero                                                                */
-/* ------------------------------------------------------------------ */
+   Now the markup ships visible and complete. The entrance is the
+   `.rise` CSS class (see globals.css): it paints off the stylesheet,
+   needs no JS, and is dropped under `prefers-reduced-motion`. The
+   only client code left in the hero is the `CountUpStat` numeral,
+   which renders its true value on the server anyway.
+   ================================================================== */
 
 export function Hero({ t, country }: { t: Messages; country?: string }) {
   // With a target-country slug present, swap the global subtitle and stat
@@ -115,7 +60,7 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
 
   const subtitle = countryContent?.hero.subheadline ?? t.hero.subtitle;
   // The site-wide announcement bar already carries the open audit slots, so
-  // this row shows the market's call window rather than repeating it.
+  // this row shows the market call window rather than repeating it.
   const availability =
     countryContent?.timezone.callWindow ?? "3 audit slots open this week";
   const stats = countryContent
@@ -127,53 +72,48 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
       <HeroAtmosphere />
 
       <div className="container-px relative mx-auto max-w-7xl pt-24 sm:pt-28 lg:pt-32">
-        {/* ---- Top rule: sets the hero's left and right boundaries ---- */}
-        <motion.div
-          {...rise(0)}
-          className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-border pb-4"
-        >
-          <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+        {/* ---- Top rule: sets the hero left and right boundaries ---- */}
+        <div className="rise flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-border pb-4">
+          <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
             {t.hero.eyebrow}
           </span>
-          <span className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.24em] text-success">
+          <span className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.24em] text-success">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
             </span>
             {availability}
           </span>
-        </motion.div>
+        </div>
 
         {/* ---- Two columns, equal halves, 4rem gutter ---------------- */}
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="pt-12 lg:pt-16 lg:pe-8">
-            <motion.h1
-              {...rise(0.06)}
-              className="font-display text-[clamp(2.25rem,4.6vw,3.75rem)] font-semibold leading-[1.04] tracking-tight text-foreground"
-            >
+            {/*
+              The one place on the homepage that earns the editorial didone:
+              the accent line of the single headline carrying the message.
+              The first line stays in the sans, so the two faces read as a
+              deliberate pairing rather than a font change mid-sentence.
+            */}
+            <h1 className="rise rise-1 font-display text-[clamp(2.25rem,4.6vw,3.75rem)] font-semibold leading-[1.04] tracking-tight text-foreground">
               {t.hero.title}
-              <br />
-              <span className="text-accent">{t.hero.titleAccent}</span>
-            </motion.h1>
+              <span className="font-editorial mt-1 block text-[clamp(2.75rem,5.6vw,4.5rem)] font-semibold text-accent">
+                {t.hero.titleAccent}
+              </span>
+            </h1>
 
-            <motion.p
-              {...rise(0.12)}
-              className="text-pretty mt-7 max-w-[34rem] text-base leading-relaxed text-muted-foreground sm:text-lg lg:max-w-none"
-            >
+            <p className="rise rise-2 text-pretty mt-7 max-w-[34rem] text-[1.0625rem] leading-relaxed text-muted-foreground sm:text-lg lg:max-w-none">
               {subtitle}
-            </motion.p>
+            </p>
 
             {/* Both buttons share a height and radius, so their edges align
                 with each other and with the text column. */}
-            <motion.div
-              {...rise(0.18)}
-              className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center"
-            >
+            <div className="rise rise-3 mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <LocalizedLink
                 href="/contact"
-                className="group inline-flex h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-accent px-6 text-[0.9375rem] font-semibold text-accent-foreground transition-opacity hover:opacity-90"
+                className="group inline-flex h-[3.25rem] items-center justify-center gap-2 rounded-xl bg-accent-strong px-6 text-[0.9375rem] font-semibold text-accent-foreground transition-opacity hover:opacity-90"
               >
-                {t.hero.primaryCta}
+                {CTA_LABEL}
                 <ArrowUpRight
                   size={17}
                   className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -184,31 +124,47 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
                 href="/case-studies"
                 className="group inline-flex h-[3.25rem] items-center justify-center gap-2.5 rounded-xl border border-border bg-surface px-6 text-[0.9375rem] font-semibold text-foreground transition-colors hover:border-border-strong hover:bg-surface-2"
               >
-                <Play size={11} className="text-accent" fill="currentColor" />
+                <Play size={11} className="text-accent-strong" fill="currentColor" />
                 {t.hero.secondaryCta}
               </LocalizedLink>
-            </motion.div>
+            </div>
 
-            <motion.p
-              {...rise(0.24)}
-              className="mt-7 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground"
-            >
-              {t.hero.trustNote}
-            </motion.p>
+            <p className="rise rise-4 mt-7 text-[0.8125rem] leading-relaxed text-muted-foreground">
+              {AUDIT.supportLine}
+            </p>
+
+            {/* The stack. Names and label come straight from the services
+                translations, so this stays correct in every locale and adds
+                no new copy to maintain. The dots use the same tints as the
+                mockup beside it, tying the two columns together. */}
+            <div className="rise rise-5 mt-10 border-t border-border pt-6">
+              <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+                {t.services.eyebrow}
+              </span>
+              <span className="mt-4 flex flex-wrap gap-2">
+                {t.services.items.slice(0, 5).map((svc, i) => (
+                  <span
+                    key={svc.name}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-[0.8125rem] font-medium text-foreground"
+                  >
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: STACK_TINTS[i % STACK_TINTS.length] }}
+                    />
+                    {svc.name}
+                  </span>
+                ))}
+              </span>
+            </div>
           </div>
 
-          <div className="pt-12 lg:pt-16 lg:ps-8">
+          <div className="rise rise-4 pt-12 lg:pt-16 lg:ps-8">
             <HeroProductShowcase country={country} className="max-w-[36rem] lg:max-w-none" />
           </div>
         </div>
 
         {/* ---- Stats band -------------------------------------------- */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.35 }}
-          className="mt-16 border-t border-border lg:mt-24"
-        >
+        <div className="rise rise-6 mt-16 border-t border-border lg:mt-24">
           <div className="grid grid-cols-2 lg:grid-cols-4">
             {stats.map((s, i) => {
               const Icon = statIcons[i] ?? TrendingUp;
@@ -228,7 +184,7 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
 
               return (
                 <div key={s.label} className={`py-8 lg:py-10 ${rules} ${inset}`}>
-                  <span className="mb-5 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-accent">
+                  <span className="mb-5 inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-accent-strong">
                     <Icon size={15} strokeWidth={1.75} />
                   </span>
 
@@ -237,7 +193,7 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
                       so "AED 6M+" renders as "+AED 6M". */}
                   <span
                     dir="ltr"
-                    className="block font-display text-[2rem] font-semibold leading-none tracking-tight tabular-nums text-foreground sm:text-[2.5rem] rtl:text-right"
+                    className="font-editorial block text-[2.25rem] font-semibold tracking-tight tabular-nums text-foreground sm:text-[2.75rem] rtl:text-right"
                   >
                     <CountUpStat value={s.value} delay={0.5 + i * 0.08} />
                   </span>
@@ -249,7 +205,7 @@ export function Hero({ t, country }: { t: Messages; country?: string }) {
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

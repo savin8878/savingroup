@@ -350,7 +350,7 @@ export default async function CityPage({
                   </h3>
                   <LocalizedLink
                     href={`/cities/${city.slug}/about`}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent transition-colors hover:text-foreground"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent-strong transition-colors hover:text-foreground"
                   >
                     Full {city.name} heritage page
                     <ArrowUpRight size={12} />
@@ -604,7 +604,7 @@ export default async function CityPage({
               </p>
               <LocalizedLink
                 href="/case-studies"
-                className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent-strong"
               >
                 See more case studies
                 <ArrowUpRight size={13} />
@@ -785,7 +785,7 @@ function CityJsonLd({
       name: t.brand.name,
       url: BASE_URL,
       telephone: t.contact.details.phone,
-      email: t.contact.details.emailHref,
+      email: t.contact.details.email,
     },
     areaServed: [
       { "@type": "City", name: city.name },
@@ -1061,7 +1061,7 @@ function CityRelatedCities({ city }: { city: CityContent }) {
       <div className="rounded-3xl border border-border bg-surface/30 p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               Other Indian metros
             </div>
             <h3 className="mt-3 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
@@ -1070,7 +1070,7 @@ function CityRelatedCities({ city }: { city: CityContent }) {
           </div>
           <LocalizedLink
             href="/cities"
-            className="hidden items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent sm:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent-strong sm:inline-flex"
           >
             All cities
             <ArrowUpRight size={11} />

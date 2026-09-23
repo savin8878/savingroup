@@ -20,7 +20,7 @@ export function TechStack({ t }: { t: Messages }) {
           />
 
           <div className="mt-10 rounded-3xl border border-border bg-surface/40 p-7">
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Layers size={11} />
               Why we choose boring
             </div>

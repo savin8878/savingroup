@@ -378,7 +378,7 @@ export default async function CityBlogIndexPage({
             </p>
             <LocalizedLink
               href="/blogs"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent-strong hover:underline"
             >
               Pan-India journal <ArrowUpRight size={14} />
             </LocalizedLink>

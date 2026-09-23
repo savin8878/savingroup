@@ -142,3 +142,51 @@ export const STATIC_PAGES = [
 ];
 
 export const URLS_PER_SITEMAP = 50000;
+
+/* -------------------------------------------------------------------------- */
+/*                          Brand + social identity                           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * SOCIAL PROFILES — one list, read by the footer icons AND by the
+ * `sameAs` array in the Organization JSON-LD (`seo.ts`).
+ *
+ * WHY IT IS EMPTY. The footer used to render three icons pointing at
+ * `https://www.linkedin.com/`, `https://x.com/` and `https://github.com/` —
+ * the platforms' own front doors, not profiles. To a visitor checking whether
+ * a stranger is real, a "LinkedIn" button that dumps them on LinkedIn's
+ * homepage is worse than no button: it reads as a template nobody finished.
+ * `seo.ts` had already, correctly, refused to emit those as `sameAs` for the
+ * same reason.
+ *
+ * Both surfaces now render nothing rather than something false, and both come
+ * back on the moment a real URL is added here — no other edit needed.
+ *
+ * TO ENABLE: add the full profile URL, e.g.
+ *   { platform: "linkedin", url: "https://www.linkedin.com/company/sanat-dynamo" }
+ * `platform` must be one of the keys in the footer's icon map.
+ */
+export const SOCIAL_PROFILES: ReadonlyArray<{
+  platform: "linkedin" | "x" | "github" | "instagram" | "youtube";
+  url: string;
+}> = [];
+
+/**
+ * The brand's own name, and the domain it trades under.
+ *
+ * These differ — the site is Sanat Dynamo, the domain is savingroup.in — and
+ * nothing on the site acknowledged it, so a visitor who noticed had no way to
+ * tell whether they were on the right site. The footer now states the pairing
+ * plainly.
+ *
+ * `legalNote` is deliberately a bare statement of fact about this website. If
+ * Sanat Dynamo is a unit, brand or subsidiary of a company called Savin Group,
+ * say so here — that is a matter of record only the owner can supply, and
+ * guessing at a corporate relationship in a footer is how you end up with a
+ * misleading disclosure.
+ */
+export const BRAND = {
+  name: "Sanat Dynamo",
+  domain: "savingroup.in",
+  legalNote: "Sanat Dynamo is the trading name for this site, savingroup.in.",
+} as const;

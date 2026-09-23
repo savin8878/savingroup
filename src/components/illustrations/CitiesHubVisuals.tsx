@@ -86,7 +86,7 @@ export function IndiaMetroMap() {
 
       <div className="relative grid gap-5 p-4 sm:gap-6 sm:p-8 lg:grid-cols-12 lg:gap-10 lg:p-12">
         <div className="lg:col-span-5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent sm:px-3 sm:py-1.5 sm:text-[10px]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong sm:px-3 sm:py-1.5 sm:text-[10px]">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
@@ -477,7 +477,7 @@ export function GlobalPeersConstellation() {
       />
       <div className="relative grid gap-6 lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <Globe2 size={11} />
             World peer mapping
           </div>
@@ -503,7 +503,7 @@ export function GlobalPeersConstellation() {
                   href={`/cities/${cx.slug}`}
                   className="group rounded-xl border border-border bg-background/60 p-3 transition-all hover:-translate-y-0.5 hover:border-accent/40"
                 >
-                  <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                     {cx.slug}
                   </div>
                   <div className="mt-1 text-xs font-semibold text-foreground">
@@ -732,7 +732,7 @@ export function CitiesIntentMatrix() {
     <div className="overflow-hidden rounded-3xl border border-border bg-surface/40 p-6 sm:p-10">
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <Sparkles size={11} />
             Intent × city matrix
           </div>
@@ -779,7 +779,7 @@ export function CitiesIntentMatrix() {
                   <td className="border-b border-border px-3 py-3">
                     <LocalizedLink
                       href={`/cities/${city.slug}`}
-                      className="group inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-accent"
+                      className="group inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-accent-strong"
                     >
                       {city.name}
                       <ArrowUpRight

@@ -275,7 +275,7 @@ export default async function CityServicesPage({
               className="group relative flex w-[82vw] max-w-[320px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-6 md:h-full"
             >
               <div className="flex items-start justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   {s.number}
                 </span>
                 <span
@@ -322,7 +322,7 @@ export default async function CityServicesPage({
                 </div>
                 <LocalizedLink
                   href={`/services#${s.id}`}
-                  className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em] text-accent transition-colors hover:text-foreground"
+                  className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong transition-colors hover:text-foreground"
                 >
                   Details
                   <ArrowUpRight size={11} />
@@ -438,7 +438,7 @@ export default async function CityServicesPage({
             },
             {
               href: `/cities/${city.slug}/contact`,
-              label: "Book a " + city.name + " audit",
+              label: "Request a " + city.name + " audit",
               desc: "WhatsApp · phone · 45-minute revenue audit.",
               Icon: ArrowRight,
             },
@@ -450,11 +450,11 @@ export default async function CityServicesPage({
             >
               <div className="flex items-center gap-2">
                 <Icon size={16} className="text-accent" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Next page
                 </span>
               </div>
-              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent sm:text-lg">
+              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent-strong sm:text-lg">
                 {label}
               </div>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">

@@ -73,7 +73,7 @@ export default async function ServicesPage({
                 className="group flex items-center justify-between rounded-2xl border border-border bg-background px-5 py-4 transition-all hover:border-accent/40 hover:bg-surface"
               >
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                     {s.number}
                   </span>
                   <span className="text-sm font-semibold text-foreground">
@@ -125,7 +125,7 @@ export default async function ServicesPage({
                       <span className="font-display text-5xl font-semibold leading-none tracking-tight text-accent/30">
                         {s.number}
                       </span>
-                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                         {s.kicker}
                       </span>
                     </div>
@@ -148,7 +148,7 @@ export default async function ServicesPage({
 
                     <div className="mt-5 flex items-end justify-between rounded-2xl border border-accent/30 bg-accent/5 p-5">
                       <div>
-                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                           Investment
                         </div>
                         <div className="mt-2 font-display text-xl font-semibold text-foreground">
@@ -159,7 +159,7 @@ export default async function ServicesPage({
 
                     <LocalizedLink
                       href="/contact"
-                      className="group/btn relative mt-8 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[0_8px_28px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5"
+                      className="group/btn relative mt-8 inline-flex items-center gap-2 rounded-full bg-accent-strong px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[0_8px_28px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5"
                     >
                       Discuss this system
                       <ArrowUpRight
@@ -175,7 +175,7 @@ export default async function ServicesPage({
                   >
                     <div className="rounded-2xl border border-border bg-background/60 p-6">
                       <div className="flex items-center justify-between">
-                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                           Deliverables
                         </div>
                         <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -200,7 +200,7 @@ export default async function ServicesPage({
                     </div>
 
                     <div className="mt-4 rounded-2xl border border-accent/30 bg-accent-soft p-6">
-                      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                         <Sparkles size={11} />
                         Expected outcomes
                       </div>

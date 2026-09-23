@@ -307,7 +307,6 @@ export default async function BlogCategoryPage({
         }
         subtitle={copy.description}
         breadcrumb={categoryLabel(cat)}
-        bgVariant="center"
       />
 
       {/* ============================================================= */}
@@ -340,7 +339,7 @@ export default async function BlogCategoryPage({
       {/* ============================================================= */}
       <Section className="pt-8 pb-0">
         <div className="rounded-2xl border border-border bg-surface/40 p-5 sm:p-6">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <Sparkles size={11} />
             This page answers
           </div>
@@ -432,7 +431,7 @@ export default async function BlogCategoryPage({
       {relevantClusters.length > 0 && (
         <Section className="pt-4">
           <div className="rounded-2xl border border-border bg-surface/40 p-6 sm:p-8">
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Sparkles size={11} />
               {ui.topicClustersEyebrow}
             </div>
@@ -446,7 +445,7 @@ export default async function BlogCategoryPage({
                   key={cluster.key}
                   className="rounded-xl border border-border bg-background/60 p-5"
                 >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                     Cluster · {cluster.primaryKeyword}
                   </div>
                   <h3 className="mt-2 font-display text-base font-semibold text-foreground">
@@ -484,7 +483,7 @@ export default async function BlogCategoryPage({
       {/* ============================================================= */}
       <Section className="pt-4">
         <div className="mb-6 flex items-center gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             Browse other categories
           </span>
           <div className="h-px flex-1 bg-border" />
@@ -499,7 +498,7 @@ export default async function BlogCategoryPage({
                 href={`/blogs/category/${oc}`}
                 className="group flex h-full flex-col rounded-2xl border border-border bg-surface/40 p-5 transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface"
               >
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   {categoryLabel(oc)}
                 </div>
                 <h3 className="mt-3 font-display text-base font-semibold leading-tight tracking-tight text-foreground">

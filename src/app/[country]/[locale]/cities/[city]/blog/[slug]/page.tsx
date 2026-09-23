@@ -278,7 +278,7 @@ export default async function CityBlogPostPage({
                     <a
                       key={i}
                       href={`#section-${i + 1}`}
-                      className="block rounded-lg border border-border bg-background/60 px-3 py-2 text-xs leading-tight text-foreground transition-colors hover:border-accent/40 hover:text-accent"
+                      className="block rounded-lg border border-border bg-background/60 px-3 py-2 text-xs leading-tight text-foreground transition-colors hover:border-accent/40 hover:text-accent-strong"
                     >
                       <span
                         className="mr-1.5 font-mono text-[9px] uppercase tracking-[0.22em]"
@@ -456,7 +456,7 @@ export default async function CityBlogPostPage({
             <div className="lg:col-span-5 lg:text-right">
               <LocalizedLink
                 href={`/cities/${city.slug}/blog`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent-strong"
               >
                 All {city.name} posts
                 <ArrowUpRight size={14} />

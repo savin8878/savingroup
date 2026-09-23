@@ -10,6 +10,7 @@ import {
   BASE_URL,
   INDEXABLE_COUNTRIES,
   INDEXABLE_LOCALES,
+  SOCIAL_PROFILES,
   isIndexable,
 } from "@/lib/constants";
 import { validCountryISOs } from "@/middleware";
@@ -429,14 +430,18 @@ export function buildOrganizationJsonLd(t: Messages) {
     url: BASE_URL,
     logo: `${BASE_URL}/og.png`,
     description: t.seo.description,
-    // sameAs intentionally omitted until real social profiles exist. Including
-    // placeholder URLs like `https://linkedin.com/` (no company slug) is worse
-    // than no sameAs — Google uses this for entity verification and rejects
-    // unverifiable claims. Add real profile URLs here when they're live.
+    // `sameAs` is emitted only when real profiles exist — Google uses it for
+    // entity verification and a platform homepage with no company slug is an
+    // unverifiable claim, which is worse than omitting the field. The list now
+    // lives in `SOCIAL_PROFILES` (constants.ts) and is shared with the footer
+    // icons, so the two can never disagree about which profiles are real.
+    ...(SOCIAL_PROFILES.length
+      ? { sameAs: SOCIAL_PROFILES.map((p) => p.url) }
+      : {}),
     contactPoint: [
       {
         "@type": "ContactPoint",
-        email: t.contact.details.emailHref,
+        email: t.contact.details.email,
         telephone: t.contact.details.phone,
         contactType: "sales",
         availableLanguage: LOCALE_CODES.map((c) => LOCALES[c].name),
@@ -464,7 +469,7 @@ export function buildLocalBusinessJsonLd(t: Messages, geo: GeoInfo) {
     description: t.seo.description,
     priceRange: "₹₹₹",
     telephone: t.contact.details.phone,
-    email: t.contact.details.emailHref,
+    email: t.contact.details.email,
     address: {
       "@type": "PostalAddress",
       addressLocality: geo.city,

@@ -67,7 +67,7 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
           <div className="grid items-center gap-8 lg:grid-cols-12">
             <div className="lg:col-span-8">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   <MapPin size={11} />
                   {geo.detected ? cb.eyebrowLocal : cb.eyebrowDefault}
                 </div>
@@ -118,7 +118,7 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
             <div className="lg:col-span-4">
               <div className="rounded-3xl border border-border bg-background/60 p-7 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                  <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                     <MapPin size={11} />
                     {cb.detectedLabel}
                   </div>
@@ -153,7 +153,7 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
 
                 <LocalizedLink
                   href="/contact"
-                  className="group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground shadow-[0_8px_28px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5"
+                  className="group mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-strong px-5 py-3 text-sm font-semibold text-accent-foreground shadow-[0_8px_28px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5"
                 >
                   {ctaLabel}
                   <ArrowUpRight

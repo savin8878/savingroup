@@ -30,10 +30,22 @@
   },
   "socialProof": {
     "stats": [
-      { "value": "50+", "label": "已扩展的企业" },
-      { "value": "₹40Cr+", "label": "客户收入影响" },
-      { "value": "200%", "label": "第一年平均 ROI" },
-      { "value": "5", "label": "行业。一个合作伙伴。" }
+      {
+        "value": "50+",
+        "label": "已扩展的企业"
+      },
+      {
+        "value": "₹40Cr+",
+        "label": "客户收入影响"
+      },
+      {
+        "value": "200%",
+        "label": "第一年平均 ROI"
+      },
+      {
+        "value": "5",
+        "label": "行业。一个合作伙伴。"
+      }
     ],
     "logosLabel": "受{country}及全球雄心勃勃团队信赖"
   },
@@ -42,10 +54,26 @@
     "title": "您的业务正在流失收入。",
     "subtitle": "每一天的等待,成本都在累积。这些正在悄悄耗尽您的底线:",
     "points": [
-      { "stat": "7%", "label": "每个慢速页面损失", "detail": "每多一秒的加载时间,您就会在访客看到您的报价之前损失 7% 的访客。" },
-      { "stat": "70%", "label": "的潜在客户变冷", "detail": "因为没人跟进。没有自动化,没有 CRM,没有第二次接触 — 只有失去的交易。" },
-      { "stat": "100%", "label": "依赖广告", "detail": "您的竞争对手在 Google 上免费排名。您为每次点击付费 — 一次政策变更就会让您致命。" },
-      { "stat": "20+ 小时", "label": "每周浪费", "detail": "您的团队陷入运营中。您陷入管理团队中。没人在建设。" }
+      {
+        "stat": "7%",
+        "label": "每个慢速页面损失",
+        "detail": "每多一秒的加载时间,您就会在访客看到您的报价之前损失 7% 的访客。"
+      },
+      {
+        "stat": "70%",
+        "label": "的潜在客户变冷",
+        "detail": "因为没人跟进。没有自动化,没有 CRM,没有第二次接触 — 只有失去的交易。"
+      },
+      {
+        "stat": "100%",
+        "label": "依赖广告",
+        "detail": "您的竞争对手在 Google 上免费排名。您为每次点击付费 — 一次政策变更就会让您致命。"
+      },
+      {
+        "stat": "20+ 小时",
+        "label": "每周浪费",
+        "detail": "您的团队陷入运营中。您陷入管理团队中。没人在建设。"
+      }
     ],
     "cta": "我们解决所有这些。方法如下。"
   },
@@ -54,18 +82,42 @@
     "title": "其他代理商做网站。我们构建收入系统。",
     "subtitle": "每一个我们交付的解决方案都与可衡量的结果相关:更多收入、更低成本或更快的运营。我们像嵌入您业务内部的产品公司一样工作。",
     "comparison": [
-      { "typical": "交付网站", "us": "交付收入系统" },
-      { "typical": "专注于设计美学", "us": "专注于转化和 ROI" },
-      { "typical": "发布后消失", "us": "构建随时间累积的系统" },
-      { "typical": "按服务类型销售", "us": "按业务成果销售" },
-      { "typical": "技术术语堆砌", "us": "业务影响语言" },
-      { "typical": "通用套餐", "us": "行业专属解决方案" },
-      { "typical": "被动 — 等待简报", "us": "战略 — 先映射问题" },
-      { "typical": "无自动化专长", "us": "AI + 自动化内置于每个系统" }
+      {
+        "typical": "交付网站",
+        "us": "交付收入系统"
+      },
+      {
+        "typical": "专注于设计美学",
+        "us": "专注于转化和 ROI"
+      },
+      {
+        "typical": "发布后消失",
+        "us": "构建随时间累积的系统"
+      },
+      {
+        "typical": "按服务类型销售",
+        "us": "按业务成果销售"
+      },
+      {
+        "typical": "技术术语堆砌",
+        "us": "业务影响语言"
+      },
+      {
+        "typical": "通用套餐",
+        "us": "行业专属解决方案"
+      },
+      {
+        "typical": "被动 — 等待简报",
+        "us": "战略 — 先映射问题"
+      },
+      {
+        "typical": "无自动化专长",
+        "us": "AI + 自动化内置于每个系统"
+      }
     ]
   },
   "services": {
-    "eyebrow": "五个让您收入增长的系统",
+    "eyebrow": "六个让您收入增长的系统",
     "title": "我们不卖服务。我们解决问题。",
     "subtitle": "每个套餐都围绕特定的业务挑战构建 — 并以所交付的结果来衡量。",
     "items": [
@@ -211,11 +263,71 @@
     "title": "五个行业。一本增长剧本。",
     "subtitle": "我们不假装了解每个人的业务。我们在五个行业深入钻研 — 并为每个行业构建了可复制的收入系统。",
     "items": [
-      { "id": "ecommerce", "name": "电子商务 / D2C", "tag": "直接面向消费者的品牌", "description": "时尚、美容、健康、电子产品。GMV 为 ₹10L–₹2Cr 的品牌,受困于不断上升的 CAC 和一次性买家。", "painPoints": ["网站转化率低于 1%", "无重复购买机制", "购物车放弃率超过 70%", "完全依赖 Meta 广告"], "outcome": "+1.5–3% 转化率 · 2 倍重复购买率 · 6 个月内 +40–60% 有机流量" },
-      { "id": "real-estate", "name": "房地产", "tag": "开发商、经纪人、代理机构", "description": "住宅、商业、NRI 销售。拥有 3–20 名代理的团队淹没在低质量的门户潜在客户中。", "painPoints": ["每个门户潜在客户 ₹500–2,000", "70% 的潜在客户因无跟进而流失", "无法向 NRI 买家展示", "本地搜索无 SEO 可见性"], "outcome": "3–5 倍合格入站潜在客户 · 40% 降低 CPL · 2 倍现场访问转化" },
-      { "id": "edtech", "name": "培训 / EdTech", "tag": "机构和在线教育者", "description": "JEE、UPSC、NEET 备考和技能课程。200–5,000 名学生的机构从线下转向混合模式。", "painPoints": ["手动电话招生", "无在线支付集成", "在 Google 上不可见", "60–70% 的询问从未转化"], "outcome": "3–4 倍更快的招生 · +40–60% 询问到入学转化 · 30% 降低辍学率" },
-      { "id": "healthcare", "name": "医疗诊所", "tag": "综合和专科", "description": "牙科、皮肤科、骨科、生育、综合科。1–10 个位置,每天 10–200 名患者。", "painPoints": ["前台被预约电话淹没", "20–30% 的爽约率", "Google 地图上不可见", "无患者留存系统"], "outcome": "60% 更少来电 · 25% 减少爽约 · +40–80% 更多有机预约" },
-      { "id": "manufacturing", "name": "制造业", "tag": "制造、分销、零售", "description": "₹5–100Cr 营业额的中小企业在 Excel 和 5+ 个断开连接的工具上运行。在增长但运营混乱。", "painPoints": ["库存不匹配", "无实时财务可见性", "手动 GST 发票", "关键员工是单点故障"], "outcome": "80% 减少手动输入 · 每日 P&L · 3 倍订单到交付速度" }
+      {
+        "id": "ecommerce",
+        "name": "电子商务 / D2C",
+        "tag": "直接面向消费者的品牌",
+        "description": "时尚、美容、健康、电子产品。GMV 为 ₹10L–₹2Cr 的品牌,受困于不断上升的 CAC 和一次性买家。",
+        "painPoints": [
+          "网站转化率低于 1%",
+          "无重复购买机制",
+          "购物车放弃率超过 70%",
+          "完全依赖 Meta 广告"
+        ],
+        "outcome": "+1.5–3% 转化率 · 2 倍重复购买率 · 6 个月内 +40–60% 有机流量"
+      },
+      {
+        "id": "real-estate",
+        "name": "房地产",
+        "tag": "开发商、经纪人、代理机构",
+        "description": "住宅、商业、NRI 销售。拥有 3–20 名代理的团队淹没在低质量的门户潜在客户中。",
+        "painPoints": [
+          "每个门户潜在客户 ₹500–2,000",
+          "70% 的潜在客户因无跟进而流失",
+          "无法向 NRI 买家展示",
+          "本地搜索无 SEO 可见性"
+        ],
+        "outcome": "3–5 倍合格入站潜在客户 · 40% 降低 CPL · 2 倍现场访问转化"
+      },
+      {
+        "id": "edtech",
+        "name": "培训 / EdTech",
+        "tag": "机构和在线教育者",
+        "description": "JEE、UPSC、NEET 备考和技能课程。200–5,000 名学生的机构从线下转向混合模式。",
+        "painPoints": [
+          "手动电话招生",
+          "无在线支付集成",
+          "在 Google 上不可见",
+          "60–70% 的询问从未转化"
+        ],
+        "outcome": "3–4 倍更快的招生 · +40–60% 询问到入学转化 · 30% 降低辍学率"
+      },
+      {
+        "id": "healthcare",
+        "name": "医疗诊所",
+        "tag": "综合和专科",
+        "description": "牙科、皮肤科、骨科、生育、综合科。1–10 个位置,每天 10–200 名患者。",
+        "painPoints": [
+          "前台被预约电话淹没",
+          "20–30% 的爽约率",
+          "Google 地图上不可见",
+          "无患者留存系统"
+        ],
+        "outcome": "60% 更少来电 · 25% 减少爽约 · +40–80% 更多有机预约"
+      },
+      {
+        "id": "manufacturing",
+        "name": "制造业",
+        "tag": "制造、分销、零售",
+        "description": "₹5–100Cr 营业额的中小企业在 Excel 和 5+ 个断开连接的工具上运行。在增长但运营混乱。",
+        "painPoints": [
+          "库存不匹配",
+          "无实时财务可见性",
+          "手动 GST 发票",
+          "关键员工是单点故障"
+        ],
+        "outcome": "80% 减少手动输入 · 每日 P&L · 3 倍订单到交付速度"
+      }
     ]
   },
   "process": {
@@ -223,10 +335,30 @@
     "title": "诊断。构建。累积。",
     "subtitle": "每次合作都从付费发现开始 — 这样您在我们触及一行代码之前就能看到整个计划。",
     "steps": [
-      { "number": "01", "name": "收入审核", "duration": "第 1 周", "description": "我们端到端映射您当前的漏斗。我们确定收入泄漏的确切位置。您会得到一份书面诊断。" },
-      { "number": "02", "name": "定制蓝图", "duration": "第 2 周", "description": "我们将审核转化为付费发现:范围、交付物、时间表、成功指标。您在承诺任何费用之前看到整个构建。" },
-      { "number": "03", "name": "构建和交付", "duration": "第 3–10 周", "description": "我们分阶段构建,每周演示。您每 7 天看到进展 — 没有黑箱代理商周期。" },
-      { "number": "04", "name": "发布和累积", "duration": "第 11 周+", "description": "我们不会在发布时消失。我们调整转化、交付新流程,并逐月累积结果。" }
+      {
+        "number": "01",
+        "name": "收入审核",
+        "duration": "第 1 周",
+        "description": "我们端到端映射您当前的漏斗。我们确定收入泄漏的确切位置。您会得到一份书面诊断。"
+      },
+      {
+        "number": "02",
+        "name": "定制蓝图",
+        "duration": "第 2 周",
+        "description": "我们将审核转化为付费发现:范围、交付物、时间表、成功指标。您在承诺任何费用之前看到整个构建。"
+      },
+      {
+        "number": "03",
+        "name": "构建和交付",
+        "duration": "第 3–10 周",
+        "description": "我们分阶段构建,每周演示。您每 7 天看到进展 — 没有黑箱代理商周期。"
+      },
+      {
+        "number": "04",
+        "name": "发布和累积",
+        "duration": "第 11 周+",
+        "description": "我们不会在发布时消失。我们调整转化、交付新流程,并逐月累积结果。"
+      }
     ]
   },
   "caseStudies": {
@@ -242,11 +374,31 @@
         "title": "未增加广告支出,月收入从 ₹30L → ₹68L",
         "summary": "一个 8 人的护肤品牌,每月在 Meta 上花费 ₹1.8L,转化率为 0.6%。我们重建了店面,部署了 WhatsApp 恢复流程,并建立了 SEO 基础。",
         "metrics": [
-          { "label": "月收入", "value": "₹30L → ₹68L", "delta": "+127%" },
-          { "label": "转化率", "value": "0.6% → 2.1%", "delta": "+250%" },
-          { "label": "购物车恢复", "value": "0% → 28%", "delta": "新" },
-          { "label": "有机流量", "value": "+340%", "delta": "6 个月" },
-          { "label": "获客成本", "value": "₹820 → ₹290", "delta": "-65%" }
+          {
+            "label": "月收入",
+            "value": "₹30L → ₹68L",
+            "delta": "+127%"
+          },
+          {
+            "label": "转化率",
+            "value": "0.6% → 2.1%",
+            "delta": "+250%"
+          },
+          {
+            "label": "购物车恢复",
+            "value": "0% → 28%",
+            "delta": "新"
+          },
+          {
+            "label": "有机流量",
+            "value": "+340%",
+            "delta": "6 个月"
+          },
+          {
+            "label": "获客成本",
+            "value": "₹820 → ₹290",
+            "delta": "-65%"
+          }
         ],
         "quote": "Sanat Dynamo 不只是为我们建了一个网站。他们重建了我们的销售方式。我们在 7 个月内达到了年度收入目标。",
         "author": "创始人,D2C 护肤品牌"
@@ -259,10 +411,26 @@
         "title": "90 天内合格潜在客户成本降低 60%",
         "summary": "一家中型开发商在 housing.com 和 99acres 上花费数十万获取低意向潜在客户。我们建立了直接潜在客户网站、自动化 WhatsApp 培养流程和 NRI 买家的虚拟游览模块。",
         "metrics": [
-          { "label": "每个潜在客户成本", "value": "₹1,800 → ₹720", "delta": "-60%" },
-          { "label": "现场访问转化", "value": "12% → 24%", "delta": "+100%" },
-          { "label": "入站合格潜在客户", "value": "+312%", "delta": "3 个月" },
-          { "label": "NRI 成交", "value": "0 → 6", "delta": "新市场" }
+          {
+            "label": "每个潜在客户成本",
+            "value": "₹1,800 → ₹720",
+            "delta": "-60%"
+          },
+          {
+            "label": "现场访问转化",
+            "value": "12% → 24%",
+            "delta": "+100%"
+          },
+          {
+            "label": "入站合格潜在客户",
+            "value": "+312%",
+            "delta": "3 个月"
+          },
+          {
+            "label": "NRI 成交",
+            "value": "0 → 6",
+            "delta": "新市场"
+          }
         ],
         "quote": "我们停止依赖门户网站。网站现在产生的合格潜在客户比 99acres 多,成本只有三分之一。",
         "author": "董事,浦那房地产开发商"
@@ -275,10 +443,26 @@
         "title": "从 5 个电子表格到一个 ERP。手动输入减少 80%。",
         "summary": "一家 ₹40Cr 的制造企业在 Excel、WhatsApp 和部落知识上运营。我们构建了一个定制 ERP,包括库存、订单、GST 发票和供应商门户。",
         "metrics": [
-          { "label": "手动数据输入", "value": "-80%", "delta": "vs 基线" },
-          { "label": "订单到交付周期", "value": "11 天 → 4 天", "delta": "-64%" },
-          { "label": "发票错误", "value": "12% → 0.3%", "delta": "接近零" },
-          { "label": "P&L 可见性", "value": "每月 → 每日", "delta": "实时" }
+          {
+            "label": "手动数据输入",
+            "value": "-80%",
+            "delta": "vs 基线"
+          },
+          {
+            "label": "订单到交付周期",
+            "value": "11 天 → 4 天",
+            "delta": "-64%"
+          },
+          {
+            "label": "发票错误",
+            "value": "12% → 0.3%",
+            "delta": "接近零"
+          },
+          {
+            "label": "P&L 可见性",
+            "value": "每月 → 每日",
+            "delta": "实时"
+          }
         ],
         "quote": "我第一次早上 9 点看仪表板就确切知道业务状况。这改变了一切。",
         "author": "MD,汽车零部件制造商"
@@ -289,22 +473,56 @@
     "eyebrow": "创始人的评价",
     "title": "我们以您的收入来衡量自己。",
     "items": [
-      { "quote": "他们没有推销服务。他们诊断了我们的业务,并提出了一个带数字的 90 天计划。就在那一刻我们知道了。", "author": "Rohan M.", "role": "创始人,D2C 健康品牌" },
-      { "quote": "三个月后,我们削减了 40% 的广告,收入增长了 2.3 倍。系统每周都在自我偿付。", "author": "Priya S.", "role": "CEO,在线培训机构" },
-      { "quote": "大多数代理商在发布后就消失了。Sanat Dynamo 把它当作第一天来对待。每个月都比上一个月更好。", "author": "Dr. Anil K.", "role": "董事,多城市牙科诊所" },
-      { "quote": "我们用一个合作伙伴取代了四个供应商。更快、更便宜,我们的团队终于不用到处救火了。", "author": "Vikram J.", "role": "MD,制造业中小企业" }
+      {
+        "quote": "他们没有推销服务。他们诊断了我们的业务,并提出了一个带数字的 90 天计划。就在那一刻我们知道了。",
+        "author": "Rohan M.",
+        "role": "创始人,D2C 健康品牌"
+      },
+      {
+        "quote": "三个月后,我们削减了 40% 的广告,收入增长了 2.3 倍。系统每周都在自我偿付。",
+        "author": "Priya S.",
+        "role": "CEO,在线培训机构"
+      },
+      {
+        "quote": "大多数代理商在发布后就消失了。Sanat Dynamo 把它当作第一天来对待。每个月都比上一个月更好。",
+        "author": "Dr. Anil K.",
+        "role": "董事,多城市牙科诊所"
+      },
+      {
+        "quote": "我们用一个合作伙伴取代了四个供应商。更快、更便宜,我们的团队终于不用到处救火了。",
+        "author": "Vikram J.",
+        "role": "MD,制造业中小企业"
+      }
     ]
   },
   "faq": {
     "eyebrow": "常见问题",
     "title": "创始人签约前会问的问题。",
     "items": [
-      { "q": "你们与普通代理商有何不同?", "a": "大多数代理商销售服务。我们销售结果:更多收入、更低成本、更快运营。每个项目都在我们编写一行代码之前就确定了成功指标。" },
-      { "q": "最低合作是什么?", "a": "单独套餐从 ₹60K(RevSite Pro)开始。保留金从 ₹30K/月开始。最常见的是分阶段构建,在 60–90 天内收回成本。" },
-      { "q": "多久能看到结果?", "a": "上线后第 1 周就会出现转化改进。WhatsApp 自动化在第 2 周就能收回成本。SEO 在 4–6 个月内累积。" },
-      { "q": "你们在印度以外工作吗?", "a": "是的。我们的 GlobalScale Suite 专门为向 NRI 和全球市场销售的品牌构建。我们已经为美国、阿联酋和东南亚的客户交付了系统。" },
-      { "q": "我们可以从一个系统开始吗?", "a": "当然可以。最快的 ROI 通常来自三者之一:网站重建、WhatsApp 自动化或本地 SEO。" },
-      { "q": "发现阶段是什么样的?", "a": "一个付费的 3 小时会议。我们映射您的漏斗,确定收入泄漏,并提供一份书面蓝图。" }
+      {
+        "q": "你们与普通代理商有何不同?",
+        "a": "大多数代理商销售服务。我们销售结果:更多收入、更低成本、更快运营。每个项目都在我们编写一行代码之前就确定了成功指标。"
+      },
+      {
+        "q": "最低合作是什么?",
+        "a": "单独套餐从 ₹60K(RevSite Pro)开始。保留金从 ₹30K/月开始。最常见的是分阶段构建,在 60–90 天内收回成本。"
+      },
+      {
+        "q": "多久能看到结果?",
+        "a": "上线后第 1 周就会出现转化改进。WhatsApp 自动化在第 2 周就能收回成本。SEO 在 4–6 个月内累积。"
+      },
+      {
+        "q": "你们在印度以外工作吗?",
+        "a": "是的。我们的 GlobalScale Suite 专门为向 NRI 和全球市场销售的品牌构建。我们已经为美国、阿联酋和东南亚的客户交付了系统。"
+      },
+      {
+        "q": "我们可以从一个系统开始吗?",
+        "a": "当然可以。最快的 ROI 通常来自三者之一:网站重建、WhatsApp 自动化或本地 SEO。"
+      },
+      {
+        "q": "发现阶段是什么样的?",
+        "a": "一个付费的 3 小时会议。我们映射您的漏斗,确定收入泄漏,并提供一份书面蓝图。"
+      }
     ]
   },
   "cta": {
@@ -325,10 +543,22 @@
       "我们的团队小而资深,并且是嵌入式的。您与构建您系统的人合作,而不是一个传递信息的客户经理。"
     ],
     "values": [
-      { "title": "结果优于产出", "body": "如果不转化,像素完美就无关紧要。每个决定都与您关心的数字相关。" },
-      { "title": "嵌入式,而非外部", "body": "我们像您业务内部的产品团队一样工作。您每周看到进展,而不是季度幻灯片。" },
-      { "title": "累积,而非流失", "body": "每个月都应该比上个月更好。我们构建随时间变得更强的系统。" },
-      { "title": "诚实的数学", "body": "如果一个项目在 6 个月内无法收回成本,我们会告诉您。有时正确的答案是不要构建。" }
+      {
+        "title": "结果优于产出",
+        "body": "如果不转化,像素完美就无关紧要。每个决定都与您关心的数字相关。"
+      },
+      {
+        "title": "嵌入式,而非外部",
+        "body": "我们像您业务内部的产品团队一样工作。您每周看到进展,而不是季度幻灯片。"
+      },
+      {
+        "title": "累积,而非流失",
+        "body": "每个月都应该比上个月更好。我们构建随时间变得更强的系统。"
+      },
+      {
+        "title": "诚实的数学",
+        "body": "如果一个项目在 6 个月内无法收回成本,我们会告诉您。有时正确的答案是不要构建。"
+      }
     ]
   },
   "contact": {
@@ -340,7 +570,14 @@
       "email": "工作邮箱",
       "company": "公司",
       "industry": "行业",
-      "industries": ["电子商务 / D2C", "房地产", "培训 / EdTech", "医疗", "中小企业 / 制造", "其他"],
+      "industries": [
+        "电子商务 / D2C",
+        "房地产",
+        "培训 / EdTech",
+        "医疗",
+        "中小企业 / 制造",
+        "其他"
+      ],
       "challenge": "您正在尝试解决的最大问题是什么?",
       "submit": "申请审核",
       "submitting": "发送中…"
@@ -348,7 +585,6 @@
     "details": {
       "emailLabel": "邮箱",
       "email": "savingroup@gmail.com",
-      "emailHref": "kanhaji0402@gmail.com",
       "phoneLabel": "WhatsApp",
       "phone": "+91 83058 38352",
       "hoursLabel": "工作时间",
@@ -363,32 +599,80 @@
       "services": {
         "title": "服务",
         "links": [
-          { "label": "RevSite Pro", "href": "/services#revsite-pro" },
-          { "label": "AutoSell Engine", "href": "/services#autosell-engine" },
-          { "label": "LocalDom SEO", "href": "/services#localdom-seo" },
-          { "label": "GlobalScale Suite", "href": "/services#globalscale-suite" },
-          { "label": "OperateOS", "href": "/services#operate-os" },
-          { "label": "GrowthOS Retainer", "href": "/services#growthos-retainer" }
+          {
+            "label": "RevSite Pro",
+            "href": "/services#revsite-pro"
+          },
+          {
+            "label": "AutoSell Engine",
+            "href": "/services#autosell-engine"
+          },
+          {
+            "label": "LocalDom SEO",
+            "href": "/services#localdom-seo"
+          },
+          {
+            "label": "GlobalScale Suite",
+            "href": "/services#globalscale-suite"
+          },
+          {
+            "label": "OperateOS",
+            "href": "/services#operate-os"
+          },
+          {
+            "label": "GrowthOS Retainer",
+            "href": "/services#growthos-retainer"
+          }
         ]
       },
       "industries": {
         "title": "行业",
         "links": [
-          { "label": "制造业", "href": "/industries/manufacturing" },
-          { "label": "房地产", "href": "/industries/real-estate" },
-          { "label": "医疗", "href": "/industries/healthcare" },
-          { "label": "电子商务 / D2C", "href": "/industries/ecommerce" },
-          { "label": "培训 / EdTech", "href": "/industries/edtech" }
+          {
+            "label": "制造业",
+            "href": "/industries/manufacturing"
+          },
+          {
+            "label": "房地产",
+            "href": "/industries/real-estate"
+          },
+          {
+            "label": "医疗",
+            "href": "/industries/healthcare"
+          },
+          {
+            "label": "电子商务 / D2C",
+            "href": "/industries/ecommerce"
+          },
+          {
+            "label": "培训 / EdTech",
+            "href": "/industries/edtech"
+          }
         ]
       },
       "company": {
         "title": "公司",
         "links": [
-          { "label": "关于我们", "href": "/about" },
-          { "label": "案例研究", "href": "/case-studies" },
-          { "label": "联系我们", "href": "/contact" },
-          { "label": "隐私", "href": "/privacy" },
-          { "label": "条款", "href": "/terms" }
+          {
+            "label": "关于我们",
+            "href": "/about"
+          },
+          {
+            "label": "案例研究",
+            "href": "/case-studies"
+          },
+          {
+            "label": "联系我们",
+            "href": "/contact"
+          },
+          {
+            "label": "隐私",
+            "href": "/privacy"
+          },
+          {
+            "label": "条款",
+            "href": "/terms"
+          }
         ]
       }
     },
@@ -396,13 +680,45 @@
     "status": "所有系统运行正常"
   },
   "pages": {
-    "home": { "metaTitle": "Sanat Dynamo — 我们构建收入系统,而非仅仅是网站", "metaDescription": "定制软件、AI 自动化和 SEO — 作为 D2C 品牌、房地产、诊所、培训机构和中小企业的统一增长引擎。", "metaKeywords": "收入系统, 定制软件开发, AI 自动化, WhatsApp 自动化, SEO 代理商, ERP 开发, 印度" },
-    "about": { "metaTitle": "关于 Sanat Dynamo — 以收入为核心的系统合作伙伴", "metaDescription": "了解 Sanat Dynamo 背后的资深团队。我们已与 50+ 企业合作。", "metaKeywords": "收入代理商, 增长合作伙伴, 印度代理商, 嵌入式团队" },
-    "services": { "metaTitle": "服务 — 6 个产品化的收入系统", "metaDescription": "RevSite Pro、AutoSell Engine、LocalDom SEO、GlobalScale Suite、OperateOS、GrowthOS Retainer — 六个固定范围的套餐。", "metaKeywords": "网站重建, WhatsApp 自动化, 本地 SEO, 定制 ERP, 增长保留金" },
-    "industries": { "metaTitle": "行业 — 电子商务、房地产、EdTech、医疗、中小企业", "metaDescription": "我们已在 5 个行业深入钻研。", "metaKeywords": "D2C 代理商, 房地产数字营销, 培训软件" },
-    "caseStudies": { "metaTitle": "案例研究 — 127% 收入增长, 65% CPA 降低, ₹40Cr 影响", "metaDescription": "真实企业。真实数字。", "metaKeywords": "案例研究, D2C 收入增长, 房地产 CRM 案例研究" },
-    "contact": { "metaTitle": "联系我们 — 预约免费 30 分钟收入审核", "metaDescription": "预约一次免费的 30 分钟收入审核。", "metaKeywords": "免费收入审核, 业务增长咨询, 代理商联系" },
-    "privacy": { "metaTitle": "隐私政策 — Sanat Dynamo", "metaDescription": "Sanat Dynamo 如何收集、使用和保护您的信息。", "metaKeywords": "隐私政策, 数据保护, GDPR" },
-    "terms": { "metaTitle": "服务条款 — Sanat Dynamo", "metaDescription": "与 Sanat Dynamo 合作时的规则。", "metaKeywords": "服务条款, 代理商合同, 项目协议" }
+    "home": {
+      "metaTitle": "Sanat Dynamo — 我们构建收入系统,而非仅仅是网站",
+      "metaDescription": "定制软件、AI 自动化和 SEO — 作为 D2C 品牌、房地产、诊所、培训机构和中小企业的统一增长引擎。",
+      "metaKeywords": "收入系统, 定制软件开发, AI 自动化, WhatsApp 自动化, SEO 代理商, ERP 开发, 印度"
+    },
+    "about": {
+      "metaTitle": "关于 Sanat Dynamo — 以收入为核心的系统合作伙伴",
+      "metaDescription": "了解 Sanat Dynamo 背后的资深团队。我们已与 50+ 企业合作。",
+      "metaKeywords": "收入代理商, 增长合作伙伴, 印度代理商, 嵌入式团队"
+    },
+    "services": {
+      "metaTitle": "服务 — 6 个产品化的收入系统",
+      "metaDescription": "RevSite Pro、AutoSell Engine、LocalDom SEO、GlobalScale Suite、OperateOS、GrowthOS Retainer — 六个固定范围的套餐。",
+      "metaKeywords": "网站重建, WhatsApp 自动化, 本地 SEO, 定制 ERP, 增长保留金"
+    },
+    "industries": {
+      "metaTitle": "行业 — 电子商务、房地产、EdTech、医疗、中小企业",
+      "metaDescription": "我们已在 5 个行业深入钻研。",
+      "metaKeywords": "D2C 代理商, 房地产数字营销, 培训软件"
+    },
+    "caseStudies": {
+      "metaTitle": "案例研究 — 127% 收入增长, 65% CPA 降低, ₹40Cr 影响",
+      "metaDescription": "真实企业。真实数字。",
+      "metaKeywords": "案例研究, D2C 收入增长, 房地产 CRM 案例研究"
+    },
+    "contact": {
+      "metaTitle": "联系我们 — 预约免费 30 分钟收入审核",
+      "metaDescription": "预约一次免费的 30 分钟收入审核。",
+      "metaKeywords": "免费收入审核, 业务增长咨询, 代理商联系"
+    },
+    "privacy": {
+      "metaTitle": "隐私政策 — Sanat Dynamo",
+      "metaDescription": "Sanat Dynamo 如何收集、使用和保护您的信息。",
+      "metaKeywords": "隐私政策, 数据保护, GDPR"
+    },
+    "terms": {
+      "metaTitle": "服务条款 — Sanat Dynamo",
+      "metaDescription": "与 Sanat Dynamo 合作时的规则。",
+      "metaKeywords": "服务条款, 代理商合同, 项目协议"
+    }
   }
 }

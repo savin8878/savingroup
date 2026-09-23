@@ -123,7 +123,7 @@ export function IndustryConstellation({
 
       <div className="relative grid gap-6 p-6 sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-12">
         <div className="lg:col-span-5">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
@@ -175,7 +175,7 @@ export function IndustryConstellation({
           </div>
 
           {countryHint && (
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
               <Sparkles size={11} />
               {countryHint}
             </div>
@@ -508,7 +508,7 @@ export function WhyPerIndustryMatrix() {
       <div className="relative">
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Sparkles size={11} />
               Why per-industry
             </div>

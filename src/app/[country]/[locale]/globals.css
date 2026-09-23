@@ -12,6 +12,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
   --color-accent-2: var(--accent-2);
@@ -47,6 +48,9 @@
   --font-display: var(--font-space-grotesk), var(--font-script, system-ui);
   --font-sans: var(--font-dm-sans), var(--font-script, system-ui);
   --font-mono: var(--font-jetbrains-mono), var(--font-script, monospace);
+  /* Editorial didone. Latin-only by design — non-Latin locales fall through to
+     --font-script, because Bodoni Moda has no Devanagari/Gujarati/Arabic. */
+  --font-editorial: var(--font-bodoni-moda), var(--font-script, Georgia), serif;
 
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
@@ -69,7 +73,14 @@
   --border-strong: oklch(0 0 0 / 0.16);
   --muted: oklch(0.94 0.004 260);
   --muted-foreground: oklch(0.44 0.02 260);
-  --accent: oklch(0.65 0.19 55);                   /* deeper amber for contrast on white */
+  --accent: oklch(0.65 0.19 55);                   /* brand orange — graphics + LARGE text only (3.4:1 on white) */
+  /* Interactive orange. WCAG 1.4.3 needs 4.5:1 for text under 24px and for
+     white-on-fill buttons; --accent gives 3.4:1 and failed Lighthouse on the
+     primary CTA. L 0.55 measures 5.0:1 against --accent-foreground, so every
+     filled button and every small accent label uses THIS one. Do not swap the
+     two back: --accent stays vivid because it still carries the brand at
+     display sizes, where 3:1 is the real bar. */
+  --accent-strong: oklch(0.55 0.17 52);
   --accent-foreground: oklch(0.99 0.002 260);
   --accent-soft: oklch(0.65 0.19 55 / 0.1);
   --accent-2: oklch(0.55 0.2 295);                 /* deeper violet for contrast on white */
@@ -112,6 +123,10 @@
   --muted: oklch(0.205 0.018 260);
   --muted-foreground: oklch(0.7 0.015 260);
   --accent: oklch(0.78 0.165 70);
+  /* Dark mode needs no darker variant — the accent already measures 9.7:1
+     against --accent-foreground and 9.5:1 against the page. Kept as a separate
+     token so components can name the interactive colour in one way. */
+  --accent-strong: oklch(0.78 0.165 70);
   --accent-foreground: oklch(0.13 0.02 260);
   --accent-soft: oklch(0.78 0.165 70 / 0.12);
   --accent-2: oklch(0.66 0.18 295);
@@ -144,6 +159,7 @@
     --muted: oklch(0.205 0.018 260);
     --muted-foreground: oklch(0.7 0.015 260);
     --accent: oklch(0.78 0.165 70);
+    --accent-strong: oklch(0.78 0.165 70);
     --accent-foreground: oklch(0.13 0.02 260);
     --accent-soft: oklch(0.78 0.165 70 / 0.12);
     --accent-2: oklch(0.66 0.18 295);
@@ -550,6 +566,16 @@
   .hps-toast {
     animation: hps-toast 8s ease-in-out infinite;
   }
+  /* Inverse of the toast, so the strip crossfades cleanly instead of
+     showing both layers through each other mid-transition. */
+  .hps-status {
+    animation: hps-status 8s ease-in-out infinite;
+  }
+  @keyframes hps-status {
+    0%, 6%     { opacity: 1; }
+    12%, 44%   { opacity: 0; }
+    52%, 100%  { opacity: 1; }
+  }
   @keyframes hps-toast {
     0%, 6%     { opacity: 0; transform: translateY(14px) scale(0.96); }
     12%, 44%   { opacity: 1; transform: translateY(0) scale(1); }
@@ -559,6 +585,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hps-toast,
+  .hps-status,
   .pulse-dot,
   .svg-spin-slow,
   .svg-float,
@@ -568,3 +595,115 @@
     animation: none !important;
   }
 }
+
+/* ==========================================================================
+   EDITORIAL DISPLAY FACE
+   --------------------------------------------------------------------------
+   The tall, high-contrast didone. It is a seasoning, not a heading style:
+   one line per screen, at 2rem or larger, where the message lives. At small
+   sizes its hairlines disappear, so `.font-editorial` deliberately ships an
+   optical-size and a tightened tracking tuned for display use only.
+   ========================================================================== */
+@layer utilities {
+  .font-editorial {
+    font-family: var(--font-editorial);
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 96;
+    letter-spacing: -0.015em;
+    /* Didone caps sit taller than Space Grotesk's; pulling the line-height in
+       keeps a two-line headline from opening a gap the sans never had. */
+    line-height: 0.98;
+  }
+}
+
+/* ==========================================================================
+   ENTRANCE ANIMATIONS — CSS ONLY, ON PURPOSE
+   --------------------------------------------------------------------------
+   WHY THIS IS NOT FRAMER-MOTION.
+
+   A `motion.div` with `initial={{opacity:0}}` serialises `opacity:0` into the
+   SSR HTML and only clears it once React has hydrated. On a mid-range phone
+   that is seconds after first paint, and it is what put the homepage hero's
+   LCP at 4.8s and left whole sections blank when a `whileInView` threshold
+   never fired.
+
+   These classes invert that contract:
+     - the element is VISIBLE by default (`opacity: 1`), so a visitor with no
+       JS, slow JS, or failed JS still reads the page;
+     - the animation only ever runs FROM a hidden state TO the resting state,
+       driven by the CSS engine, which paints on the first frame after the
+       stylesheet parses — no hydration in the critical path;
+     - `prefers-reduced-motion` removes it entirely rather than shortening it.
+
+   Use `.rise` for content that is on screen at load (hero, page headers).
+   Anything below the fold that genuinely needs a scroll-triggered entrance
+   should use `.reveal` + `data-revealed`, which is additive: the element is
+   readable before the observer ever runs.
+   ========================================================================== */
+@layer utilities {
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .rise {
+    animation: rise-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Stagger steps. Capped at ~0.24s: past that the last element in a group
+     reads as "broken" rather than "choreographed", and on the hero it would
+     push the LCP element's paint back for no gain. */
+  .rise-1 { animation-delay: 0.04s; }
+  .rise-2 { animation-delay: 0.08s; }
+  .rise-3 { animation-delay: 0.12s; }
+  .rise-4 { animation-delay: 0.16s; }
+  .rise-5 { animation-delay: 0.20s; }
+  .rise-6 { animation-delay: 0.24s; }
+
+  /*
+   * Scroll-triggered reveal. The resting state IS the readable state, so an
+   * element that never gets observed (threshold never met, observer never
+   * constructed, JS dead) stays fully visible. Only once the observer has
+   * positively marked it `data-revealed="false"` does it hide — and it is the
+   * same observer that flips it to "true" a frame later.
+   */
+  .reveal[data-revealed="false"] {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  .reveal[data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none !important;
+  }
+  .reveal[data-revealed="false"],
+  .reveal[data-revealed="true"] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   NO-JS SAFETY NET
+   --------------------------------------------------------------------------
+   The homepage, /pricing and /contact no longer ship a single `opacity:0` in
+   their server HTML. A handful of illustration components still do — chiefly
+   `IndustrySegmentVisuals`, which has 31 framer-motion nodes. Those all use
+   `viewport={{ once: true }}` with no `amount` threshold, so they DO fire
+   reliably once hydrated; the exposure is limited to a client that never runs
+   the JS at all.
+
+   This covers that client. The rule itself lives in a <noscript><style> in
+   layout.tsx, so it is inert for everyone else — framer-motion writes its
+   initial state as an inline `style`, and only `!important` beats that, which
+   is far too blunt to leave switched on for browsers that will animate
+   normally a moment later.
+   ========================================================================== */

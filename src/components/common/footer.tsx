@@ -1,311 +1,80 @@
 "use client";
 
-import { ArrowUpRight, BookOpen, Github, Linkedin, Twitter, Mail, MessageCircle, MapPin } from "lucide-react";
+import { useParams } from "next/navigation";
+import { ArrowUpRight, Github, Instagram, Linkedin, Mail, MessageCircle, Phone, Twitter, Youtube } from "lucide-react";
 import LocalizedLink from "../LocalizedLink";
 import Logo from "../Logo/logo";
-import type { Messages } from "@/lib/i18n";
-import { getMostReadPosts, BLOG_CATEGORIES } from "@/lib/blogs";
-import { INDIA_CITIES } from "@/lib/cities";
+import type { Locale, Messages } from "@/lib/i18n";
+import { BRAND, SOCIAL_PROFILES } from "@/lib/constants";
+import { AUDIT, CTA_LABEL } from "@/lib/offer";
+import { FOOTER_COPY } from "./footer-copy";
+import styles from "./Footer.module.css";
 
-interface FooterProps {
-  translations: Messages;
-}
+interface FooterProps { translations: Messages; }
 
-export default function Footer({ translations }: FooterProps) {
-  const t = translations;
+const SOCIAL_ICONS = {
+  linkedin: { Icon: Linkedin, label: "LinkedIn" },
+  x: { Icon: Twitter, label: "X" },
+  github: { Icon: Github, label: "GitHub" },
+  instagram: { Icon: Instagram, label: "Instagram" },
+  youtube: { Icon: Youtube, label: "YouTube" },
+} as const;
+
+// A short route index keeps the city pages discoverable without shipping the
+// complete city-content database in this site-wide client component.
+const FEATURED_CITIES = [
+  { slug: "mumbai", name: "Mumbai", hi: "मुंबई" },
+  { slug: "delhi", name: "Delhi NCR", hi: "दिल्ली NCR" },
+  { slug: "bengaluru", name: "Bengaluru", hi: "बेंगलुरु" },
+  { slug: "pune", name: "Pune", hi: "पुणे" },
+  { slug: "ahmedabad", name: "Ahmedabad", hi: "अहमदाबाद" },
+] as const;
+
+export default function Footer({ translations: t }: FooterProps) {
+  const params = useParams();
+  const requestedLocale = typeof params?.locale === "string" ? params.locale : "en";
+  const locale = requestedLocale in FOOTER_COPY ? requestedLocale as Locale : "en";
+  const copy = FOOTER_COPY[locale];
   const year = new Date().getFullYear();
-  const popularPosts = getMostReadPosts(5);
-  const blogCategories = BLOG_CATEGORIES.filter((c) => c.key !== "all");
+  const email = t.contact.details.email;
+  const phone = t.contact.details.phone;
+  const phoneDigits = phone.replace(/\D/g, "");
+  const companyLinks = t.footer.columns.company.links.filter((link) => link.href !== "/privacy" && link.href !== "/terms");
+  const policyLabel = (href: string, fallback: string) => t.footer.columns.company.links.find((link) => link.href === href)?.label ?? fallback;
+  const columns = [
+    t.footer.columns.services,
+    t.footer.columns.industries,
+    { ...t.footer.columns.company, links: [...companyLinks, { label: copy.journal, href: "/blogs" }] },
+  ];
 
-  return (
-    <footer className="relative mt-32 border-t border-border bg-background">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-      <div className="bg-grid bg-grid-fade absolute inset-0 opacity-30" />
-
-      <div className="container-px relative mx-auto max-w-7xl">
-        {/* Top contact strip */}
-        <div className="grid gap-3 border-b border-border py-8 sm:gap-4 sm:py-10 md:grid-cols-3">
-          <a
-            href={`mailto:${t.contact.details.emailHref}`}
-            className="group flex items-center gap-4 rounded-2xl border border-border bg-surface/40 p-5 transition-all hover:border-accent/40 hover:bg-surface"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-accent">
-              <Mail size={18} />
-            </div>
-            <div className="min-w-0">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                Email
-              </div>
-              <div className="truncate text-sm font-semibold text-foreground">
-                {t.contact.details.email}
-              </div>
-            </div>
-            <ArrowUpRight
-              size={16}
-              className="ml-auto shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
-            />
-          </a>
-          <a
-            href={`https://wa.me/${t.contact.details.phone.replace(/\D/g, "")}`}
-            className="group flex items-center gap-4 rounded-2xl border border-border bg-surface/40 p-5 transition-all hover:border-accent/40 hover:bg-surface"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-background text-accent">
-              <MessageCircle size={18} />
-            </div>
-            <div className="min-w-0">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                WhatsApp
-              </div>
-              <div className="truncate text-sm font-semibold text-foreground">
-                {t.contact.details.phone}
-              </div>
-            </div>
-            <ArrowUpRight
-              size={16}
-              className="ml-auto shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
-            />
-          </a>
-          <LocalizedLink
-            href="/contact"
-            className="group flex items-center gap-4 rounded-2xl border border-accent/40 bg-accent/5 p-5 transition-all hover:border-accent/70 hover:bg-accent/10"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <ArrowUpRight size={18} />
-            </div>
-            <div className="min-w-0">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-                Free 30-min audit
-              </div>
-              <div className="truncate text-sm font-semibold text-foreground">
-                Book your slot →
-              </div>
-            </div>
-          </LocalizedLink>
-        </div>
-
-        {/* Brand + columns */}
-        <div className="grid gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Logo size="lg" />
-            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted-foreground">
-              {t.footer.tagline}
-            </p>
-
-            <div className="mt-8 flex items-center gap-3">
-              {[
-                { Icon: Linkedin, href: "https://www.linkedin.com/", label: "LinkedIn" },
-                { Icon: Twitter, href: "https://x.com/", label: "X (Twitter)" },
-                { Icon: Github, href: "https://github.com/", label: "GitHub" },
-              ].map(({ Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted-foreground transition-all hover:border-accent/50 hover:bg-surface-2 hover:text-foreground"
-                  aria-label={label}
-                >
-                  <Icon size={16} />
-                </a>
-              ))}
-            </div>
-
-            <div className="mt-8 flex items-center gap-2.5 text-xs font-mono uppercase tracking-[0.18em] text-muted-foreground">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-              </span>
-              {t.footer.status}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 sm:gap-10 lg:col-span-7">
-            {(["services", "industries", "company"] as const).map((key) => {
-              const col = t.footer.columns[key];
-              return (
-                <div key={key}>
-                  <h4 className="text-xs font-mono uppercase tracking-[0.2em] text-accent">
-                    {col.title}
-                  </h4>
-                  <ul className="mt-5 space-y-3">
-                    {col.links.map((link) => (
-                      <li key={link.href}>
-                        <LocalizedLink
-                          href={link.href}
-                          className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                          {link.label}
-                          <ArrowUpRight
-                            size={12}
-                            className="opacity-0 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
-                          />
-                        </LocalizedLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* From the blog — site-wide internal linking to popular posts */}
-        <div className="border-t border-border py-10 sm:py-12">
-          <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent">
-                <BookOpen size={14} />
-              </div>
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-                  From the blog
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">
-                  Most-read field notes this month
-                </h3>
-              </div>
-            </div>
-            <LocalizedLink
-              href="/blogs"
-              className="hidden items-center gap-2 rounded-full border border-border bg-surface/60 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent sm:inline-flex"
-            >
-              All posts
-              <ArrowUpRight size={11} />
-            </LocalizedLink>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
-            {popularPosts.map((post, i) => (
-              <LocalizedLink
-                key={post.slug}
-                href={`/blogs/${post.slug}`}
-                className="group flex h-full flex-col rounded-2xl border border-border bg-surface/40 p-4 transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface"
-              >
-                <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span>{post.readTime} min</span>
-                </div>
-                <h4 className="mt-3 flex-1 font-display text-sm font-semibold leading-tight tracking-tight text-foreground transition group-hover:text-accent">
-                  {post.title}
-                </h4>
-                <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-[0.18em] text-accent">
-                  read
-                  <ArrowUpRight
-                    size={10}
-                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  />
-                </span>
-              </LocalizedLink>
-            ))}
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-border pt-6">
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              Topics ·
-            </span>
-            {blogCategories.map((c) => (
-              <LocalizedLink
-                key={c.key}
-                href={`/blogs/category/${c.key}`}
-                className="rounded-full border border-border bg-surface/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
-              >
-                {c.label}
-              </LocalizedLink>
-            ))}
-            <LocalizedLink
-              href="/blogs"
-              className="ml-auto inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent hover:underline sm:hidden"
-            >
-              All posts
-              <ArrowUpRight size={11} />
-            </LocalizedLink>
-          </div>
-        </div>
-
-        {/* Cities we serve — site-wide internal-link equity for the
-            India city hub. Every page in the site links to all 11 city
-            pages. This is what makes "best web development in {city}"
-            queries actually rank. */}
-        <div className="border-t border-border py-10 sm:py-12">
-          <div className="mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full border border-accent/40 bg-accent/10 text-accent">
-                <MapPin size={14} />
-              </div>
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-                  Cities we serve in India
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground">
-                  Local revenue systems · 11 metros
-                </h3>
-              </div>
-            </div>
-            <LocalizedLink
-              href="/cities"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
-            >
-              All cities
-              <ArrowUpRight size={11} />
-            </LocalizedLink>
-          </div>
-
-          <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {INDIA_CITIES.map((city) => (
-              <LocalizedLink
-                key={city.slug}
-                href={`/cities/${city.slug}`}
-                className="group flex items-center justify-between rounded-2xl border border-border bg-surface/40 px-4 py-3 transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface"
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-foreground transition-colors group-hover:text-accent">
-                    {city.name}
-                  </div>
-                  <div className="mt-0.5 truncate font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
-                    {city.state}
-                  </div>
-                </div>
-                <ArrowUpRight
-                  size={12}
-                  className="ml-2 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
-                />
-              </LocalizedLink>
-            ))}
-          </div>
-        </div>
-
-        {/* Big wordmark */}
-        <div className="select-none border-y border-border py-12">
-          <div className="text-center">
-            <h2 className="font-display text-[clamp(3rem,12vw,11rem)] font-semibold leading-[0.9] tracking-tighter text-foreground/90">
-              Sanat<span className="text-accent">Dynamo</span>
-            </h2>
-            <p className="mt-3 font-mono text-xs uppercase tracking-[0.4em] text-muted-foreground">
-              {t.brand.tagline}
-            </p>
-          </div>
-        </div>
-
-        {/* Bottom row */}
-        <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
-          <p className="text-xs text-muted-foreground">
-            © {year} Sanat Dynamo · {t.footer.rights}
-          </p>
-          <div className="flex items-center gap-6 text-xs text-muted-foreground">
-            <LocalizedLink href="/privacy" className="hover:text-foreground">
-              Privacy
-            </LocalizedLink>
-            <LocalizedLink href="/terms" className="hover:text-foreground">
-              Terms
-            </LocalizedLink>
-            <span className="font-mono uppercase tracking-[0.18em]">
-              v1.0
-            </span>
-          </div>
-        </div>
+  return <footer className={styles.footer}>
+    <div className={styles.inner}>
+      <div className={styles.auditStrip}>
+        <div className={styles.auditIntro}><span className={styles.sectionNumber} aria-hidden="true">↗</span><div><p>{copy.start}</p><span>{copy.auditNote.replace("{minutes}", String(AUDIT.minutes))}</span></div></div>
+        <LocalizedLink href="/contact" className={styles.auditLink}>{locale === "en" ? CTA_LABEL : copy.audit}<ArrowUpRight size={18} aria-hidden="true" /></LocalizedLink>
       </div>
-    </footer>
-  );
+
+      <div className={styles.main}>
+        <div className={styles.brand}>
+          <LocalizedLink href="/" className={styles.brandLink} aria-label={`${BRAND.name} — ${t.nav.home}`}><Logo size="lg" className={styles.logo} /></LocalizedLink>
+          <p className={styles.mission}>{copy.mission}</p>
+          <div className={styles.brandCircuit} aria-hidden="true"><svg viewBox="0 0 240 32" fill="none"><path d="M6 16H55L69 4H108L125 28H159L174 16H233" /><circle cx="6" cy="16" r="3" /><circle cx="108" cy="4" r="3" /><circle cx="174" cy="16" r="3" /><circle cx="233" cy="16" r="3" /></svg></div>
+          <address className={styles.contact}>
+            <a href={`mailto:${email}`} className={styles.email}><Mail size={15} aria-hidden="true" /><span dir="ltr">{email}</span><ArrowUpRight size={13} aria-hidden="true" /></a>
+            <div className={styles.phoneRow}><a href={`tel:+${phoneDigits}`} aria-label={`${copy.call}: ${phone}`}><Phone size={13} aria-hidden="true" /><span dir="ltr">{phone}</span></a><a href={`https://wa.me/${phoneDigits}`} aria-label={`${t.contact.details.phoneLabel}: ${phone}`}><MessageCircle size={14} aria-hidden="true" /><span>{t.contact.details.phoneLabel}</span><ArrowUpRight size={11} aria-hidden="true" /></a></div>
+          </address>
+          {SOCIAL_PROFILES.length > 0 && <div className={styles.socials}>{SOCIAL_PROFILES.map(({ platform, url }) => { const { Icon, label } = SOCIAL_ICONS[platform]; return <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={17} aria-hidden="true" /></a>; })}</div>}
+        </div>
+
+        {columns.map((column, index) => <nav className={styles.column} aria-label={column.title} key={column.title}><h2><span className={styles.columnNumber} aria-hidden="true">0{index + 1}</span>{column.title}</h2><ul>{column.links.map((link) => <li key={link.href}><LocalizedLink href={link.href}>{link.label}<ArrowUpRight size={12} aria-hidden="true" /></LocalizedLink></li>)}</ul></nav>)}
+      </div>
+
+      <nav className={styles.cityRow} aria-label={copy.cities}><span className={styles.cityLabel}>{copy.cities}</span><ul>{FEATURED_CITIES.map((city) => <li key={city.slug}><LocalizedLink href={`/cities/${city.slug}`}>{locale === "hi" ? city.hi : city.name}</LocalizedLink></li>)}</ul><LocalizedLink href="/cities" className={styles.allCities}>{copy.allCities}<ArrowUpRight size={13} aria-hidden="true" /></LocalizedLink></nav>
+
+      <div className={styles.bottom}>
+        <p><span>© {year} {BRAND.name}</span><span className={styles.domain} dir="ltr">{BRAND.domain}</span><span>{t.footer.rights}</span></p>
+        <nav aria-label={copy.legal} className={styles.policies}><LocalizedLink href="/privacy">{policyLabel("/privacy", copy.privacy)}</LocalizedLink><LocalizedLink href="/terms">{policyLabel("/terms", copy.terms)}</LocalizedLink></nav>
+      </div>
+    </div>
+  </footer>;
 }

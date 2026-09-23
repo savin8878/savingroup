@@ -55,7 +55,7 @@ export default async function CaseStudiesPage({
       {/* Revenue growth visualization */}
       <Section className="pt-8 pb-0">
         <div className="rounded-3xl border border-border bg-surface/40 p-6 sm:p-8">
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">Aggregate Revenue Impact</div>
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">Aggregate Revenue Impact</div>
           <RevenueGrowthChart className="mx-auto max-w-3xl" />
         </div>
       </Section>

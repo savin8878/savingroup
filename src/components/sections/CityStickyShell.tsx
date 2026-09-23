@@ -225,7 +225,7 @@ export function CityStickyShell({
                   </a>
                   <a
                     href={`tel:${tel}`}
-                    className="group flex items-center justify-between gap-2 rounded-xl border border-border bg-background/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-accent/50 hover:text-accent"
+                    className="group flex items-center justify-between gap-2 rounded-xl border border-border bg-background/70 px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-accent/50 hover:text-accent-strong"
                   >
                     <span className="flex items-center gap-2">
                       <Phone size={14} />
@@ -245,7 +245,7 @@ export function CityStickyShell({
                   {identity && (
                     <LocalizedLink
                       href={`/cities/${city.slug}/about`}
-                      className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent"
+                      className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent-strong"
                     >
                       <span className="flex items-center gap-1.5">
                         <Landmark size={11} />
@@ -257,7 +257,7 @@ export function CityStickyShell({
                   {posts > 0 && (
                     <LocalizedLink
                       href={`/cities/${city.slug}/blog`}
-                      className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent"
+                      className="group flex items-center justify-between gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent-strong"
                     >
                       <span className="flex items-center gap-1.5">
                         <BookOpen size={11} />

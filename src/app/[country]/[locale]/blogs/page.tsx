@@ -281,14 +281,14 @@ export default async function BlogsIndexPage({
       href={`/blogs/${post.slug}`}
       className="group flex items-start gap-4 rounded-xl border border-border/60 bg-surface/30 p-4 transition hover:border-accent/40 hover:bg-surface/60"
     >
-      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10 font-mono text-[11px] font-semibold tracking-[0.05em] text-accent">
+      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10 font-mono text-[11px] font-semibold tracking-[0.05em] text-accent-strong">
         {String(rank).padStart(2, "0")}
       </span>
       <div className="min-w-0 flex-1">
         <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
           {categoryLabel(post.category)} · {post.readTime} {ui.minRead}
         </div>
-        <div className="mt-1 font-display text-sm font-semibold leading-snug text-foreground transition group-hover:text-accent">
+        <div className="mt-1 font-display text-sm font-semibold leading-snug text-foreground transition group-hover:text-accent-strong">
           {post.title}
         </div>
       </div>
@@ -324,7 +324,6 @@ export default async function BlogsIndexPage({
         }
         subtitle={ui.blogSubtitle}
         breadcrumb={ui.breadcrumb}
-        bgVariant="center"
       />
 
       {/* ================================================================ */}
@@ -333,7 +332,7 @@ export default async function BlogsIndexPage({
       <Section className="pt-6 pb-0">
         <div className="mb-6 flex flex-col items-start gap-3 border-b border-border pb-5 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:gap-4 sm:pb-6">
           <div>
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Sparkles size={11} />
               {ui.featuredEyebrow}
             </div>
@@ -356,7 +355,7 @@ export default async function BlogsIndexPage({
               href={`/blogs/${post.slug}`}
               className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-surface/40 p-6 transition hover:-translate-y-1 hover:border-accent/50 hover:bg-surface hover:shadow-[0_20px_60px_-20px_oklch(0.65_0.19_55_/_0.25)]"
             >
-              <div className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 bg-background/80 font-mono text-[11px] font-semibold text-accent backdrop-blur-sm">
+              <div className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full border border-accent/50 bg-background/80 font-mono text-[11px] font-semibold text-accent-strong backdrop-blur-sm">
                 {String(i + 1).padStart(2, "0")}
               </div>
               <div className="mb-6 overflow-hidden rounded-2xl border border-border bg-background/60 p-3">
@@ -387,7 +386,7 @@ export default async function BlogsIndexPage({
                 >
                   {formatDate(post.publishedAt, locale)}
                 </time>
-                <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+                <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent-strong">
                   {ui.featuredReadMore}
                   <ArrowUpRight
                     size={12}
@@ -406,7 +405,7 @@ export default async function BlogsIndexPage({
       <Section className="pt-10 pb-0">
         <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-10">
           <div>
-            <div className="mb-5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent sm:mb-6">
+            <div className="mb-5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong sm:mb-6">
               <Flame size={11} />
               {ui.latestEyebrow}
             </div>
@@ -422,7 +421,7 @@ export default async function BlogsIndexPage({
           </div>
 
           <aside className="rounded-2xl border border-border bg-surface/40 p-5 sm:p-6">
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <TrendingUp size={11} />
               {ui.mostReadEyebrow}
             </div>
@@ -458,7 +457,7 @@ export default async function BlogsIndexPage({
         <div className="rounded-3xl border border-border bg-surface/40 p-6 sm:p-10 lg:p-12">
           <div className="grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-10">
             <div>
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 <BookOpen size={11} />
                 {ui.whyWeWriteEyebrow}
               </div>
@@ -476,7 +475,7 @@ export default async function BlogsIndexPage({
                 </span>
                 <LocalizedLink
                   href="/about"
-                  className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-accent hover:underline"
+                  className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.18em] text-accent-strong hover:underline"
                 >
                   more on the team
                   <ArrowUpRight size={12} />
@@ -485,7 +484,7 @@ export default async function BlogsIndexPage({
             </div>
 
             <div className="rounded-2xl border border-border bg-background/40 p-6">
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 <TrendingUp size={11} />
                 The blog, by the numbers
               </div>
@@ -546,7 +545,7 @@ export default async function BlogsIndexPage({
                 <a
                   key={c.key}
                   href={`#cat-${c.key}`}
-                  className="cursor-pointer rounded-full border border-border bg-background/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
+                  className="cursor-pointer rounded-full border border-border bg-background/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent-strong"
                 >
                   {c.label}
                 </a>
@@ -583,7 +582,7 @@ export default async function BlogsIndexPage({
               key={cluster.key}
               className="group flex h-full flex-col rounded-2xl border border-border bg-surface/40 p-6 transition hover:-translate-y-0.5 hover:border-accent/40"
             >
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 <Sparkles size={11} />
                 Cluster · {cluster.primaryKeyword}
               </div>
@@ -644,7 +643,7 @@ export default async function BlogsIndexPage({
               <div key={cat} id={`cat-${cat}`} className="scroll-mt-28">
                 <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-accent">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-accent-strong">
                       ·
                     </span>
                     <h3 className="font-display text-2xl font-semibold tracking-tight text-foreground">
@@ -686,7 +685,7 @@ export default async function BlogsIndexPage({
               </div>
             </div>
             <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 {ui.authorEyebrow}
               </div>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -699,14 +698,14 @@ export default async function BlogsIndexPage({
               <div className="mt-6 flex flex-wrap gap-3">
                 <LocalizedLink
                   href="/about"
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:border-accent/50 hover:text-accent-strong"
                 >
                   {ui.authorReadStory}
                   <ArrowUpRight size={11} />
                 </LocalizedLink>
                 <LocalizedLink
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-foreground transition hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-full bg-accent-strong px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-foreground transition hover:-translate-y-0.5"
                 >
                   {ui.authorBookAudit}
                   <ArrowUpRight size={11} />
@@ -724,7 +723,7 @@ export default async function BlogsIndexPage({
         <div className="rounded-3xl border border-accent/40 bg-accent/5 p-6 sm:p-10 lg:p-12">
           <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:items-center lg:gap-8">
             <div>
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 <Mail size={11} />
                 {ui.newsletterEyebrow}
               </div>
@@ -757,7 +756,7 @@ export default async function BlogsIndexPage({
               />
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-foreground transition hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-accent-strong px-5 py-3 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-foreground transition hover:-translate-y-0.5"
               >
                 {ui.newsletterSubmit}
                 <ArrowUpRight size={12} />

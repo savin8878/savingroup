@@ -122,18 +122,32 @@ export function DesktopMegaNav({ translations: t, cities }: MegaMenuProps) {
   const moreGhostRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /*
+   * ORDER IS PRIORITY, NOT TAXONOMY.
+   *
+   * The bar fits about four items before the rest fall into "More", so this
+   * list is really a ranking of what a buyer needs to reach in one click.
+   * It used to run Services → Industries → Case Studies → Cities → Pricing,
+   * which put PRICING — the single most-requested page on any agency site —
+   * behind an overflow menu, while Cities, a directory of eleven SEO landing
+   * pages, held a primary slot.
+   *
+   * Now: Services, Work, Pricing, About. Industries and Blog follow; Cities
+   * drops to the end, because the footer already carries the full city
+   * directory and every city page is linked from the homepage block. Contact
+   * is last on purpose — the header's CTA button is the contact link, and
+   * duplicating it here only crowds out something that has no other route.
+   */
   const items: NavItem[] = useMemo(
     () => [
-      // Panel-backed entries first: they lose the most by being demoted into
-      // the overflow menu, so they are the last to go.
       { label: t.nav.services, href: "/services", panel: "services", Icon: Briefcase },
-      { label: t.nav.industries, href: "/industries", panel: "industries", Icon: Factory },
       { label: t.nav.work, href: "/case-studies", panel: "work", Icon: LineChart },
-      { label: "Cities", href: "/cities", panel: "cities", Icon: MapPin },
       // `pricing` is absent from every locale file except `en`.
       { label: t.nav.pricing ?? "Pricing", href: "/pricing", Icon: Tag },
-      { label: "Blog", href: "/blogs", Icon: BookOpen },
       { label: t.nav.about, href: "/about", Icon: Users },
+      { label: t.nav.industries, href: "/industries", panel: "industries", Icon: Factory },
+      { label: "Blog", href: "/blogs", Icon: BookOpen },
+      { label: "Cities", href: "/cities", panel: "cities", Icon: MapPin },
       { label: t.nav.contact, href: "/contact", Icon: Mail },
     ],
     [t]
@@ -649,7 +663,7 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
           aria-label="Scroll left"
           onClick={() => scrollBy(-320)}
           disabled={!canLeft}
-          className={`absolute left-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent hover:bg-accent hover:text-accent-foreground ${
+          className={`absolute left-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent hover:bg-accent-strong hover:text-accent-foreground ${
             canLeft ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
         >
@@ -660,7 +674,7 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
           aria-label="Scroll right"
           onClick={() => scrollBy(320)}
           disabled={!canRight}
-          className={`absolute right-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent hover:bg-accent hover:text-accent-foreground ${
+          className={`absolute right-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 text-foreground shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent hover:bg-accent-strong hover:text-accent-foreground ${
             canRight ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
         >
@@ -742,7 +756,7 @@ function IconTile({
             </span>
           )}
           {badge && (
-            <span className="absolute right-2 top-2 rounded-full bg-accent px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.2em] text-accent-foreground">
+            <span className="absolute right-2 top-2 rounded-full bg-accent-strong px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.2em] text-accent-foreground">
               {badge}
             </span>
           )}
@@ -761,7 +775,7 @@ function IconTile({
             }`}
           />
           {caption && (
-            <span className="absolute bottom-2 right-2 rounded-full bg-background/85 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-accent">
+            <span className="absolute bottom-2 right-2 rounded-full bg-background/85 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-accent-strong">
               {caption}
             </span>
           )}
@@ -801,7 +815,7 @@ function Spotlight({
         strokeWidth={0.6}
         className="pointer-events-none absolute -bottom-12 -right-12 text-accent/10"
       />
-      <div className="relative flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+      <div className="relative flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
         {sparkle && <Sparkles size={11} />}
         {eyebrow}
       </div>
@@ -816,7 +830,7 @@ function Spotlight({
         href={cta.href}
         className={`group relative mt-auto inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:-translate-y-0.5 ${
           primaryCta
-            ? "bg-accent text-accent-foreground shadow-[0_8px_24px_-12px_oklch(0.78_0.165_70/0.6)] hover:shadow-[0_12px_28px_-10px_oklch(0.78_0.165_70/0.75)]"
+            ? "bg-accent-strong text-accent-foreground shadow-[0_8px_24px_-12px_oklch(0.78_0.165_70/0.6)] hover:shadow-[0_12px_28px_-10px_oklch(0.78_0.165_70/0.75)]"
             : "border border-accent/40 bg-background/40 text-foreground hover:border-accent hover:bg-accent-soft"
         }`}
       >
@@ -846,6 +860,7 @@ export function MobileMegaNav({
 
   return (
     <div className="flex flex-col gap-1">
+      {/* Same priority order as the desktop bar — see the NavItem list. */}
       <MobileLinkRow
         label={t.nav.services}
         index="01"
@@ -867,8 +882,42 @@ export function MobileMegaNav({
       </MobileLinkRow>
 
       <MobileLinkRow
-        label={t.nav.industries}
+        label={t.nav.work}
         index="02"
+        panel="work"
+        active={open === "work"}
+        onToggle={() => toggle("work")}
+        href="/case-studies"
+        onNavigate={onNavigate}
+      >
+        {t.caseStudies.items.slice(0, 4).map((c) => (
+          <MobileSubLink
+            key={c.id}
+            href={`/case-studies#${c.id}`}
+            primary={c.industry}
+            secondary={c.location}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </MobileLinkRow>
+
+      <MobileFlatRow
+        label={t.nav.pricing ?? "Pricing"}
+        index="03"
+        href="/pricing"
+        onNavigate={onNavigate}
+      />
+
+      <MobileFlatRow
+        label={t.nav.about}
+        index="04"
+        href="/about"
+        onNavigate={onNavigate}
+      />
+
+      <MobileLinkRow
+        label={t.nav.industries}
+        index="05"
         panel="industries"
         active={open === "industries"}
         onToggle={() => toggle("industries")}
@@ -890,29 +939,16 @@ export function MobileMegaNav({
         })}
       </MobileLinkRow>
 
-      <MobileLinkRow
-        label={t.nav.work}
-        index="03"
-        panel="work"
-        active={open === "work"}
-        onToggle={() => toggle("work")}
-        href="/case-studies"
+      <MobileFlatRow
+        label="Blog"
+        index="06"
+        href="/blogs"
         onNavigate={onNavigate}
-      >
-        {t.caseStudies.items.slice(0, 4).map((c) => (
-          <MobileSubLink
-            key={c.id}
-            href={`/case-studies#${c.id}`}
-            primary={c.industry}
-            secondary={c.location}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </MobileLinkRow>
+      />
 
       <MobileLinkRow
         label="Cities"
-        index="04"
+        index="07"
         panel="cities"
         active={open === "cities"}
         onToggle={() => toggle("cities")}
@@ -931,24 +967,6 @@ export function MobileMegaNav({
         ))}
       </MobileLinkRow>
 
-      <MobileFlatRow
-        label={t.nav.pricing ?? "Pricing"}
-        index="05"
-        href="/pricing"
-        onNavigate={onNavigate}
-      />
-      <MobileFlatRow
-        label="Blog"
-        index="06"
-        href="/blogs"
-        onNavigate={onNavigate}
-      />
-      <MobileFlatRow
-        label={t.nav.about}
-        index="07"
-        href="/about"
-        onNavigate={onNavigate}
-      />
       <MobileFlatRow
         label={t.nav.contact}
         index="08"
@@ -993,7 +1011,7 @@ function MobileLinkRow({
           aria-label={`${active ? "Hide" : "Show"} ${label} sub-menu`}
           aria-expanded={active}
           className={`flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background font-mono text-xs transition-all ${
-            active ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+            active ? "bg-accent-strong text-accent-foreground" : "text-muted-foreground"
           }`}
         >
           {active ? "–" : "+"}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { usePathname } from "next/navigation";
-import { Check, Globe, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Globe2 } from "lucide-react";
 import { LOCALES, LOCALE_CODES, type Locale } from "@/lib/i18n";
 import { RESOLVABLE_COUNTRIES } from "@/lib/constants";
 import { countryNamesByISO } from "@/lib/country";
+import styles from "./LanguageSwitcher.module.css";
 
 interface LanguageSwitcherProps {
   locale: Locale;
@@ -13,192 +14,91 @@ interface LanguageSwitcherProps {
   variant?: "compact" | "full";
 }
 
-/** Regional-indicator flag emoji from an ISO 3166-1 alpha-2 code. */
-function flagOf(code: string): string {
-  return code
-    .toUpperCase()
-    .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
-}
+const labels: Record<Locale, { change: string; language: string; region: string }> = {
+  en: { change: "Change language or region", language: "Language", region: "Region" },
+  es: { change: "Cambiar idioma o región", language: "Idioma", region: "Región" },
+  fr: { change: "Changer de langue ou de région", language: "Langue", region: "Région" },
+  de: { change: "Sprache oder Region ändern", language: "Sprache", region: "Region" },
+  ar: { change: "تغيير اللغة أو المنطقة", language: "اللغة", region: "المنطقة" },
+  hi: { change: "भाषा या क्षेत्र बदलें", language: "भाषा", region: "क्षेत्र" },
+  gu: { change: "ભાષા અથવા વિસ્તાર બદલો", language: "ભાષા", region: "વિસ્તાર" },
+  zh: { change: "更改语言或地区", language: "语言", region: "地区" },
+};
 
-export default function LanguageSwitcher({
-  locale,
-  country,
-  variant = "compact",
-}: LanguageSwitcherProps) {
+export default function LanguageSwitcher({ locale, country, variant = "compact" }: LanguageSwitcherProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const focusFirst = useRef(false);
+  const panelId = useId();
   const pathname = usePathname();
-
-  // Close on outside click
-  useEffect(() => {
-    function onClick(e: MouseEvent) {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
-
-  // Close on Escape
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, []);
-
-  const current = LOCALES[locale];
+  const copy = labels[locale];
   const currentCountry = country.toLowerCase();
+  const segments = (pathname || "/" + currentCountry + "/" + locale).split("/").filter(Boolean);
 
-  const segments = (pathname || `/${country}/${locale}`).split("/").filter(Boolean);
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, []);
 
-  /** Swap the locale segment, preserving country and the rest of the path. */
-  function localeHref(target: Locale): string {
-    if (segments.length >= 2) {
-      const next = [...segments];
-      next[1] = target;
-      return "/" + next.join("/");
+  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    if (open && focusFirst.current) {
+      panel.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+      focusFirst.current = false;
     }
-    return `/${currentCountry}/${target}`;
+  }, [open]);
+
+  function destination(index: 0 | 1, value: string) {
+    const next = segments.length >= 2 ? [...segments] : [currentCountry, locale];
+    next[index] = value;
+    return "/" + next.join("/");
   }
 
-  /** Swap the country segment, preserving locale and the rest of the path. */
-  function countryHref(target: string): string {
-    if (segments.length >= 2) {
-      const next = [...segments];
-      next[0] = target;
-      return "/" + next.join("/");
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape" && open) {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
+      trigger.current?.focus();
     }
-    return `/${target}/${locale}`;
+    if (event.key === "ArrowDown" && event.target === trigger.current) {
+      event.preventDefault();
+      if (open) panel.current?.querySelector<HTMLAnchorElement>("a")?.focus();
+      else { focusFirst.current = true; setOpen(true); }
+    }
   }
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className={`group inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 backdrop-blur-sm transition-all hover:border-border-strong hover:bg-surface ${
-          variant === "compact" ? "h-9 px-3" : "h-11 px-4"
-        }`}
-        aria-label="Change language or region"
-        aria-expanded={open}
-      >
-        <Globe size={14} className="text-accent" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground group-hover:text-foreground">
-          {current.code}-{currentCountry.toUpperCase()}
-        </span>
-        <span className="text-xs text-foreground">{flagOf(currentCountry)}</span>
-        <ChevronDown
-          size={12}
-          className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
-        />
+    <div className={styles.root} ref={root} onKeyDown={onKeyDown} onBlur={(event) => {
+      if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false);
+    }}>
+      <button ref={trigger} type="button" onClick={() => setOpen((value) => !value)} className={styles.trigger + (variant === "full" ? " " + styles.full : "")} aria-label={copy.change} aria-expanded={open} aria-controls={panelId}>
+        <Globe2 size={15} strokeWidth={1.5} aria-hidden="true" />
+        <span dir="ltr">{locale.toUpperCase()} <span className={styles.divider}>/</span> {currentCountry.toUpperCase()}</span>
+        <ChevronDown size={11} className={open ? styles.rotated : ""} aria-hidden="true" />
       </button>
-
-      {/*
-        The panel is ALWAYS mounted and hidden with CSS rather than being
-        conditionally rendered. Every country × locale combination is
-        indexable (constants.ts), but nothing else on the site links across
-        those axes — so if these anchors only existed after a click, the 95
-        non-current trees would have zero internal links and would be
-        discoverable only via the sitemap. Crawlers read `href`s from the
-        served HTML; they do not click. Keep this mounted.
-      */}
-      <div
-        className={`absolute right-0 top-full z-[110] mt-2 max-h-[70vh] w-72 overflow-y-auto rounded-2xl border border-border bg-surface/95 shadow-2xl backdrop-blur-xl transition-all duration-200 ${
-          open
-            ? "visible translate-y-0 opacity-100"
-            : "invisible -translate-y-2 opacity-0"
-        }`}
-        role="listbox"
-        aria-hidden={!open}
-      >
-        <div className="border-b border-border bg-background/40 px-4 py-3">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-            <Globe size={11} />
-            Language
-          </div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            {LOCALE_CODES.length} languages
-          </div>
-        </div>
-
-        <ul className="py-2">
-          {LOCALE_CODES.map((code) => {
+      {/* Keep every region/locale URL in server HTML for crawlable navigation. */}
+      <div className={styles.panel} id={panelId} ref={panel} hidden={!open}>
+        <nav aria-label={copy.language}>
+          <h2>{copy.language}<span>{LOCALE_CODES.length.toString().padStart(2, "0")}</span></h2>
+          <ul>{LOCALE_CODES.map((code) => {
             const item = LOCALES[code];
-            const active = code === locale;
-            return (
-              <li key={code}>
-                <a
-                  href={localeHref(code)}
-                  className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                    active
-                      ? "bg-accent/10 text-foreground"
-                      : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
-                  }`}
-                  role="option"
-                  aria-selected={active}
-                  lang={item.htmlLang}
-                  dir={item.dir}
-                  tabIndex={open ? 0 : -1}
-                >
-                  <span className="text-base">{item.flag}</span>
-                  <span className="flex-1">
-                    <span className="font-semibold text-foreground">
-                      {item.nativeName}
-                    </span>
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {item.code}
-                    </span>
-                  </span>
-                  {active && <Check size={14} className="text-accent" />}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-
-        <div className="border-y border-border bg-background/40 px-4 py-3">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-            <Globe size={11} />
-            Region
-          </div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            {RESOLVABLE_COUNTRIES.length} markets
-          </div>
-        </div>
-
-        <ul className="py-2">
-          {RESOLVABLE_COUNTRIES.map((code) => {
-            const active = code === currentCountry;
-            return (
-              <li key={code}>
-                <a
-                  href={countryHref(code)}
-                  className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                    active
-                      ? "bg-accent/10 text-foreground"
-                      : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
-                  }`}
-                  role="option"
-                  aria-selected={active}
-                  tabIndex={open ? 0 : -1}
-                >
-                  <span className="text-base">{flagOf(code)}</span>
-                  <span className="flex-1">
-                    <span className="font-semibold text-foreground">
-                      {countryNamesByISO[code as keyof typeof countryNamesByISO] ??
-                        code.toUpperCase()}
-                    </span>
-                    <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {code}
-                    </span>
-                  </span>
-                  {active && <Check size={14} className="text-accent" />}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
+            return <li key={code}><a href={destination(1, code)} lang={item.htmlLang} dir={item.dir} aria-current={code === locale ? "true" : undefined}>
+              <span>{item.nativeName}</span>{code === locale ? <Check size={13} aria-hidden="true" /> : <small>{code.toUpperCase()}</small>}
+            </a></li>;
+          })}</ul>
+        </nav>
+        <nav aria-label={copy.region}>
+          <h2>{copy.region}<span>{RESOLVABLE_COUNTRIES.length.toString().padStart(2, "0")}</span></h2>
+          <ul>{RESOLVABLE_COUNTRIES.map((code) => <li key={code}><a href={destination(0, code)} aria-current={code === currentCountry ? "true" : undefined}>
+            <span>{countryNamesByISO[code as keyof typeof countryNamesByISO] ?? code.toUpperCase()}</span>{code === currentCountry ? <Check size={13} aria-hidden="true" /> : <small>{code.toUpperCase()}</small>}
+          </a></li>)}</ul>
+        </nav>
       </div>
     </div>
   );

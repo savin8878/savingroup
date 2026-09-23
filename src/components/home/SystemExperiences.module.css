@@ -1,0 +1,296 @@
+.journey,
+.transformation {
+  --ink: var(--home-ink, #222624);
+  --muted: var(--home-muted, #65706a);
+  --accent: var(--home-accent, #c65325);
+  --line: var(--home-line, #d5d9d1);
+  color: var(--ink);
+}
+
+.capabilityExplorer {
+  --ink: #222624;
+  --muted: #65706a;
+  --accent: #c65325;
+  --line: #d5d9d1;
+  color: var(--ink);
+}
+
+.journey button,
+.capabilityExplorer button,
+.agentWorkflow button,
+.transformation button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.journey button:focus-visible,
+.capabilityExplorer button:focus-visible,
+.agentWorkflow button:focus-visible,
+.transformation button:focus-visible { outline: 3px solid #c65325; outline-offset: 5px; }
+.eyebrow,
+.diagramMeta,
+.nodeNumber,
+.capabilityCount,
+.capabilityTag,
+.ecosystemHint,
+.modelLabel,
+.workflowStepNumber,
+.toolLabel,
+.draftBadge,
+.miniNetworkNode > span {
+  font-family: var(--font-jetbrains-mono, "Courier New"), monospace;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: .075em;
+}
+.eyebrow { display: block; text-transform: uppercase; color: var(--muted, #65706a); }
+.signalDot { display: inline-block; width: 6px; height: 6px; flex: 0 0 6px; background: #c65325; border-radius: 50%; }
+.diagramMeta { display: flex; justify-content: space-between; gap: 20px; padding: 17px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--muted); text-transform: uppercase; }
+.diagramMeta > span:first-child { display: flex; align-items: center; gap: 9px; color: var(--ink); }
+.journeyTrack { position: relative; }
+.journeyWires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.wireBase { fill: none; stroke: var(--line); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.wireActive { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .55s ease; }
+.wireOn { stroke-dashoffset: 0; }
+.journeyGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, 150px); grid-template-areas: "stage1 stage2 stage3 stage4" "stage8 stage7 stage6 stage5"; gap: 80px 0; padding: 24px 0; }
+.journeyNode { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-self: center; width: calc(100% - 36px); max-width: 226px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 1px; background: var(--home-paper, #f5f4f0); text-align: left; color: var(--ink); transition: border-color .25s, background .25s, box-shadow .25s; }
+.journeyNode:hover { border-color: var(--muted); background: var(--home-surface, #fff); }
+.nodeTop { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+.nodeNumber { color: var(--muted); }
+.nodeIndicator { width: 5px; height: 5px; border: 1px solid #9ca59c; border-radius: 50%; }
+.journeyIcon { width: 27px; height: 27px; margin-top: 10px; margin-bottom: 9px; }
+.nodeTitle { font-size: 18px; line-height: 1.2; font-weight: 550; letter-spacing: -.035em; }
+.nodeLabel { margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.nodeConnected { background: var(--home-surface, #fff); border-color: var(--home-line, #a2aaa0); }
+.nodeConnected .nodeIndicator { background: var(--accent); border-color: var(--accent); }
+.nodeSelected { border-color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+.nodeSelected .journeyIcon { color: var(--accent); }
+.journeyDetail { display: grid; grid-template-columns: 1.15fr 1.45fr .9fr; gap: 40px; align-items: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 28px 0; min-height: 155px; }
+.detailHeading h3 { margin: 8px 0 0; font-size: 21px; line-height: 1.3; font-weight: 500; letter-spacing: -.04em; }
+.journeyDetail > p { margin: 0; font-size: 13px; line-height: 1.8; color: var(--muted); }
+.output { align-self: stretch; display: flex; flex-direction: column; justify-content: center; gap: 12px; border-left: 1px solid var(--line); padding-left: 28px; }
+.output > span:last-child { display: flex; justify-content: space-between; gap: 18px; font-size: 12px; line-height: 1.5; }
+.output > span:last-child > span { color: var(--accent); font-size: 20px; }
+.diagramFootnote { margin: 13px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+
+.capabilityExplorer { display: grid; grid-template-columns: 1.25fr 1fr; border: 1px solid var(--line); }
+.ecosystem { position: relative; min-width: 0; padding: 15px 20px 30px; background: #efeee8; }
+.ecosystemWires { position: absolute; top: 15px; left: 20px; width: calc(100% - 40px); height: 420px; pointer-events: none; }
+.orbit { fill: none; stroke: #d3d6cc; stroke-width: 1; stroke-dasharray: 3 7; }
+.ecosystemWire,
+.ecosystemWireSelected { fill: none; stroke: #c4cac0; stroke-width: 1; vector-effect: non-scaling-stroke; transition: stroke .25s; }
+.ecosystemWireSelected { stroke: #c65325; stroke-width: 1.5; }
+.ecosystemGrid { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, 140px); align-items: center; justify-items: center; }
+.ecosystemHub { grid-column: 2; grid-row: 2; width: 108px; height: 108px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; background: #222624; border-radius: 50%; color: #f5f4f0; text-align: center; font-size: 10px; line-height: 1.4; letter-spacing: -.01em; }
+.hubMark { display: flex; align-items: center; gap: 4px; height: 22px; transform: skew(-20deg); }
+.hubMark i { width: 4px; height: 15px; background: #e7b594; }
+.hubMark i:nth-child(2) { height: 25px; }
+.hubMark i:last-child { height: 19px; }
+.capabilityNode { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; width: calc(100% - 24px); max-width: 148px; height: 94px; padding: 12px 7px; background: #f5f4f0; border: 1px solid #d1d5cb; color: var(--ink); font-size: 11px !important; line-height: 1.3; transition: border-color .2s, background .2s; }
+.capabilityNode > svg { width: 25px; height: 25px; }
+.capabilityNode:hover { border-color: #8e988d; background: #fff; }
+.capabilityNodeArrow { position: absolute; top: 7px; right: 8px; font-size: 12px; opacity: 0; }
+.capabilitySelected { border-color: #c65325; color: #b94b23; background: #fff; }
+.capabilitySelected .capabilityNodeArrow { opacity: 1; }
+.ecosystemHint { margin: 9px 0 0; text-align: center; color: #616b65; font-size: 9px; letter-spacing: .02em; }
+.capabilityPanel { min-width: 0; padding: 36px; border-left: 1px solid var(--line); background: #fff; }
+.capabilityPanelTop { display: flex; justify-content: space-between; gap: 20px; }
+.capabilityCount { color: #65706a; }
+.capabilityTitle { display: flex; align-items: center; gap: 14px; margin-top: 38px; }
+.capabilityTitle > svg { color: var(--accent); width: 32px; height: 32px; flex: 0 0 32px; }
+.capabilityTitle h3 { margin: 0; font-size: clamp(22px, 2.5vw, 34px); line-height: 1.2; font-weight: 500; letter-spacing: -.045em; }
+.capabilityPanel h4 { margin: 25px 0 12px; max-width: 350px; font-size: 18px; line-height: 1.5; letter-spacing: -.025em; font-weight: 500; }
+.capabilityPanel > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.useCase { border-top: 1px solid var(--line); margin-top: 26px; padding-top: 20px; }
+.useCase > p { margin: 9px 0 0; font-size: 12px; line-height: 1.75; color: #4c564e; }
+.capabilityTag { display: inline-block; margin-top: 24px; color: #a34725; font-size: 9px; letter-spacing: .02em; }
+
+.agentWorkflow { --muted: #a9b2aa; --line: #3b4540; --ink: #f5f4f0; color: #f5f4f0; border-top: 1px solid var(--line); }
+.workflowHeader { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.workflowHeader > .eyebrow { display: flex; align-items: center; gap: 9px; color: #d6dcd3; }
+.workflowHeader .signalDot { background: #dc855e; }
+.modelLabel { color: #a9b2aa; font-size: 9px; letter-spacing: .02em; }
+.workflowRequest { display: flex; justify-content: space-between; gap: 30px; align-items: center; padding: 32px 0; }
+.workflowRequest p { margin: 10px 0 0; color: #f4f2ec; font-size: clamp(20px, 2.5vw, 29px); letter-spacing: -.03em; line-height: 1.4; }
+.runButton { display: flex; align-items: center; justify-content: space-between; gap: 35px; min-width: 166px; padding: 15px 18px; border: 1px solid #d8754b; background: #c65325; color: #fff; white-space: nowrap; font-size: 12px !important; line-height: 1.3; transition: background .2s; }
+.runButton:hover { background: #ab4520; }
+.runButton:disabled { cursor: default; background: #333f37; border-color: #536151; color: #cad2c5; }
+.runButton > span { font-size: 19px; }
+.workflowTrack { list-style: none; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 26px; padding: 30px 0 34px; margin: 0; border-top: 1px solid var(--line); }
+.workflowStep { position: relative; min-width: 0; }
+.workflowStep:not(:last-child)::after { content: ""; position: absolute; left: 59px; top: 25px; width: calc(100% - 33px); height: 1px; background: #4c584f; }
+.workflowIcon { position: relative; display: flex; align-items: center; justify-content: center; width: 51px; height: 51px; border: 1px solid #586256; background: #18211f; color: #a8b0a4; transition: border-color .25s, color .25s; }
+.workflowIcon svg { width: 26px; height: 26px; }
+.workflowStepNumber { position: absolute; right: -5px; top: -10px; padding: 0 4px; color: #a9b2aa; background: #18211f; font-size: 9px; }
+.workflowStepName { display: block; margin-top: 17px; font-size: 13px; color: #d3d9ce; }
+.workflowStepDescription { display: block; max-width: 125px; margin-top: 5px; color: #a5afa4; font-size: 10px; line-height: 1.6; }
+.workflowStepActive .workflowIcon { color: #e4936f; border-color: #b46b48; }
+.workflowStepActive:not(:last-child)::after { background: #b46b48; }
+.workflowStepCurrent .workflowIcon { box-shadow: inset 0 -2px 0 #d87850; background: #2a3028; }
+.workflowConsole { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; border-top: 1px solid var(--line); padding: 30px 0; }
+.workflowStatus { min-height: 174px; display: flex; flex-direction: column; }
+.workflowStatus > .eyebrow { color: #e6a889; }
+.workflowStatus > p { font-size: 15px; line-height: 1.8; max-width: 420px; margin: 13px 0 22px; color: #d7ddd3; }
+.toolLabel { margin-top: auto; font-size: 9px; letter-spacing: .02em; color: #a9b2aa; }
+.draftPreview { padding: 18px 20px; background: #222c26; border: 1px solid #414b41; transition: border-color .25s; }
+.draftReady { border-color: #a16c4e; }
+.draftHeader { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #414b41; font-size: 12px; }
+.draftBadge { color: #e6aa8d; font-size: 8px; text-transform: uppercase; letter-spacing: .04em; }
+.draftPreview dl { margin: 13px 0 0; }
+.draftPreview dl > div { display: flex; justify-content: space-between; gap: 20px; padding: 5px 0; font-size: 10px; line-height: 1.5; }
+.draftPreview dt { color: #a7b2a3; }
+.draftPreview dd { margin: 0; text-align: right; color: #e1e5db; }
+.approveButton { display: flex; justify-content: space-between; gap: 20px; width: 100%; margin-top: 17px; padding: 12px 0 0; border: 0; border-top: 1px solid #76634f; background: transparent; color: #efb391; font-size: 11px !important; text-align: left; }
+.approveButton:hover { color: #fff; }
+.approvalNote { display: flex; gap: 8px; margin-top: 17px; color: #bfceb5; font-size: 10px; line-height: 1.6; }
+.workflowDisclaimer { margin: 0; border-top: 1px solid var(--line); padding-top: 13px; color: #a5afa4; font-size: 10px; line-height: 1.7; }
+
+.transformation { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.transformationTop { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 25px 0; border-bottom: 1px solid var(--line); }
+.transformationTop p { margin: 8px 0 0; font-size: 21px; letter-spacing: -.03em; line-height: 1.4; }
+.toggle { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid #cbd1c7; background: #eeeee7; }
+.toggle > button { display: flex; justify-content: center; align-items: center; gap: 14px; min-width: 97px; min-height: 42px; padding: 10px 17px; border: 1px solid transparent; background: transparent; color: #5a655a; font-size: 11px !important; transition: color .2s, background .2s; }
+.toggle > button[aria-pressed="true"] { border-color: #bcc5b7; background: #fff; color: #222624; }
+.transformationConnected .toggle > button[aria-pressed="true"] { border-color: #c65325; color: #b64a23; }
+.toggle > button > span { font-size: 16px; }
+.transformationBody { display: grid; grid-template-columns: 1fr 1.5fr; }
+.transformationDiagram { display: flex; flex-direction: column; padding: 33px 40px 30px 0; }
+.miniNetwork { display: flex; justify-content: space-between; align-items: center; gap: 17px; margin: 49px 0 38px; }
+.miniNetworkNode { position: relative; display: flex; flex-direction: column; align-items: center; gap: 9px; width: 42px; flex: 0 1 42px; color: var(--muted); }
+.miniNetworkNode > svg { width: 27px; height: 27px; }
+.miniNetworkNode > span { font-size: 9px; }
+.miniNetworkNode:not(:last-child)::after { content: ""; position: absolute; left: calc(100% + 3px); top: 13px; width: 14px; border-top: 1px dashed var(--line); transition: border-color .3s; }
+.transformationConnected .miniNetworkNode { color: var(--accent); }
+.transformationConnected .miniNetworkNode:not(:last-child)::after { border-top: 1px solid var(--accent); }
+.miniNetworkOutcome { display: flex; align-items: center; gap: 10px; margin-top: auto; color: var(--muted); font-size: 11px; line-height: 1.7; }
+.miniNetworkOutcome .signalDot { background: #9ba692; }
+.transformationConnected .miniNetworkOutcome .signalDot { background: var(--accent); }
+.transformationRows { border-left: 1px solid var(--line); padding-left: 30px; }
+.transformationRow { display: grid; grid-template-columns: .8fr 1.3fr; gap: 22px; align-items: center; min-height: 61px; padding: 14px 0; }
+.transformationRow + .transformationRow { border-top: 1px solid var(--line); }
+.transformationRowLabel { color: var(--ink); font-size: 11px; line-height: 1.6; }
+.transformationRowValue { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.rowState { font-size: 14px; color: #9ba28f; }
+.transformationConnected .rowState { color: var(--accent); }
+.transformationConnected .transformationRowValue { color: var(--ink); }
+
+@media (max-width: 1000px) {
+  .journeyNode { width: calc(100% - 24px); padding: 14px; }
+  .nodeTitle { font-size: 16px; }
+  .nodeLabel { font-size: 9px; }
+  .journeyDetail { gap: 25px; grid-template-columns: 1fr 1.3fr .9fr; }
+  .detailHeading h3 { font-size: 19px; }
+  .output { padding-left: 20px; }
+  .capabilityPanel { padding: 28px; }
+  .capabilityNode { width: calc(100% - 14px); font-size: 10px !important; }
+  .ecosystem { padding-left: 10px; padding-right: 10px; }
+  .ecosystemWires { left: 10px; width: calc(100% - 20px); }
+  .ecosystemHub { width: 93px; height: 93px; font-size: 9px; }
+  .workflowTrack { gap: 18px; }
+  .workflowStep:not(:last-child)::after { width: calc(100% - 41px); }
+  .workflowConsole { gap: 35px; }
+  .transformationBody { grid-template-columns: 1fr 1.7fr; }
+  .transformationDiagram { padding-right: 26px; }
+  .miniNetwork { gap: 10px; }
+  .miniNetworkNode:not(:last-child)::after { width: 8px; left: calc(100% + 1px); }
+}
+
+@media (max-width: 760px) {
+  .diagramMeta { font-size: 9px; letter-spacing: .025em; }
+  .journeyDetail { grid-template-columns: 1fr 1.3fr; gap: 20px; padding: 24px 0; }
+  .output { grid-column: 1 / -1; border-left: none; border-top: 1px solid var(--line); padding: 16px 0 0; flex-direction: row; justify-content: flex-start; gap: 22px; align-items: center; }
+  .output > span:last-child { flex: 1; }
+  .capabilityExplorer { grid-template-columns: 1fr; }
+  .capabilityPanel { border-left: 0; border-top: 1px solid var(--line); }
+  .ecosystemGrid { grid-template-rows: repeat(3, 120px); }
+  .ecosystemWires { height: 360px; }
+  .capabilityNode { max-width: 150px; }
+  .capabilityTitle { margin-top: 25px; }
+  .capabilityPanel h4 { max-width: none; margin-top: 20px; }
+  .capabilityPanel > p { max-width: 580px; }
+  .capabilityTag { margin-top: 18px; }
+  .workflowHeader { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .workflowRequest { align-items: flex-start; }
+  .workflowRequest p { font-size: 22px; }
+  .runButton { min-width: 150px; gap: 18px; }
+  .workflowTrack { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 25px; }
+  .workflowStep:nth-child(3)::after { display: none; }
+  .workflowStep:not(:last-child)::after { width: calc(100% - 34px); }
+  .workflowStepDescription { max-width: none; }
+  .workflowConsole { gap: 30px; }
+  .transformationBody { grid-template-columns: 1fr; }
+  .transformationDiagram { padding: 24px 0; }
+  .miniNetwork { max-width: 450px; width: 100%; margin: 25px 0; gap: 30px; }
+  .miniNetworkNode { flex: 1; }
+  .miniNetworkNode:not(:last-child)::after { width: 25px; left: calc(100% + 3px); }
+  .transformationRows { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+  .transformationRow { grid-template-columns: 1fr 1.5fr; }
+}
+
+@media (max-width: 540px) {
+  .diagramMeta { align-items: flex-start; flex-direction: column; gap: 6px; padding: 13px 0; }
+  .diagramMeta > span:last-child { padding-left: 15px; }
+  .journeyTrack { padding-left: 25px; }
+  .journeyTrack::before { content: ""; position: absolute; top: 41px; bottom: 42px; left: 4px; width: 1px; background: var(--line); }
+  .journeyWires { display: none; }
+  .journeyGrid { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "stage1" "stage2" "stage3" "stage4" "stage5" "stage6" "stage7" "stage8"; gap: 8px; padding: 18px 0; }
+  .journeyNode { display: grid; grid-template-columns: 25px 1fr auto; grid-template-rows: auto auto; align-items: center; column-gap: 15px; row-gap: 3px; width: 100%; max-width: none; min-height: 68px; padding: 13px 14px; }
+  .journeyNode::before { content: ""; position: absolute; left: -26px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border: 1px solid var(--muted); border-radius: 50%; background: var(--home-paper, #f5f4f0); }
+  .nodeConnected::before { background: var(--accent); border-color: var(--accent); }
+  .journeyNode::after { content: ""; position: absolute; top: 50%; left: -18px; width: 18px; height: 1px; background: var(--line); }
+  .nodeConnected::after { background: var(--accent); }
+  .nodeTop { grid-column: 3; grid-row: 1 / 3; width: auto; gap: 10px; }
+  .nodeIndicator { display: none; }
+  .journeyIcon { grid-row: 1 / 3; grid-column: 1; width: 25px; height: 25px; margin: 0; }
+  .nodeTitle { grid-column: 2; grid-row: 1; font-size: 15px; }
+  .nodeLabel { grid-column: 2; grid-row: 2; margin: 0; font-size: 10px; }
+  .journeyDetail { grid-template-columns: 1fr; gap: 13px; min-height: 229px; }
+  .detailHeading h3 { font-size: 20px; }
+  .journeyDetail > p { font-size: 12px; }
+  .diagramFootnote { font-size: 9px; }
+  .ecosystem { padding: 20px 14px; }
+  .ecosystemWires { display: none; }
+  .ecosystemGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 9px; }
+  .ecosystemHub { grid-column: 1 / -1; grid-row: 1; flex-direction: row; width: 100%; height: auto; min-height: 61px; border-radius: 0; gap: 20px; font-size: 11px; }
+  .ecosystemHub br { display: none; }
+  .hubMark { transform: skew(-20deg) scale(.8); }
+  .capabilityNode { flex-direction: row; justify-content: flex-start; width: 100%; max-width: none; height: auto; min-height: 64px; gap: 10px; padding: 15px 10px; grid-column: auto !important; grid-row: auto !important; font-size: 10px !important; text-align: left; }
+  .capabilityNode > svg { flex: 0 0 23px; width: 23px; height: 23px; }
+  .capabilityNodeArrow { right: 5px; top: 5px; font-size: 10px; }
+  .ecosystemHint { margin-top: 16px; font-size: 9px; }
+  .capabilityPanel { min-height: 360px; padding: 25px 21px; }
+  .capabilityTitle h3 { font-size: 29px; }
+  .capabilityPanel h4 { font-size: 18px; }
+  .capabilityPanel > p { font-size: 12px; }
+  .workflowRequest { flex-direction: column; gap: 22px; padding: 26px 0; }
+  .workflowRequest p { max-width: 300px; font-size: 24px; }
+  .runButton { min-height: 47px; width: 100%; }
+  .workflowTrack { gap: 28px 19px; padding-top: 28px; }
+  .workflowStepName { font-size: 11px; }
+  .workflowStepDescription { font-size: 9px; }
+  .workflowStep:not(:last-child)::after { width: calc(100% - 40px); }
+  .workflowConsole { grid-template-columns: 1fr; gap: 25px; padding-top: 25px; }
+  .workflowStatus { min-height: 140px; }
+  .workflowStatus > p { margin-bottom: 18px; font-size: 14px; }
+  .draftPreview { padding: 17px; }
+  .modelLabel { font-size: 8px; }
+  .workflowDisclaimer { font-size: 9px; }
+  .transformationTop { flex-direction: column; align-items: stretch; gap: 22px; }
+  .transformationTop p { font-size: 20px; }
+  .toggle { align-self: flex-start; }
+  .toggle > button { min-width: 122px; min-height: 43px; }
+  .transformationDiagram { padding: 23px 0; }
+  .miniNetwork { gap: 21px; }
+  .miniNetworkNode:not(:last-child)::after { width: 17px; }
+  .miniNetworkOutcome { font-size: 10px; }
+  .transformationRow { gap: 18px; grid-template-columns: .85fr 1.2fr; min-height: 78px; padding: 16px 0; }
+  .transformationRowLabel { font-size: 11px; }
+  .transformationRowValue { font-size: 10px; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey *, .capabilityExplorer *, .agentWorkflow *, .transformation * { transition: none !important; animation: none !important; }
+  .wireActive { stroke-dashoffset: 0; }
+}
+:global([data-motion="paused"]) .wireActive,
+:global([data-motion="paused"]) .journeyNode,
+:global([data-motion="paused"]) .workflowIcon,
+:global([data-motion="paused"]) .ecosystemWire,
+:global([data-motion="paused"]) .ecosystemWireSelected { transition: none; }

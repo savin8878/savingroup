@@ -1,6 +1,8 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import {
   Zap,
   Search,
@@ -13,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import { featureIllustrationMap } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
@@ -44,12 +47,9 @@ export function FeatureGrid({ t, noPadding }: { t: Messages; noPadding?: boolean
         {fg.items.map((item, i) => {
           const Icon = iconMap[item.icon] ?? Zap;
           return (
-            <motion.div
+            <Reveal
+              delay={(i % 4) * 0.06}
               key={item.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.45, delay: (i % 4) * 0.06 }}
               className="group relative w-[78vw] max-w-[300px] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all hover:-translate-y-1 hover:border-accent/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-6"
             >
               <div className="pointer-events-none absolute -right-12 -top-12 hidden h-32 w-32 rounded-full bg-accent/5 blur-2xl transition-opacity group-hover:bg-accent/15 sm:block" />
@@ -80,7 +80,7 @@ export function FeatureGrid({ t, noPadding }: { t: Messages; noPadding?: boolean
               <div className="mt-5 font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
                 Capability · 0{i + 1}
               </div>
-            </motion.div>
+            </Reveal>
           );
         })}
       </div>

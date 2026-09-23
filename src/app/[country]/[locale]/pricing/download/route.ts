@@ -26,7 +26,7 @@ export async function GET(
       t,
       dateLabel,
       website,
-      email: t.contact.details.emailHref,
+      email: t.contact.details.email,
       phone: t.contact.details.phone,
     }),
   );

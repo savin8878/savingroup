@@ -1,0 +1,135 @@
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--home-ink, #222624);
+  --scene-line: #555b56;
+  --scene-faint: #d9dcd3;
+  --scene-paper: #fafaf5;
+  --scene-side: #e4e7dd;
+  /* Keep physical materials stable across themes; a pale dark-mode text accent
+     would wash out against the deliberately light machine surfaces. */
+  --scene-accent: #b8471f;
+}
+
+.outline {
+  fill: none;
+  stroke: var(--scene-line);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hairline {
+  fill: none;
+  stroke: var(--scene-faint);
+  stroke-width: 1;
+}
+
+.paper {
+  fill: var(--scene-paper);
+}
+
+.side {
+  fill: var(--scene-side);
+}
+
+.dark {
+  fill: #424b43;
+}
+
+.glass {
+  fill: #e6ebdf;
+}
+
+.accent {
+  fill: var(--scene-accent);
+}
+
+.accentLight {
+  fill: #f2d5c4;
+}
+
+.accentLine {
+  fill: none;
+  stroke: var(--scene-accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.route {
+  fill: none;
+  stroke: #d4b5a2;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 5;
+  stroke-linecap: round;
+}
+
+.flow {
+  fill: none;
+  stroke: var(--scene-accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 3 57;
+  animation: data-flow 12s linear infinite;
+}
+
+.flowReverse {
+  animation-direction: reverse;
+}
+
+.label,
+.surfaceLabel {
+  fill: var(--home-ink, #222624);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 0.02em;
+  stroke: none;
+}
+
+.surfaceLabel {
+  fill: #222624;
+}
+
+.micro {
+  fill: var(--home-muted, #686e65);
+  font-family: inherit;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  stroke: none;
+}
+
+.whiteLabel {
+  fill: #fff9f1;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 550;
+  letter-spacing: 0.04em;
+  stroke: none;
+}
+
+.whiteLine {
+  fill: none;
+  stroke: #fff7e8;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:global([data-motion='paused']) .flow,
+:global([data-in-view='false']) .flow {
+  animation-play-state: paused;
+}
+
+@keyframes data-flow {
+  to { stroke-dashoffset: -240; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow {
+    animation: none;
+  }
+}

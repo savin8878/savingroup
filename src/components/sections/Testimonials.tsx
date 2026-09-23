@@ -1,8 +1,11 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import { Quote, Star } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import type { Messages } from "@/lib/i18n";
 import { getCountryContent } from "@/lib/country-content";
@@ -65,12 +68,10 @@ export function Testimonials({
       {/* Mobile: snap-x carousel. sm+: 2-col grid. */}
       <div className="mt-8 -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-12 sm:grid sm:snap-none sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0">
         {items.map((tm, i) => (
-          <motion.figure
+          <Reveal
+            as="figure"
+            delay={(i % 2) * 0.08}
             key={i}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: (i % 2) * 0.08 }}
             className="group relative w-[84vw] max-w-[340px] flex-shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all hover:border-accent/30 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-8"
           >
             <div
@@ -99,7 +100,7 @@ export function Testimonials({
               {tm.quote}
             </blockquote>
             <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-accent/30 to-accent/10 font-display text-base font-semibold text-accent ring-1 ring-accent/30">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-accent/30 to-accent/10 font-display text-base font-semibold text-accent-strong ring-1 ring-accent/30">
                 {tm.author.charAt(0)}
               </div>
               <div>
@@ -111,7 +112,7 @@ export function Testimonials({
                 </div>
               </div>
             </figcaption>
-          </motion.figure>
+          </Reveal>
         ))}
       </div>
       <SnapRowHint count={items.length} />

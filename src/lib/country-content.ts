@@ -114,7 +114,17 @@ export interface CountryContent {
   /** 2–4 questions appended to the FAQ section. Local regulatory/practical fit. */
   faqAdditions: CountryFaq[];
 
-  /** Country-appropriate CTA copy */
+  /**
+   * Country-appropriate CTA copy.
+   *
+   * NOTE: only `supportLine` is still rendered. `primary` used to supply the
+   * button label per market and said "Book a discovery call" in ten of the
+   * eleven — which named the PAID second step on a button offering the free
+   * audit, and promised a booking the contact form does not perform. The
+   * button now uses one accurate label sitewide (CTA_LABEL, lib/offer.ts).
+   * `primary` is kept so these market files stay a complete record; if it is
+   * ever rendered again, fix the copy first.
+   */
   cta: {
     primary: string;
     supportLine: string;

@@ -3,6 +3,7 @@ import { MapPin, ArrowUpRight } from "lucide-react";
 import { Section } from "@/components/primitives/section";
 import { INDIA_CITIES, type CityContent } from "@/lib/cities";
 import { BASE_URL } from "@/lib/constants";
+import { AUDIT, DISCOVERY } from "@/lib/offer";
 
 /**
  * Pages that consume this footer. Each gets its own anchor template + state
@@ -131,6 +132,18 @@ interface IndiaGeoFooterProps {
   country: string;
   locale: string;
   pageKey: IndiaGeoFooterPage;
+  /**
+   * `full` — state cards with a per-state paragraph. The default, and what
+   * every city/country page still renders.
+   *
+   * `compact` — the same links and the same ItemList JSON-LD, without the
+   * per-state prose. Built for the homepage: the directory was one of the
+   * blocks pushing that page past 30,000px, but simply deleting it would
+   * have cut the internal-link path that gets the city pages crawled at all
+   * (see the note above). Compact keeps every link and every schema node and
+   * drops roughly four-fifths of the height.
+   */
+  variant?: "full" | "compact";
 }
 
 /**
@@ -155,8 +168,14 @@ interface IndiaGeoFooterProps {
  * the other six Indian locale trees shipped indexable pages with no links
  * into any city page at all.
  */
-export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps) {
+export function IndiaGeoFooter({
+  country,
+  locale,
+  pageKey,
+  variant = "full",
+}: IndiaGeoFooterProps) {
   if (country.toLowerCase() !== "in") return null;
+  const compact = variant === "compact";
 
   const copy = PAGE_COPY[pageKey];
   const prefix = `/${country.toLowerCase()}/${locale.toLowerCase()}`;
@@ -208,19 +227,21 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
       />
 
       <div className="max-w-3xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
-          <MapPin size={11} />
+        <div className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent-strong">
+          <MapPin size={12} />
           {copy.eyebrow}
         </div>
-        <h2 className="text-balance mt-5 font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+        <h2 className="text-balance mt-4 font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
           {copy.headline}
         </h2>
-        <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-          {copy.lead}
-        </p>
+        {!compact && (
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+            {copy.lead}
+          </p>
+        )}
       </div>
 
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={compact ? "mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3" : "mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"}>
         {states.map(([stateName, { stateCode, cities }]) => {
           const cityList = cities.map((c) => c.name).join(", ");
           const intro = copy.stateIntro
@@ -229,7 +250,11 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
           return (
             <article
               key={stateCode}
-              className="flex flex-col rounded-2xl border border-border bg-background/60 p-6 transition-colors hover:border-accent/30"
+              className={
+                compact
+                  ? "flex flex-col"
+                  : "flex flex-col rounded-2xl border border-border bg-background/60 p-6 transition-colors hover:border-accent/30"
+              }
             >
               <header className="flex items-baseline justify-between gap-3 border-b border-border pb-3">
                 <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
@@ -239,9 +264,11 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
                   IN-{stateCode}
                 </span>
               </header>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {intro}
-              </p>
+              {!compact && (
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {intro}
+                </p>
+              )}
               <ul className="mt-4 space-y-1">
                 {cities.map((city) => {
                   const anchor = copy.anchor.replace("{city}", city.name);
@@ -249,7 +276,7 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
                     <li key={city.slug}>
                       <Link
                         href={`${prefix}/cities/${city.slug}`}
-                        className="group flex items-start justify-between gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-surface/60 hover:text-accent"
+                        className="group flex items-start justify-between gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-surface/60 hover:text-accent-strong"
                       >
                         <span className="leading-snug">{anchor}</span>
                         <ArrowUpRight
@@ -266,6 +293,7 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
         })}
       </div>
 
+      {!compact && (
       <p className="mt-10 max-w-4xl text-sm leading-relaxed text-muted-foreground">
         <span className="font-semibold text-foreground">
           Beyond the cities above,
@@ -273,10 +301,12 @@ export function IndiaGeoFooter({ country, locale, pageKey }: IndiaGeoFooterProps
         we deliver remotely into tier-2 and tier-3 markets across India —
         including {TIER_2_3_CITIES.join(", ")}. The playbook stays the same;
         only the local context changes. If your city isn&apos;t listed, the
-        engagement still runs the same way — paid discovery in week one,
+        engagement still runs the same way: a free {AUDIT.duration} audit
+        first, then a {DISCOVERY.duration} {DISCOVERY.name} in week one,
         scope locked in weeks two and three, build in weeks four to fourteen,
         then a compounding monthly retainer.
       </p>
+      )}
     </Section>
   );
 }

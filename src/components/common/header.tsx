@@ -188,7 +188,7 @@ export default function Header({
               href="/contact"
               aria-label={ctaLabel}
               title={ctaLabel}
-              className="group relative hidden h-10 w-10 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-accent text-sm font-semibold text-accent-foreground shadow-[0_8px_32px_-12px_oklch(0.78_0.165_70/0.6)] transition-all hover:shadow-[0_12px_36px_-10px_oklch(0.78_0.165_70/0.75)] md:inline-flex xl:h-auto xl:w-auto xl:px-5 xl:py-2.5"
+              className="group relative hidden h-10 w-10 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-accent-strong text-sm font-semibold text-accent-foreground shadow-[0_8px_32px_-12px_oklch(0.78_0.165_70/0.6)] transition-all hover:shadow-[0_12px_36px_-10px_oklch(0.78_0.165_70/0.75)] md:inline-flex xl:h-auto xl:w-auto xl:px-5 xl:py-2.5"
             >
               <span
                 aria-hidden
@@ -272,7 +272,7 @@ export default function Header({
                 <LocalizedLink
                   href="/contact"
                   onClick={() => setOpen(false)}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3.5 text-base font-semibold text-accent-foreground"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-strong px-6 py-3.5 text-base font-semibold text-accent-foreground"
                 >
                   <span className="truncate">{ctaLabel}</span>
                   <ArrowUpRight size={18} className="shrink-0" />

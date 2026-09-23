@@ -316,7 +316,6 @@ export default async function BlogDetailPage({
         title={post.title}
         subtitle={post.subtitle}
         breadcrumb={post.title}
-        bgVariant="center"
       />
 
       {/* ================================================================ */}
@@ -404,7 +403,7 @@ export default async function BlogDetailPage({
             {/* Mobile-only TOC: collapsible above the TLDR for small screens */}
             <details className="mb-6 rounded-2xl border border-border bg-surface/40 p-5 lg:hidden">
               <summary className="flex cursor-pointer items-center justify-between gap-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   {ui.onThisPage}
                 </span>
                 <ChevronRight
@@ -419,7 +418,7 @@ export default async function BlogDetailPage({
                       href={`#${slugifyHeading(section.heading)}`}
                       className="flex gap-3 text-sm leading-snug text-muted-foreground transition hover:text-foreground"
                     >
-                      <span className="font-mono text-[10px] text-accent">
+                      <span className="font-mono text-[10px] text-accent-strong">
                         §{String(i + 1).padStart(2, "0")}
                       </span>
                       <span>{section.heading}</span>
@@ -442,7 +441,7 @@ export default async function BlogDetailPage({
                 <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-accent/40 bg-accent/10 text-accent">
                   <Zap size={11} />
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                   {ui.tldr}
                 </span>
               </div>
@@ -464,7 +463,7 @@ export default async function BlogDetailPage({
                 <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-accent/40 bg-background/60 text-accent">
                   <Bookmark size={11} />
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                   {ui.keyTakeaways}
                 </span>
               </div>
@@ -474,7 +473,7 @@ export default async function BlogDetailPage({
                     key={i}
                     className="flex items-start gap-4 text-[17px] leading-[1.6] text-foreground"
                   >
-                    <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-background/70 font-mono text-[10px] font-semibold text-accent">
+                    <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-background/70 font-mono text-[10px] font-semibold text-accent-strong">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="pt-0.5">{k}</span>
@@ -501,7 +500,7 @@ export default async function BlogDetailPage({
                   <div className="mt-2 font-display text-lg font-semibold leading-tight text-foreground">
                     {post.keywords.primary}
                   </div>
-                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent-strong">
                     <span className="h-1 w-1 rounded-full bg-accent" />
                     ~{post.keywords.searchVolume.toLocaleString()} {ui.monthlySearchesLabel}
                   </div>
@@ -535,7 +534,7 @@ export default async function BlogDetailPage({
                     {/* Editorial section header — numbered badge + decorative rule */}
                     <header className="relative">
                       <div className="flex items-center gap-4">
-                        <span className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-accent/40 bg-gradient-to-br from-accent/15 to-accent/5 font-mono text-[12px] font-semibold tracking-wider text-accent shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
+                        <span className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-accent/40 bg-gradient-to-br from-accent/15 to-accent/5 font-mono text-[12px] font-semibold tracking-wider text-accent-strong shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
                           {sectionNum}
                           <span className="pointer-events-none absolute -inset-1 rounded-[14px] border border-accent/15" />
                         </span>
@@ -615,7 +614,7 @@ export default async function BlogDetailPage({
                             <Sparkles size={14} />
                           </span>
                           <div className="flex-1">
-                            <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                            <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                               {section.callout.title}
                             </div>
                             <p className="mt-2 text-[16px] leading-[1.6] text-foreground">
@@ -644,7 +643,7 @@ export default async function BlogDetailPage({
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-accent/40 bg-background/60 text-accent">
                     <ExternalLink size={11} />
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                     {ui.takeNextStep}
                   </span>
                 </div>
@@ -663,7 +662,7 @@ export default async function BlogDetailPage({
                         <ChevronRight size={12} />
                       </span>
                       <div className="flex-1">
-                        <div className="font-display text-sm font-semibold leading-tight text-foreground transition-colors group-hover:text-accent">
+                        <div className="font-display text-sm font-semibold leading-tight text-foreground transition-colors group-hover:text-accent-strong">
                           {link.label}
                         </div>
                         <div className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
@@ -683,7 +682,7 @@ export default async function BlogDetailPage({
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg border border-accent/40 bg-accent/10 text-accent">
                     <BookOpen size={11} />
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                     {ui.frequentlyAsked}
                   </span>
                 </div>
@@ -697,7 +696,7 @@ export default async function BlogDetailPage({
                       className="group overflow-hidden rounded-2xl border border-border bg-surface/40 transition-all hover:border-accent/40 open:border-accent/40 open:bg-surface/60"
                     >
                       <summary className="flex cursor-pointer items-start gap-4 p-5 sm:p-6">
-                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-background/70 font-mono text-[10px] font-semibold text-muted-foreground transition-colors group-open:border-accent/40 group-open:text-accent">
+                        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-background/70 font-mono text-[10px] font-semibold text-muted-foreground transition-colors group-open:border-accent/40 group-open:text-accent-strong">
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <span className="flex-1 pt-0.5 font-display text-[17px] font-semibold leading-snug text-foreground sm:text-[19px]">
@@ -738,7 +737,7 @@ export default async function BlogDetailPage({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Share on Twitter"
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition hover:border-accent/50 hover:text-accent-strong"
               >
                 <Twitter size={11} />
                 Twitter
@@ -748,7 +747,7 @@ export default async function BlogDetailPage({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Share on LinkedIn"
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition hover:border-accent/50 hover:text-accent"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground transition hover:border-accent/50 hover:text-accent-strong"
               >
                 <Linkedin size={11} />
                 LinkedIn
@@ -792,7 +791,7 @@ export default async function BlogDetailPage({
                   />
                 </div>
                 <div className="flex-1">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                     {ui.writtenBy}
                   </div>
                   <div className="mt-1.5 font-display text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
@@ -809,7 +808,7 @@ export default async function BlogDetailPage({
                   <div className="mt-5 flex flex-wrap items-center gap-2">
                     <LocalizedLink
                       href="/contact"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent transition hover:border-accent/60 hover:bg-accent/15"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-accent-strong transition hover:border-accent/60 hover:bg-accent/15"
                     >
                       {ui.authorBookAudit}
                       <ArrowUpRight size={11} />
@@ -843,7 +842,7 @@ export default async function BlogDetailPage({
                   <span className="flex h-5 w-5 items-center justify-center rounded-md border border-accent/40 bg-accent/10 text-accent">
                     <BookOpen size={10} />
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                     {ui.onThisPage}
                   </span>
                 </div>
@@ -854,7 +853,7 @@ export default async function BlogDetailPage({
                         href={`#${slugifyHeading(section.heading)}`}
                         className="group flex gap-3 rounded-lg py-1 text-sm leading-snug text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        <span className="mt-px flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-border bg-background/60 font-mono text-[9px] font-semibold text-muted-foreground transition-colors group-hover:border-accent/40 group-hover:text-accent">
+                        <span className="mt-px flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border border-border bg-background/60 font-mono text-[9px] font-semibold text-muted-foreground transition-colors group-hover:border-accent/40 group-hover:text-accent-strong">
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <span className="pt-0.5">{section.heading}</span>
@@ -868,7 +867,7 @@ export default async function BlogDetailPage({
                     {ui.writtenBy}
                   </div>
                   <div className="mt-1.5 flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10 font-display text-[11px] font-semibold text-accent">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-accent/40 bg-accent/10 font-display text-[11px] font-semibold text-accent-strong">
                       {post.author.name
                         .split(" ")
                         .map((n) => n[0])
@@ -887,7 +886,7 @@ export default async function BlogDetailPage({
 
                 <LocalizedLink
                   href="/contact"
-                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-foreground shadow-[0_10px_30px_-10px_oklch(0.65_0.19_55_/_0.6)] transition hover:-translate-y-0.5"
+                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent-strong px-4 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-foreground shadow-[0_10px_30px_-10px_oklch(0.65_0.19_55_/_0.6)] transition hover:-translate-y-0.5"
                 >
                   {ui.bookAudit}
                   <ArrowUpRight size={12} />
@@ -900,7 +899,7 @@ export default async function BlogDetailPage({
                   <span className="flex h-5 w-5 items-center justify-center rounded-md border border-accent/40 bg-accent/10 text-accent">
                     <ArrowRight size={10} />
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
                     {ui.readNext}
                   </span>
                 </div>
@@ -919,7 +918,7 @@ export default async function BlogDetailPage({
                             {rp.readTime} {ui.minRead}
                           </span>
                         </div>
-                        <div className="mt-2 font-display text-sm font-semibold leading-[1.3] text-foreground transition-colors group-hover:text-accent">
+                        <div className="mt-2 font-display text-sm font-semibold leading-[1.3] text-foreground transition-colors group-hover:text-accent-strong">
                           {rp.title}
                         </div>
                       </LocalizedLink>
@@ -994,7 +993,7 @@ export default async function BlogDetailPage({
       <Section className="pt-10">
         <div className="mb-10 flex items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.26em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.26em] text-accent-strong">
               <span className="h-1 w-1 rounded-full bg-accent" />
               {ui.keepReading}
             </div>
@@ -1040,7 +1039,7 @@ export default async function BlogDetailPage({
                 <p className="mt-3 flex-1 text-sm leading-[1.65] text-muted-foreground">
                   {rp.excerpt}
                 </p>
-                <div className="mt-5 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="mt-5 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   {ui.featuredReadMore}
                   <ArrowUpRight
                     size={12}

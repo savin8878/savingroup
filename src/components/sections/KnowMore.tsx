@@ -11,6 +11,7 @@ import {
   Bookmark,
 } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import LocalizedLink from "../LocalizedLink";
 import { interpolate, type Messages } from "@/lib/i18n";
 
@@ -101,7 +102,7 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
             </div>
 
             <div className="mt-5 rounded-3xl border border-accent/30 bg-accent/5 p-6">
-              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 <Sparkles size={11} />
                 Want a custom audit?
               </div>
@@ -112,9 +113,9 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
               </p>
               <LocalizedLink
                 href="/contact"
-                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-foreground"
+                className="group mt-5 inline-flex items-center gap-2 rounded-full bg-accent-strong px-4 py-2 text-xs font-semibold text-accent-foreground"
               >
-                Book audit
+                Request audit
                 <ArrowUpRight
                   size={12}
                   className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -130,13 +131,11 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
             {items.map((it, i) => {
               const active = open === it.id;
               return (
-                <motion.article
+                <Reveal
+                  as="article"
+                  delay={0.02 * i}
                   key={it.id}
                   id={`know-${it.id}`}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.4, delay: 0.02 * i }}
                   className={`group relative scroll-mt-32 overflow-hidden rounded-3xl border transition-all ${
                     active
                       ? "border-accent/40 bg-surface"
@@ -158,7 +157,7 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
                       <div
                         className={`flex h-14 w-14 items-center justify-center rounded-2xl border font-display text-lg font-semibold transition-colors ${
                           active
-                            ? "border-accent/60 bg-accent text-accent-foreground"
+                            ? "border-accent/60 bg-accent-strong text-accent-foreground"
                             : "border-border bg-background text-accent"
                         }`}
                       >
@@ -174,7 +173,7 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                        <span className="rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                           {it.category}
                         </span>
                         <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -257,7 +256,7 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
                             </div>
                             <LocalizedLink
                               href="/contact"
-                              className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-xs font-semibold text-accent-foreground"
+                              className="group inline-flex items-center gap-2 rounded-full bg-accent-strong px-5 py-2 text-xs font-semibold text-accent-foreground"
                             >
                               Free Revenue Audit
                               <ArrowUpRight
@@ -270,7 +269,7 @@ export function KnowMore({ t, pageKey, pageLabel }: KnowMoreProps) {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.article>
+                </Reveal>
               );
             })}
           </div>

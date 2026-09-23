@@ -1,7 +1,10 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { bigNumberCharts } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 
@@ -19,12 +22,9 @@ export function BigNumbers({ t, noPadding }: { t: Messages; noPadding?: boolean 
       {/* Mobile: 2-col grid (4 stat cards in a 2x2 instead of stacked). */}
       <div className="mt-10 grid grid-cols-2 gap-3 sm:mt-16 sm:gap-4 lg:grid-cols-4">
         {bn.items.map((item, i) => (
-          <motion.div
+          <Reveal
+            delay={i * 0.08}
             key={item.label}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.08 }}
             className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-surface/60 p-5 sm:p-8 transition-all hover:-translate-y-1 hover:border-accent/40 hover:bg-surface"
           >
             <div
@@ -55,7 +55,7 @@ export function BigNumbers({ t, noPadding }: { t: Messages; noPadding?: boolean 
               {item.detail}
             </p>
             <div className="mt-6 h-px w-full bg-gradient-to-r from-accent/40 via-border to-transparent" />
-          </motion.div>
+          </Reveal>
         ))}
       </div>
     </Section>

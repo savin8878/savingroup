@@ -316,7 +316,7 @@ export default async function CityCaseStudiesPage({
                 )}
                 <LocalizedLink
                   href={`/case-studies#${c.id}`}
-                  className="mt-5 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em] text-accent transition-colors hover:text-foreground"
+                  className="mt-5 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong transition-colors hover:text-foreground"
                 >
                   Full case study
                   <ArrowUpRight size={11} />
@@ -435,7 +435,7 @@ export default async function CityCaseStudiesPage({
             },
             {
               href: `/cities/${city.slug}/contact`,
-              label: "Book a " + city.name + " audit",
+              label: "Request a " + city.name + " audit",
               desc: "WhatsApp · phone · 45-minute revenue audit.",
               Icon: Mail,
             },
@@ -447,11 +447,11 @@ export default async function CityCaseStudiesPage({
             >
               <div className="flex items-center gap-2">
                 <Icon size={16} className="text-accent" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Next page
                 </span>
               </div>
-              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent sm:text-lg">
+              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent-strong sm:text-lg">
                 {label}
               </div>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">

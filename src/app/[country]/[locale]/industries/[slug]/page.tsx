@@ -253,7 +253,7 @@ export default async function IndustrySlugPage({
             </p>
             <LocalizedLink
               href="/contact"
-              className="group mt-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent transition-all hover:border-accent/70 hover:bg-accent/15"
+              className="group mt-6 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-5 py-2.5 text-sm font-semibold text-accent-strong transition-all hover:border-accent/70 hover:bg-accent/15"
             >
               Ask on a free audit
               <ArrowUpRight
@@ -295,7 +295,7 @@ export default async function IndustrySlugPage({
           <div className="rounded-3xl border border-border bg-surface/40 p-6 sm:p-10">
             <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
               <div className="lg:col-span-5">
-                <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   <MapPin size={12} />
                   Cities we ship in
                 </div>
@@ -326,7 +326,7 @@ export default async function IndustrySlugPage({
                             {industryDisplayName} in {city.name}
                           </div>
                           {isPrimary && (
-                            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                            <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                               Primary cluster
                             </div>
                           )}
@@ -392,7 +392,7 @@ export default async function IndustrySlugPage({
                     className="group flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface/60 p-5 transition-colors hover:border-accent/40"
                   >
                     <div className="min-w-0">
-                      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                         {s.kicker}
                       </div>
                       <div className="mt-1 truncate font-display text-base font-semibold text-foreground">
@@ -418,7 +418,7 @@ export default async function IndustrySlugPage({
             <Eyebrow>Other industries we build for</Eyebrow>
             <LocalizedLink
               href="/industries"
-              className="hidden text-xs font-semibold text-accent hover:underline sm:inline"
+              className="hidden text-xs font-semibold text-accent-strong hover:underline sm:inline"
             >
               See all 5 →
             </LocalizedLink>

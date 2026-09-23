@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Check,
@@ -19,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import LocalizedLink from "../LocalizedLink";
 import { tierGlyphs, PricingValueViz } from "../illustrations";
@@ -131,11 +131,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
   return (
     <Section id="plans" className="pt-0">
       {/* Requirement-based banner + PDF download */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.5 }}
+      <Reveal
         className="mx-auto mb-10 flex max-w-3xl flex-col gap-4 rounded-2xl border border-accent/30 bg-accent/5 px-5 py-4 text-sm leading-relaxed text-muted-foreground sm:flex-row sm:items-center sm:gap-5"
       >
         <Sparkles size={16} className="hidden shrink-0 text-accent sm:mt-0.5 sm:block sm:self-start" />
@@ -152,19 +148,17 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
             Download PDF
           </a>
         )}
-      </motion.div>
+      </Reveal>
 
       {/* Mobile: snap carousel. md: 2-col. xl: 4-col. */}
       <div className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0 sm:pb-0 md:grid md:snap-none md:grid-cols-2 md:gap-5 md:overflow-visible xl:grid-cols-4">
         {p.tiers.map((tier, i) => {
           const Glyph = tierGlyphs[tier.glyph];
           return (
-            <motion.article
+            <Reveal
+              as="article"
+              delay={(i % 4) * 0.07}
               key={tier.id}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 4) * 0.07 }}
               className={`group relative flex w-[84vw] max-w-[340px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-3xl border bg-surface/60 p-6 transition-all duration-500 hover:-translate-y-1 sm:w-auto sm:max-w-none sm:flex-shrink ${
                 tier.featured
                   ? "border-accent/60 bg-gradient-to-b from-accent/[0.06] to-transparent shadow-[0_24px_60px_-30px_oklch(0.78_0.165_70/0.55)] xl:scale-[1.03]"
@@ -172,7 +166,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
               }`}
             >
               {tier.badge && (
-                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-accent-foreground">
+                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-full bg-accent-strong px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-accent-foreground">
                   <Star size={9} className="fill-current" />
                   {tier.badge}
                 </div>
@@ -203,7 +197,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
               <div className="mt-4 rounded-xl bg-foreground/[0.04] py-2.5 text-center text-sm font-semibold text-foreground">
                 {tier.scope}
               </div>
-              <div className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/30 bg-accent/5 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-accent">
+              <div className="mt-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/30 bg-accent/5 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-accent-strong">
                 <SlidersHorizontal size={9} />
                 {tier.reqTag}
               </div>
@@ -223,7 +217,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
 
               {/* Free extras */}
               <div className="mt-4 rounded-2xl border border-accent/25 bg-accent/[0.04] p-4">
-                <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-accent">
+                <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-accent-strong">
                   <Gift size={11} />
                   Free extras
                 </div>
@@ -256,7 +250,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
                 href="/contact"
                 className={`group/btn mt-7 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all ${
                   tier.ctaStyle === "solid"
-                    ? "bg-accent text-accent-foreground shadow-[0_10px_30px_-12px_oklch(0.78_0.165_70/0.6)] hover:-translate-y-0.5"
+                    ? "bg-accent-strong text-accent-foreground shadow-[0_10px_30px_-12px_oklch(0.78_0.165_70/0.6)] hover:-translate-y-0.5"
                     : "border border-accent/40 text-foreground hover:border-accent hover:bg-accent/5"
                 }`}
               >
@@ -266,7 +260,7 @@ function PricingCards({ p, downloadHref }: { p: PricingContent; downloadHref?: s
                   className="transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"
                 />
               </LocalizedLink>
-            </motion.article>
+            </Reveal>
           );
         })}
       </div>
@@ -286,25 +280,18 @@ function Differentiators({ p }: { p: PricingContent }) {
       <SectionHeader eyebrow={c.eyebrow} title={c.title} subtitle={c.intro} align="center" />
 
       {/* Animated value-stack visual */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6 }}
+      <Reveal
         className="mx-auto mt-12 max-w-3xl rounded-3xl border border-border bg-background/40 p-5 sm:p-8"
       >
         <PricingValueViz />
-      </motion.div>
+      </Reveal>
 
       {/* Comparison cards */}
       <div className="mt-12 grid gap-5 md:grid-cols-3">
         {c.cards.map((card, i) => (
-          <motion.div
+          <Reveal
+            delay={i * 0.08}
             key={card.title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, delay: i * 0.08 }}
             className={`relative flex flex-col rounded-3xl border p-6 text-center ${
               card.highlight
                 ? "border-accent/60 bg-gradient-to-b from-accent/[0.07] to-transparent shadow-[0_24px_60px_-32px_oklch(0.78_0.165_70/0.5)] md:-translate-y-3"
@@ -342,7 +329,7 @@ function Differentiators({ p }: { p: PricingContent }) {
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
 
@@ -404,11 +391,7 @@ function Differentiators({ p }: { p: PricingContent }) {
       </div>
 
       {/* Highlight box */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.5 }}
+      <Reveal
         className="mt-12 rounded-3xl border border-success/40 bg-gradient-to-br from-success/[0.08] to-accent/[0.06] p-7 text-center"
       >
         <h3 className="font-display text-xl font-semibold text-foreground">{p.highlight.title}</h3>
@@ -418,7 +401,7 @@ function Differentiators({ p }: { p: PricingContent }) {
         <p className="mx-auto mt-2 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
           {p.highlight.lineB}
         </p>
-      </motion.div>
+      </Reveal>
     </Section>
   );
 }
@@ -437,12 +420,9 @@ function Advantages({ p }: { p: PricingContent }) {
         {p.advantages.items.map((adv, i) => {
           const Icon = ADVANTAGE_ICONS[adv.icon] ?? Sparkles;
           return (
-            <motion.div
+            <Reveal
+              delay={(i % 4) * 0.06}
               key={adv.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.45, delay: (i % 4) * 0.06 }}
               className="group rounded-2xl border-l-2 border-accent/40 bg-surface/40 p-5 transition-all hover:border-accent hover:bg-surface"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors group-hover:bg-accent/15">
@@ -450,7 +430,7 @@ function Advantages({ p }: { p: PricingContent }) {
               </div>
               <h4 className="mt-4 text-sm font-semibold text-foreground">{adv.title}</h4>
               <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{adv.body}</p>
-            </motion.div>
+            </Reveal>
           );
         })}
       </div>

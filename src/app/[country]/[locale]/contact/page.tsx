@@ -3,6 +3,7 @@ import { getTranslation, type Locale } from "@/lib/i18n";
 import { buildPageMetadata, buildPageBreadcrumbJsonLd } from "@/lib/seo";
 import { getGeo } from "@/lib/geo";
 import { PageHero } from "@/components/sections/PageHero";
+import { AFTER_ENQUIRY, AUDIT, DISCOVERY } from "@/lib/offer";
 import { Section } from "@/components/primitives/section";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { KnowMore } from "@/components/sections/KnowMore";
@@ -44,14 +45,20 @@ export default async function ContactPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
 
       <PageHero
+        compact
         eyebrow={t.contact.eyebrow}
-        title={<>Book your free <span className="text-accent">Revenue Audit.</span></>}
+        title={
+          <>
+            Request your free{" "}
+            <span className="font-editorial text-accent">Revenue Audit.</span>
+          </>
+        }
         subtitle={t.contact.subtitle}
         breadcrumb="Contact"
       />
 
       {/* ── FORM + SIDEBAR ── */}
-      <Section className="pt-6 sm:pt-8">
+      <Section className="pt-8 sm:pt-10">
         <div className="grid items-start gap-8 lg:grid-cols-5 lg:gap-10">
           {/* Form */}
           <div className="lg:col-span-3">
@@ -85,7 +92,7 @@ export default async function ContactPage({
                 </a>
 
                 <a
-                  href={`mailto:${d.emailHref}`}
+                  href={`mailto:${d.email}`}
                   className="group flex items-center gap-3 rounded-xl border-2 border-border p-3.5 transition-colors hover:border-accent/40 hover:bg-surface"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-accent">
@@ -115,21 +122,29 @@ export default async function ContactPage({
 
             {/* What happens next */}
             <div className="rounded-2xl border-2 border-accent/25 bg-accent-soft p-5 sm:p-6">
-              <h4 className="text-sm font-semibold text-accent">What happens next</h4>
+              <h4 className="text-sm font-semibold text-accent-strong">What happens next</h4>
               <div className="mt-4 space-y-3">
-                {[
-                  "We reply within one business day.",
-                  "Book a 30-min call — no pitch, just diagnosis.",
-                  "You walk away with a written revenue audit.",
-                ].map((text, i) => (
+                {AFTER_ENQUIRY.map((text, i) => (
                   <div key={i} className="flex items-start gap-2.5">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-background text-xs font-semibold text-accent">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-background text-xs font-semibold text-accent-strong">
                       {i + 1}
                     </span>
                     <span className="pt-0.5 text-sm text-foreground/90">{text}</span>
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* The paid step, stated before anyone can feel ambushed by it. */}
+            <div className="rounded-2xl border border-border bg-surface/40 p-4">
+              <div className="text-sm font-semibold text-foreground">
+                And if we go further
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                The audit is free and has no next step attached. If you want a
+                build scoped, the {DISCOVERY.name} is a paid {DISCOVERY.duration}{" "}
+                session ({DISCOVERY.price}) — {DISCOVERY.note.toLowerCase()}
+              </p>
             </div>
 
             {/* Trust */}
@@ -148,7 +163,7 @@ export default async function ContactPage({
       <Section>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Globe2 size={12} />
               Where we operate
             </div>

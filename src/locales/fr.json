@@ -30,10 +30,22 @@
   },
   "socialProof": {
     "stats": [
-      { "value": "50+", "label": "Entreprises accompagnées" },
-      { "value": "₹40Cr+", "label": "Revenus clients générés" },
-      { "value": "200%", "label": "ROI moyen en Année 1" },
-      { "value": "5", "label": "Industries. Un partenaire." }
+      {
+        "value": "50+",
+        "label": "Entreprises accompagnées"
+      },
+      {
+        "value": "₹40Cr+",
+        "label": "Revenus clients générés"
+      },
+      {
+        "value": "200%",
+        "label": "ROI moyen en Année 1"
+      },
+      {
+        "value": "5",
+        "label": "Industries. Un partenaire."
+      }
     ],
     "logosLabel": "La confiance d'équipes ambitieuses partout en {country} et au-delà"
   },
@@ -70,18 +82,42 @@
     "title": "Les autres agences font des sites. Nous construisons des systèmes de revenus.",
     "subtitle": "Chaque solution livrée est liée à un résultat mesurable : plus de revenus, moins de coûts, ou des opérations plus rapides. Nous travaillons comme une entreprise produit intégrée à votre entreprise — pas comme un fournisseur que vous courez après.",
     "comparison": [
-      { "typical": "Livre un site web", "us": "Livre un système de revenus" },
-      { "typical": "Focalisé sur l'esthétique", "us": "Focalisé sur la conversion et le ROI" },
-      { "typical": "Disparaît après le lancement", "us": "Construit des systèmes qui s'accumulent" },
-      { "typical": "Vend par type de service", "us": "Vend par résultat business" },
-      { "typical": "Plein de jargon technique", "us": "Langage d'impact business" },
-      { "typical": "Forfaits universels", "us": "Solutions spécifiques à l'industrie" },
-      { "typical": "Réactif — attend le brief", "us": "Stratégique — cartographie les problèmes" },
-      { "typical": "Aucune expertise en automatisation", "us": "IA + automatisation dans chaque système" }
+      {
+        "typical": "Livre un site web",
+        "us": "Livre un système de revenus"
+      },
+      {
+        "typical": "Focalisé sur l'esthétique",
+        "us": "Focalisé sur la conversion et le ROI"
+      },
+      {
+        "typical": "Disparaît après le lancement",
+        "us": "Construit des systèmes qui s'accumulent"
+      },
+      {
+        "typical": "Vend par type de service",
+        "us": "Vend par résultat business"
+      },
+      {
+        "typical": "Plein de jargon technique",
+        "us": "Langage d'impact business"
+      },
+      {
+        "typical": "Forfaits universels",
+        "us": "Solutions spécifiques à l'industrie"
+      },
+      {
+        "typical": "Réactif — attend le brief",
+        "us": "Stratégique — cartographie les problèmes"
+      },
+      {
+        "typical": "Aucune expertise en automatisation",
+        "us": "IA + automatisation dans chaque système"
+      }
     ]
   },
   "services": {
-    "eyebrow": "Cinq systèmes qui font croître vos revenus",
+    "eyebrow": "Six systèmes qui font croître vos revenus",
     "title": "Nous ne vendons pas de services. Nous résolvons des problèmes.",
     "subtitle": "Chaque package est construit autour d'un défi business spécifique — et mesuré par le résultat qu'il livre.",
     "items": [
@@ -338,11 +374,31 @@
         "title": "₹30L → ₹68L mensuels sans augmenter le budget pub",
         "summary": "Marque skincare de 8 personnes dépensant ₹1.8L/mois sur Meta avec 0.6% de conversion. Nous avons reconstruit la boutique, déployé des flux WhatsApp et une base SEO.",
         "metrics": [
-          { "label": "Revenu mensuel", "value": "₹30L → ₹68L", "delta": "+127%" },
-          { "label": "Taux de conversion", "value": "0.6% → 2.1%", "delta": "+250%" },
-          { "label": "Récupération panier", "value": "0% → 28%", "delta": "nouveau" },
-          { "label": "Trafic organique", "value": "+340%", "delta": "6 mois" },
-          { "label": "Coût d'acquisition", "value": "₹820 → ₹290", "delta": "-65%" }
+          {
+            "label": "Revenu mensuel",
+            "value": "₹30L → ₹68L",
+            "delta": "+127%"
+          },
+          {
+            "label": "Taux de conversion",
+            "value": "0.6% → 2.1%",
+            "delta": "+250%"
+          },
+          {
+            "label": "Récupération panier",
+            "value": "0% → 28%",
+            "delta": "nouveau"
+          },
+          {
+            "label": "Trafic organique",
+            "value": "+340%",
+            "delta": "6 mois"
+          },
+          {
+            "label": "Coût d'acquisition",
+            "value": "₹820 → ₹290",
+            "delta": "-65%"
+          }
         ],
         "quote": "Sanat Dynamo n'a pas juste fait un site. Ils ont reconstruit notre façon de vendre. Objectif annuel atteint en 7 mois.",
         "author": "Fondateur, Marque D2C Skincare"
@@ -355,10 +411,26 @@
         "title": "Coût par lead qualifié réduit de 60% en 90 jours",
         "summary": "Promoteur dépensant des lakhs sur housing.com et 99acres pour des leads de basse intention. Nous avons construit un site de capture directe, du nurturing automatisé et un module de visite virtuelle pour NRI.",
         "metrics": [
-          { "label": "Coût par lead", "value": "₹1,800 → ₹720", "delta": "-60%" },
-          { "label": "Conversion en visite", "value": "12% → 24%", "delta": "+100%" },
-          { "label": "Leads inbound qualifiés", "value": "+312%", "delta": "3 mois" },
-          { "label": "Closures NRI", "value": "0 → 6", "delta": "nouveau marché" }
+          {
+            "label": "Coût par lead",
+            "value": "₹1,800 → ₹720",
+            "delta": "-60%"
+          },
+          {
+            "label": "Conversion en visite",
+            "value": "12% → 24%",
+            "delta": "+100%"
+          },
+          {
+            "label": "Leads inbound qualifiés",
+            "value": "+312%",
+            "delta": "3 mois"
+          },
+          {
+            "label": "Closures NRI",
+            "value": "0 → 6",
+            "delta": "nouveau marché"
+          }
         ],
         "quote": "Nous avons arrêté de dépendre des portails. Le site génère plus de leads qualifiés que 99acres pour un tiers du coût.",
         "author": "Directeur, Promoteur Immobilier Pune"
@@ -371,10 +443,26 @@
         "title": "De 5 feuilles Excel à un ERP. 80% moins de saisie manuelle.",
         "summary": "Business industriel ₹40Cr tournant sur Excel et savoir tribal. Nous avons construit un ERP avec stock, commandes, facturation GST et portail fournisseurs.",
         "metrics": [
-          { "label": "Saisie manuelle", "value": "-80%", "delta": "vs base" },
-          { "label": "Commande à livraison", "value": "11 jours → 4 jours", "delta": "-64%" },
-          { "label": "Erreurs facture", "value": "12% → 0.3%", "delta": "quasi nul" },
-          { "label": "Visibilité P&L", "value": "mensuel → quotidien", "delta": "temps réel" }
+          {
+            "label": "Saisie manuelle",
+            "value": "-80%",
+            "delta": "vs base"
+          },
+          {
+            "label": "Commande à livraison",
+            "value": "11 jours → 4 jours",
+            "delta": "-64%"
+          },
+          {
+            "label": "Erreurs facture",
+            "value": "12% → 0.3%",
+            "delta": "quasi nul"
+          },
+          {
+            "label": "Visibilité P&L",
+            "value": "mensuel → quotidien",
+            "delta": "temps réel"
+          }
         ],
         "quote": "Pour la première fois je regarde un dashboard à 9h et je sais exactement où en est l'entreprise. Ça a tout changé.",
         "author": "MD, Fabricant de Composants Auto"
@@ -482,7 +570,14 @@
       "email": "Email professionnel",
       "company": "Entreprise",
       "industry": "Industrie",
-      "industries": ["E-commerce / D2C", "Immobilier", "Coaching / EdTech", "Santé", "PME / Industrie", "Autre"],
+      "industries": [
+        "E-commerce / D2C",
+        "Immobilier",
+        "Coaching / EdTech",
+        "Santé",
+        "PME / Industrie",
+        "Autre"
+      ],
       "challenge": "Quel est le plus gros problème que vous essayez de résoudre ?",
       "submit": "Demander l'Audit",
       "submitting": "Envoi…"
@@ -490,7 +585,6 @@
     "details": {
       "emailLabel": "Email",
       "email": "savingroup@gmail.com",
-      "emailHref": "kanhaji0402@gmail.com",
       "phoneLabel": "WhatsApp",
       "phone": "+91 83058 38352",
       "hoursLabel": "Horaires",
@@ -505,32 +599,80 @@
       "services": {
         "title": "Services",
         "links": [
-          { "label": "RevSite Pro", "href": "/services#revsite-pro" },
-          { "label": "AutoSell Engine", "href": "/services#autosell-engine" },
-          { "label": "LocalDom SEO", "href": "/services#localdom-seo" },
-          { "label": "GlobalScale Suite", "href": "/services#globalscale-suite" },
-          { "label": "OperateOS", "href": "/services#operate-os" },
-          { "label": "GrowthOS Retainer", "href": "/services#growthos-retainer" }
+          {
+            "label": "RevSite Pro",
+            "href": "/services#revsite-pro"
+          },
+          {
+            "label": "AutoSell Engine",
+            "href": "/services#autosell-engine"
+          },
+          {
+            "label": "LocalDom SEO",
+            "href": "/services#localdom-seo"
+          },
+          {
+            "label": "GlobalScale Suite",
+            "href": "/services#globalscale-suite"
+          },
+          {
+            "label": "OperateOS",
+            "href": "/services#operate-os"
+          },
+          {
+            "label": "GrowthOS Retainer",
+            "href": "/services#growthos-retainer"
+          }
         ]
       },
       "industries": {
         "title": "Industries",
         "links": [
-          { "label": "Industrie", "href": "/industries/manufacturing" },
-          { "label": "Immobilier", "href": "/industries/real-estate" },
-          { "label": "Santé", "href": "/industries/healthcare" },
-          { "label": "E-commerce / D2C", "href": "/industries/ecommerce" },
-          { "label": "Coaching / EdTech", "href": "/industries/edtech" }
+          {
+            "label": "Industrie",
+            "href": "/industries/manufacturing"
+          },
+          {
+            "label": "Immobilier",
+            "href": "/industries/real-estate"
+          },
+          {
+            "label": "Santé",
+            "href": "/industries/healthcare"
+          },
+          {
+            "label": "E-commerce / D2C",
+            "href": "/industries/ecommerce"
+          },
+          {
+            "label": "Coaching / EdTech",
+            "href": "/industries/edtech"
+          }
         ]
       },
       "company": {
         "title": "Entreprise",
         "links": [
-          { "label": "À Propos", "href": "/about" },
-          { "label": "Études de Cas", "href": "/case-studies" },
-          { "label": "Contact", "href": "/contact" },
-          { "label": "Confidentialité", "href": "/privacy" },
-          { "label": "Conditions", "href": "/terms" }
+          {
+            "label": "À Propos",
+            "href": "/about"
+          },
+          {
+            "label": "Études de Cas",
+            "href": "/case-studies"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Confidentialité",
+            "href": "/privacy"
+          },
+          {
+            "label": "Conditions",
+            "href": "/terms"
+          }
         ]
       }
     },
@@ -660,10 +802,26 @@
     "title": "Les maths derrière le titre.",
     "subtitle": "Nous nous mesurons comme nos clients — par ce qui apparaît sur le compte en banque.",
     "items": [
-      { "value": "127%", "label": "Croissance moyenne des revenus", "detail": "Sur 50+ engagements ces 18 derniers mois." },
-      { "value": "65%", "label": "Réduction moyenne du CPA", "detail": "La plupart des clients voient les ads diviser par deux en 90 jours." },
-      { "value": "₹40Cr+", "label": "Revenus clients impactés", "detail": "Tracé euro pour euro contre la base." },
-      { "value": "90 jours", "label": "Retour sur investissement moyen", "detail": "La plupart des engagements se rentabilisent en un trimestre." }
+      {
+        "value": "127%",
+        "label": "Croissance moyenne des revenus",
+        "detail": "Sur 50+ engagements ces 18 derniers mois."
+      },
+      {
+        "value": "65%",
+        "label": "Réduction moyenne du CPA",
+        "detail": "La plupart des clients voient les ads diviser par deux en 90 jours."
+      },
+      {
+        "value": "₹40Cr+",
+        "label": "Revenus clients impactés",
+        "detail": "Tracé euro pour euro contre la base."
+      },
+      {
+        "value": "90 jours",
+        "label": "Retour sur investissement moyen",
+        "detail": "La plupart des engagements se rentabilisent en un trimestre."
+      }
     ]
   }
 }

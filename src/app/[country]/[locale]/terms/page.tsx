@@ -31,7 +31,7 @@ const sections = [
   {
     icon: FileSignature,
     title: "Engagement",
-    body: "Every project starts with a paid discovery and a written scope. The scope defines deliverables, timeline, success metrics, and commercials. We don't begin development until both sides have signed off.",
+    body: "Every project starts with a free 45-minute revenue audit, then a paid Discovery Sprint and a written scope. The Sprint fee is credited in full against the build. The scope defines deliverables, timeline, success metrics, and commercials. We don't begin development until both sides have signed off.",
   },
   {
     icon: CreditCard,
@@ -88,7 +88,7 @@ export default function TermsPage() {
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-32">
               <div className="rounded-3xl border border-border bg-surface/60 p-7">
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Last updated
                 </div>
                 <div className="mt-2 font-display text-xl font-semibold text-foreground">
@@ -104,7 +104,7 @@ export default function TermsPage() {
                         key={s.title}
                         className="flex items-start gap-3 text-muted-foreground"
                       >
-                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-strong">
                           0{i + 1}
                         </span>
                         {s.title}

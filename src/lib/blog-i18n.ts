@@ -164,7 +164,7 @@ const EN: BlogUiStrings = {
 
   authorEyebrow: "Meet the writer",
   authorReadStory: "Read the Sanat Dynamo story",
-  authorBookAudit: "Book a 45-minute audit",
+  authorBookAudit: "Request a 45-minute audit",
 
   newsletterEyebrow: "The newsletter",
   newsletterTitle: "One long-form post a fortnight.",
@@ -192,7 +192,7 @@ const EN: BlogUiStrings = {
   monthlySearchesLabel: "searches / mo (India)",
   onThisPage: "On this page",
   writtenBy: "Written by",
-  bookAudit: "Book an audit",
+  bookAudit: "Request an audit",
   readNext: "Read next",
   takeNextStep: "Take the next step",
   frequentlyAsked: "Frequently asked",

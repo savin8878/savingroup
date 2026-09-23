@@ -3,6 +3,7 @@ import { getTranslation, type Locale } from "@/lib/i18n";
 import { buildPageMetadata, buildPageBreadcrumbJsonLd } from "@/lib/seo";
 import { PageHero } from "@/components/sections/PageHero";
 import { Section, SectionHeader } from "@/components/primitives/section";
+import { TeamBlock } from "@/components/sections/TeamBlock";
 import { Cta } from "@/components/sections/Cta";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { CityBanner } from "@/components/sections/CityBanner";
@@ -108,7 +109,7 @@ export default async function AboutPage({
 
           <aside className="lg:col-span-5">
             <div className="rounded-2xl sm:rounded-3xl border border-border bg-surface/60 p-5 sm:p-8">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 By the numbers
               </div>
               <div className="mt-6 space-y-6">
@@ -129,7 +130,7 @@ export default async function AboutPage({
             </div>
 
             <div className="mt-4 sm:mt-5 rounded-2xl sm:rounded-3xl border border-accent/30 bg-accent/5 p-5 sm:p-8">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                 What you can expect
               </div>
               <ul className="mt-5 space-y-3 text-sm text-foreground">
@@ -191,6 +192,8 @@ export default async function AboutPage({
         </div>
       </Section>
 
+      <TeamBlock />
+
       {/* Principles */}
       <Section className="pt-0">
         <div className="grid gap-10 lg:grid-cols-12">
@@ -217,7 +220,7 @@ export default async function AboutPage({
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border bg-background text-accent">
                     <Icon size={20} strokeWidth={1.75} />
                   </div>
-                  <span className="font-mono text-xs uppercase tracking-[0.22em] text-accent">
+                  <span className="font-mono text-xs uppercase tracking-[0.22em] text-accent-strong">
                     0{i + 1}
                   </span>
                 </div>

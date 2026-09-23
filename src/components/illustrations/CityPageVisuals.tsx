@@ -104,7 +104,7 @@ export function CityLeadCTA({
             {/* Primary — Book audit */}
             <LocalizedLink
               href="/contact"
-              className="group relative inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[0_10px_30px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-10px_oklch(0.78_0.165_70/0.8)]"
+              className="group relative inline-flex items-center gap-2 rounded-full bg-accent-strong px-6 py-3 text-sm font-semibold text-accent-foreground shadow-[0_10px_30px_-10px_oklch(0.78_0.165_70/0.6)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-10px_oklch(0.78_0.165_70/0.8)]"
             >
               <span
                 aria-hidden
@@ -136,7 +136,7 @@ export function CityLeadCTA({
             {/* Tertiary — Phone */}
             <a
               href={`tel:${tel}`}
-              className="group inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:border-accent/50 hover:text-accent"
+              className="group inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-5 py-3 text-sm font-semibold text-foreground transition-all hover:border-accent/50 hover:text-accent-strong"
             >
               <Phone size={15} />
               {phoneNumber}
@@ -217,7 +217,7 @@ export function CityHiddenGem({
 
         {/* Body */}
         <div className="lg:col-span-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <Sparkles size={11} />
             Hidden gem · {cityName}
           </div>
@@ -420,7 +420,7 @@ export function CityGlobalPeersCard({
       />
       <div className="relative grid gap-8 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/5 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
             <Globe2 size={11} />
             World twins
           </div>
@@ -450,7 +450,7 @@ export function CityGlobalPeersCard({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-md border border-accent/30 bg-accent/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-accent">
+                      <span className="rounded-md border border-accent/30 bg-accent/10 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-accent-strong">
                         {peer.countryCode}
                       </span>
                       <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">
@@ -1231,7 +1231,7 @@ export function CityContextMap({
                     marginTop: "-12px",
                   }}
                 >
-                  <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                  <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                     <MapPin size={9} /> {c.state}
                   </div>
                   <div className="mt-0.5 font-display text-sm font-semibold tracking-tight text-foreground">
@@ -1239,7 +1239,7 @@ export function CityContextMap({
                   </div>
                   {stat && (
                     <div className="mt-1 flex items-baseline gap-1.5">
-                      <span className="font-display text-base font-semibold leading-none text-accent">
+                      <span className="font-display text-base font-semibold leading-none text-accent-strong">
                         {stat.value}
                       </span>
                       <span className="text-[10px] leading-tight text-muted-foreground">

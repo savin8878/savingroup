@@ -29,7 +29,7 @@ export function ContactForm({ t }: { t: Messages }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 180, delay: 0.1 }}
-          className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground"
+          className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-strong text-accent-foreground"
         >
           <CheckCircle2 size={32} strokeWidth={2} />
         </motion.div>
@@ -55,7 +55,7 @@ export function ContactForm({ t }: { t: Messages }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
           </span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
             Revenue Audit Request
           </span>
         </div>
@@ -142,7 +142,7 @@ export function ContactForm({ t }: { t: Messages }) {
         <button
           type="submit"
           disabled={submitting}
-          className="group order-1 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-8 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/25 transition-all hover:shadow-xl hover:shadow-accent/35 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:order-2 sm:rounded-full"
+          className="group order-1 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent-strong px-8 text-sm font-semibold text-accent-foreground shadow-lg shadow-accent/25 transition-all hover:shadow-xl hover:shadow-accent/35 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:order-2 sm:rounded-full"
         >
           <AnimatePresence mode="wait" initial={false}>
             {submitting ? (

@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowDownRight,
   ArrowUpRight,
   LayoutDashboard,
   Lock,
   MessageCircle,
-  Search,
   Settings,
   TrendingUp,
   Users,
@@ -37,6 +36,7 @@ const CHART_W = 480;
 const CHART_H = 96;
 const TICK_MS = 900;
 const LEAD_MS = 4200;
+const ROW_H = 52; // px, must match the row's `h-13`
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -251,7 +251,8 @@ function KpiTile({
       </div>
 
       <div
-        className={`mt-2 inline-flex items-center gap-1 font-mono text-[9px] tabular-nums ${
+        dir="ltr"
+        className={`mt-2 inline-flex items-center gap-1 font-mono text-[9px] tabular-nums rtl:justify-end ${
           up ? "text-success" : "text-accent"
         }`}
       >
@@ -311,20 +312,27 @@ export function HeroProductShowcase({
     return () => window.clearInterval(id);
   }, [animate]);
 
+  // Cheap liveness: reuse the chart tick rather than adding another timer.
+  const syncAgo = (tick % 9) + 1;
+
   const { line, area } = useMemo(() => buildPaths(series), [series]);
-  const visibleLeads = useMemo(
-    () => [0, 1, 2].map((i) => LEADS[(leadCursor + i) % LEADS.length]),
+  // Four rows rendered into a three-row window. The newest sits above the
+  // fold and slides in as the stack settles, pushing the oldest out of the
+  // bottom — same trick as the chart: translate, never reflow. `popLayout`
+  // was pulling exiting rows out of flow and drawing them over the arrivals.
+  const leadWindow = useMemo(
+    () =>
+      [0, 1, 2, 3].map(
+        (i) => LEADS[(((leadCursor - i) % LEADS.length) + LEADS.length) % LEADS.length],
+      ),
     [leadCursor],
   );
 
   const rail = [LayoutDashboard, Users, TrendingUp, MessageCircle, Settings];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.75, delay: 0.15, ease: EASE }}
-      className={`overflow-hidden rounded-xl border border-border bg-background shadow-[var(--shadow-hero-card)] ${className}`}
+    <figure
+      className={`rise m-0 overflow-hidden rounded-xl border border-border bg-background shadow-[var(--shadow-hero-card)] ${className}`}
     >
       {/* ---- Browser chrome ---------------------------------------- */}
       <div className="flex h-10 items-center gap-3 border-b border-border bg-surface-2 px-3.5">
@@ -344,7 +352,9 @@ export function HeroProductShowcase({
           </span>
         </span>
 
-        <Search size={12} className="shrink-0 text-muted-foreground/60" />
+        <span className="shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+          Demo
+        </span>
       </div>
 
       <div className="flex">
@@ -387,7 +397,7 @@ export function HeroProductShowcase({
                   key={r}
                   className={`rounded px-2 py-1 font-mono text-[9px] uppercase tracking-[0.1em] ${
                     r === "30d"
-                      ? "bg-accent text-accent-foreground"
+                      ? "bg-accent-strong text-accent-foreground"
                       : "text-muted-foreground"
                   }`}
                 >
@@ -418,7 +428,7 @@ export function HeroProductShowcase({
               </span>
             </div>
 
-            <div className="relative mt-3">
+            <div dir="ltr" className="relative mt-3">
               <svg
                 viewBox={`0 0 ${CHART_W} ${CHART_H}`}
                 preserveAspectRatio="none"
@@ -515,22 +525,22 @@ export function HeroProductShowcase({
             <div className="flex items-center gap-3 border-b border-border pb-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
               <span className="flex-1">Lead</span>
               <span className="hidden w-20 sm:block">Source</span>
-              <span className="w-14 text-end">Value</span>
+              <span className="w-20 text-end">Value</span>
               <span className="w-14 text-end">Status</span>
             </div>
 
             {/* Fixed height + clipping, so a row arriving or leaving can never
                 shift the frame's overall height. */}
             <div className="h-[9.75rem] overflow-hidden">
-              <AnimatePresence initial={false} mode="popLayout">
-                {visibleLeads.map((lead) => (
-                  <motion.div
+              <motion.div
+                key={animate ? leadCursor : "static"}
+                initial={animate ? { y: -ROW_H } : false}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.55, ease: EASE }}
+              >
+                {leadWindow.map((lead) => (
+                  <div
                     key={lead.id}
-                    layout
-                    initial={{ opacity: 0, y: -18 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.45, ease: EASE }}
                     className="flex h-13 items-center gap-3 border-b border-border/60"
                   >
                     <span className="flex min-w-0 flex-1 items-center gap-2.5">
@@ -551,7 +561,7 @@ export function HeroProductShowcase({
 
                     <span
                       dir="ltr"
-                      className="w-14 text-end font-display text-[0.8125rem] font-semibold tabular-nums text-foreground rtl:text-right"
+                      className="w-20 whitespace-nowrap text-end font-display text-[0.8125rem] font-semibold tabular-nums text-foreground rtl:text-right"
                     >
                       {compactMoney(lead.units * money.unit, money)}
                     </span>
@@ -563,31 +573,55 @@ export function HeroProductShowcase({
                         {lead.status}
                       </span>
                     </span>
-                  </motion.div>
+                  </div>
                 ))}
-              </AnimatePresence>
+              </motion.div>
             </div>
           </div>
 
-          {/* In-app toast, on a loop */}
-          {animate && (
-            <div className="hps-toast pointer-events-none absolute bottom-4 end-4 flex items-center gap-2.5 rounded-lg border border-success/30 bg-surface px-3 py-2.5 shadow-[var(--shadow-hero-card)]">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-success/15 text-success">
-                <MessageCircle size={13} strokeWidth={2} />
+          {/* Status strip, with the toast rising over it on a loop. Giving
+              the toast its own row rather than floating it over the table
+              means it can never cover a lead's value or status. */}
+          <div className="relative mt-3 h-13 overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="hps-status flex h-full items-center justify-between gap-3 px-3">
+              <span className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-success pulse-dot" />
+                <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+                  Pipeline synced
+                </span>
               </span>
-              <span className="leading-tight">
-                <span className="block text-[11px] font-medium text-foreground">
-                  WhatsApp auto-reply sent
-                </span>
-                <span className="block font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
-                  90s after enquiry
-                </span>
+              <span
+                dir="ltr"
+                className="font-mono text-[9px] tabular-nums text-muted-foreground/70"
+              >
+                {syncAgo}s ago
               </span>
             </div>
-          )}
+
+            {animate && (
+              <div className="hps-toast pointer-events-none absolute inset-0 flex items-center gap-2.5 rounded-lg border border-success/30 bg-surface px-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-success/15 text-success">
+                  <MessageCircle size={13} strokeWidth={2} />
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block truncate text-[11px] font-medium text-foreground">
+                    WhatsApp auto-reply sent
+                  </span>
+                  <span className="block truncate font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+                    90s after enquiry
+                  </span>
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </motion.div>
+
+      <figcaption className="border-t border-border bg-surface/50 px-3.5 py-2 text-[11px] leading-snug text-muted-foreground">
+        Product demo. Company names and figures are illustrative — the measured
+        client results are in the case studies below.
+      </figcaption>
+    </figure>
   );
 }
 

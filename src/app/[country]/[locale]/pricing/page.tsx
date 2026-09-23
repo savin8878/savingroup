@@ -4,8 +4,7 @@ import { buildPageMetadata, buildPageBreadcrumbJsonLd } from "@/lib/seo";
 import { BASE_URL } from "@/lib/constants";
 import { PageHero } from "@/components/sections/PageHero";
 import { Pricing } from "@/components/sections/Pricing";
-import { CityBanner } from "@/components/sections/CityBanner";
-import { CountryMarketContext } from "@/components/sections/CountryMarketContext";
+import { TierSystemMap } from "@/components/sections/TierSystemMap";
 import { Faq } from "@/components/sections/Faq";
 import { IndiaGeoFooter } from "@/components/sections/IndiaGeoFooter";
 import { Cta } from "@/components/sections/Cta";
@@ -70,17 +69,20 @@ export default async function PricingPage({
         title={
           <>
             More system.{" "}
-            <span className="text-accent">Same budget.</span>
+            <span className="font-editorial text-accent">Same budget.</span>
           </>
         }
         subtitle={t.pricing.subtitle}
         breadcrumb={t.nav.pricing}
       />
 
-      <CityBanner t={t} country={country} locale={locale as Locale} />
-      <CountryMarketContext t={t} country={country} locale={locale as Locale} pageKey="services" />
-
+      {/* Price list first — it is what the visitor came for. The two location
+          blocks that used to sit between the header and the tiers pushed the
+          actual prices below the fold on a laptop. */}
       <Pricing t={t} downloadHref={`/${country}/${locale}/pricing/download`} />
+
+      {/* …then the answer to "but the FAQ said ₹60,000". */}
+      <TierSystemMap t={t} />
 
       <Faq t={t} country={country} />
       <IndiaGeoFooter country={country} locale={locale} pageKey="services" />

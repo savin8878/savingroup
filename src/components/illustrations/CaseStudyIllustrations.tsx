@@ -112,7 +112,7 @@ export function BeforeAfterMetric({
         </div>
         {/* After bar */}
         <div className="flex items-center gap-3">
-          <span className="w-12 text-right font-mono text-xs text-accent">After</span>
+          <span className="w-12 text-right font-mono text-xs text-accent-strong">After</span>
           <div className="h-3 flex-1 overflow-hidden rounded-full bg-surface-2">
             <motion.div
               className="h-full rounded-full bg-accent/50"

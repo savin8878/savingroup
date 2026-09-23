@@ -4,6 +4,7 @@ import {
   Space_Grotesk,
   DM_Sans,
   JetBrains_Mono,
+  Bodoni_Moda,
   Noto_Sans_Devanagari,
   Noto_Sans_Gujarati,
   Noto_Sans_Arabic,
@@ -46,6 +47,26 @@ const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-jetbrains-mono",
+});
+
+/**
+ * Editorial display face — the tall, high-contrast didone used for the one
+ * headline per page that carries the message (hero H1 accent line, the closing
+ * CTA, and the big stat numerals). Deliberately NOT wired to `--font-display`:
+ * a didone at 14px is unreadable, and using it for every H2/H3 is what makes a
+ * page look decorated rather than designed. See `.font-editorial` in
+ * globals.css for the one place it is allowed to apply.
+ *
+ * `optical-size` is the reason this family and not Playfair/Prata: Bodoni Moda
+ * thins its hairlines as the size axis climbs, which is what gives the display
+ * sizes their contrast without making the 2rem mobile rendering fall apart.
+ */
+const bodoniModa = Bodoni_Moda({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-bodoni-moda",
 });
 
 /* -------------------------------------------------------------------------- */
@@ -242,7 +263,7 @@ export default async function LocaleLayout({
     <html
       lang={meta.htmlLang}
       dir={meta.dir}
-      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrains.variable} ${scriptFontClass(locale)}`}
+      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrains.variable} ${bodoniModa.variable} ${scriptFontClass(locale)}`}
       suppressHydrationWarning
     >
       <head>
@@ -250,6 +271,18 @@ export default async function LocaleLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');else if(t==='light')document.documentElement.classList.add('light')}catch(e){}})()`,
+          }}
+        />
+
+        {/* Last-resort visibility net for a client that never runs JS. See
+            NO-JS SAFETY NET in globals.css — the entrance animations are CSS
+            now, but a few illustration components still serialise `opacity:0`
+            from framer-motion, and content is never worth an effect. */}
+        <noscript
+          dangerouslySetInnerHTML={{
+            __html:
+              '<style>[style*="opacity:0"],[style*="opacity: 0"]' +
+              "{opacity:1!important;transform:none!important}</style>",
           }}
         />
 

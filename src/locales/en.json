@@ -18,7 +18,7 @@
     "work": "Case Studies",
     "about": "About",
     "contact": "Contact",
-    "cta": "Book a Revenue Audit"
+    "cta": "Request a free audit"
   },
   "hero": {
     "eyebrow": "Revenue Systems · Automation · Scale",
@@ -31,10 +31,22 @@
   },
   "socialProof": {
     "stats": [
-      { "value": "50+", "label": "Businesses scaled" },
-      { "value": "₹40Cr+", "label": "Client revenue impacted" },
-      { "value": "200%", "label": "Average ROI in Year 1" },
-      { "value": "5", "label": "Industries. One partner." }
+      {
+        "value": "50+",
+        "label": "Businesses scaled"
+      },
+      {
+        "value": "₹40Cr+",
+        "label": "Client revenue impacted"
+      },
+      {
+        "value": "200%",
+        "label": "Average ROI in Year 1"
+      },
+      {
+        "value": "5",
+        "label": "Industries. One partner."
+      }
     ],
     "logosLabel": "Trusted by ambitious teams across {country} and beyond"
   },
@@ -71,18 +83,42 @@
     "title": "Most agencies build websites. We build revenue systems.",
     "subtitle": "Every solution we deliver is tied to a measurable outcome: more revenue, lower costs, or faster operations. We work like a product company embedded inside your business — not a vendor you chase for updates.",
     "comparison": [
-      { "typical": "Delivers a website", "us": "Delivers a revenue system" },
-      { "typical": "Focused on design aesthetics", "us": "Focused on conversion rates and ROI" },
-      { "typical": "Hands off after launch", "us": "Builds systems that compound over time" },
-      { "typical": "Sells by service type", "us": "Sells by business outcome" },
-      { "typical": "Technical jargon-heavy", "us": "Business-impact language" },
-      { "typical": "One-size-fits-all packages", "us": "Industry-specific solutions" },
-      { "typical": "Reactive — waits for brief", "us": "Strategic — maps problems first" },
-      { "typical": "No automation expertise", "us": "AI + automation built into every system" }
+      {
+        "typical": "Delivers a website",
+        "us": "Delivers a revenue system"
+      },
+      {
+        "typical": "Focused on design aesthetics",
+        "us": "Focused on conversion rates and ROI"
+      },
+      {
+        "typical": "Hands off after launch",
+        "us": "Builds systems that compound over time"
+      },
+      {
+        "typical": "Sells by service type",
+        "us": "Sells by business outcome"
+      },
+      {
+        "typical": "Technical jargon-heavy",
+        "us": "Business-impact language"
+      },
+      {
+        "typical": "One-size-fits-all packages",
+        "us": "Industry-specific solutions"
+      },
+      {
+        "typical": "Reactive — waits for brief",
+        "us": "Strategic — maps problems first"
+      },
+      {
+        "typical": "No automation expertise",
+        "us": "AI + automation built into every system"
+      }
     ]
   },
   "services": {
-    "eyebrow": "Five systems that grow your revenue",
+    "eyebrow": "Six systems that grow your revenue",
     "title": "We don't sell services. We solve problems.",
     "subtitle": "Every package is built around a specific business challenge — and measured by the outcome it delivers.",
     "items": [
@@ -303,19 +339,19 @@
   "process": {
     "eyebrow": "How we work",
     "title": "Diagnose. Build. Compound.",
-    "subtitle": "Every engagement starts with a paid discovery — so you see the entire plan before we touch a line of code.",
+    "subtitle": "It starts with a free 45-minute audit — no cost, no commitment. Only if there is something worth building do we scope it, and you see the entire plan before we touch a line of code.",
     "steps": [
       {
         "number": "01",
         "name": "Revenue Audit",
         "duration": "Week 1",
-        "description": "We map your current funnel end-to-end. We identify exactly where revenue is leaking — slow pages, broken follow-up, missing automation, ranking gaps. You get a written diagnosis."
+        "description": "A free 45-minute working session. We map your current funnel end-to-end and identify exactly where revenue is leaking — slow pages, broken follow-up, missing automation, ranking gaps. You leave with a written diagnosis whether or not you hire us."
       },
       {
         "number": "02",
         "name": "Scoped Blueprint",
         "duration": "Week 2",
-        "description": "We turn the audit into a paid discovery: scope, deliverables, timeline, success metrics. You see the entire build before committing a rupee to development."
+        "description": "If the audit found something worth building, the Discovery Sprint is a paid 3-hour session (₹15,000, credited in full against the build): scope, deliverables, timeline, success metrics. You see the entire build before committing to development."
       },
       {
         "number": "03",
@@ -344,11 +380,31 @@
         "title": "₹30L → ₹68L monthly revenue without raising ad spend",
         "summary": "An 8-person skincare brand spending ₹1.8L/month on Meta with a 0.6% conversion rate. We rebuilt the storefront, deployed WhatsApp recovery flows, and shipped an SEO foundation.",
         "metrics": [
-          { "label": "Monthly revenue", "value": "₹30L → ₹68L", "delta": "+127%" },
-          { "label": "Conversion rate", "value": "0.6% → 2.1%", "delta": "+250%" },
-          { "label": "Cart recovery", "value": "0% → 28%", "delta": "new" },
-          { "label": "Organic traffic", "value": "+340%", "delta": "6 months" },
-          { "label": "Cost per acquisition", "value": "₹820 → ₹290", "delta": "-65%" }
+          {
+            "label": "Monthly revenue",
+            "value": "₹30L → ₹68L",
+            "delta": "+127%"
+          },
+          {
+            "label": "Conversion rate",
+            "value": "0.6% → 2.1%",
+            "delta": "+250%"
+          },
+          {
+            "label": "Cart recovery",
+            "value": "0% → 28%",
+            "delta": "new"
+          },
+          {
+            "label": "Organic traffic",
+            "value": "+340%",
+            "delta": "6 months"
+          },
+          {
+            "label": "Cost per acquisition",
+            "value": "₹820 → ₹290",
+            "delta": "-65%"
+          }
         ],
         "quote": "Sanat Dynamo didn't just build us a website. They rebuilt how we sell. We hit our annual revenue target in 7 months.",
         "author": "Founder, D2C Skincare Brand"
@@ -361,10 +417,26 @@
         "title": "Cost per qualified lead cut 60% in 90 days",
         "summary": "A mid-sized developer spending lakhs on housing.com and 99acres for low-intent leads. We built a direct-lead website, automated WhatsApp nurturing, and a virtual tour module for NRI buyers.",
         "metrics": [
-          { "label": "Cost per lead", "value": "₹1,800 → ₹720", "delta": "-60%" },
-          { "label": "Site-visit conversion", "value": "12% → 24%", "delta": "+100%" },
-          { "label": "Inbound qualified leads", "value": "+312%", "delta": "3 months" },
-          { "label": "NRI deal closures", "value": "0 → 6", "delta": "new market" }
+          {
+            "label": "Cost per lead",
+            "value": "₹1,800 → ₹720",
+            "delta": "-60%"
+          },
+          {
+            "label": "Site-visit conversion",
+            "value": "12% → 24%",
+            "delta": "+100%"
+          },
+          {
+            "label": "Inbound qualified leads",
+            "value": "+312%",
+            "delta": "3 months"
+          },
+          {
+            "label": "NRI deal closures",
+            "value": "0 → 6",
+            "delta": "new market"
+          }
         ],
         "quote": "We stopped depending on portals. The website now generates more qualified leads than 99acres ever did — at a third of the cost.",
         "author": "Director, Pune Real Estate Developer"
@@ -377,10 +449,26 @@
         "title": "From 5 spreadsheets to one ERP. 80% less manual entry.",
         "summary": "A ₹40Cr manufacturing business running operations on Excel, WhatsApp, and tribal knowledge. We built a custom ERP with inventory, orders, GST invoicing, and a vendor portal.",
         "metrics": [
-          { "label": "Manual data entry", "value": "-80%", "delta": "vs baseline" },
-          { "label": "Order-to-delivery cycle", "value": "11 days → 4 days", "delta": "-64%" },
-          { "label": "Invoice errors", "value": "12% → 0.3%", "delta": "near-zero" },
-          { "label": "P&L visibility", "value": "monthly → daily", "delta": "real-time" }
+          {
+            "label": "Manual data entry",
+            "value": "-80%",
+            "delta": "vs baseline"
+          },
+          {
+            "label": "Order-to-delivery cycle",
+            "value": "11 days → 4 days",
+            "delta": "-64%"
+          },
+          {
+            "label": "Invoice errors",
+            "value": "12% → 0.3%",
+            "delta": "near-zero"
+          },
+          {
+            "label": "P&L visibility",
+            "value": "monthly → daily",
+            "delta": "real-time"
+          }
         ],
         "quote": "For the first time, I look at a dashboard at 9am and know exactly where the business stands. That changed everything.",
         "author": "MD, Auto Components Manufacturer"
@@ -423,7 +511,7 @@
       },
       {
         "q": "What's the minimum engagement?",
-        "a": "Single packages start at ₹60K (RevSite Pro). Retainers start at ₹30K/month. Our most common engagement is a phased build that pays for itself in the first 60–90 days."
+        "a": "Two entry points, depending on what you need. A scoped website build starts at ₹25,000 (the Launch tier on our Pricing page). A complete revenue system — site plus WhatsApp lead capture, on-page SEO and analytics — starts at ₹60,000 (RevSite Pro). Retainers start at ₹30,000/month. Every tier on the Pricing page maps to one of the six systems, and that map is printed on the page."
       },
       {
         "q": "How long until we see results?",
@@ -439,15 +527,15 @@
       },
       {
         "q": "What does the discovery look like?",
-        "a": "A paid 3-hour session. We map your funnel, identify revenue leaks, and deliver a written blueprint with scope, timeline, and projected outcomes. The fee is offset against any project you sign."
+        "a": "It is the second step, not the first. You start with a free 45-minute revenue audit — no cost, no pitch. If we both want to go further, the Discovery Sprint is a paid 3-hour working session (₹15,000, credited in full against the build): we map your funnel, quantify the leaks, and hand over a written blueprint with scope, timeline and projected outcomes."
       }
     ]
   },
   "cta": {
     "eyebrow": "Ready when you are",
     "title": "Stop leaving money on the table.",
-    "subtitle": "Book a free 30-minute Revenue Audit. We'll show you exactly where your business is leaking — and what it would take to fix it.",
-    "primary": "Book Your Revenue Audit",
+    "subtitle": "Request a free 45-minute Revenue Audit. We'll show you exactly where your business is leaking — and what it would take to fix it.",
+    "primary": "Request your free audit",
     "secondary": "See Our Work",
     "trustNote": "No commitment. No pitch. Just diagnosis."
   },
@@ -481,22 +569,28 @@
   },
   "contact": {
     "eyebrow": "Let's talk",
-    "title": "Book your free Revenue Audit.",
-    "subtitle": "30 minutes. No pitch. Just diagnosis. We'll show you exactly where your business is leaking revenue — and what it would take to fix it.",
+    "title": "Request your free Revenue Audit.",
+    "subtitle": "45 minutes, free, no pitch. We show you where the revenue is leaking and what it would take to fix it — in writing.",
     "form": {
       "name": "Your name",
       "email": "Work email",
       "company": "Company",
       "industry": "Industry",
-      "industries": ["E-commerce / D2C", "Real Estate", "Coaching / EdTech", "Healthcare", "SME / Manufacturing", "Other"],
+      "industries": [
+        "E-commerce / D2C",
+        "Real Estate",
+        "Coaching / EdTech",
+        "Healthcare",
+        "SME / Manufacturing",
+        "Other"
+      ],
       "challenge": "What's the biggest problem you're trying to solve?",
-      "submit": "Request Revenue Audit",
+      "submit": "Request my free audit",
       "submitting": "Sending…"
     },
     "details": {
       "emailLabel": "Email",
       "email": "savingroup@gmail.com",
-      "emailHref": "kanhaji0402@gmail.com",
       "phoneLabel": "WhatsApp",
       "phone": "+91 83058 38352",
       "hoursLabel": "Hours",
@@ -511,33 +605,84 @@
       "services": {
         "title": "Services",
         "links": [
-          { "label": "RevSite Pro", "href": "/services#revsite-pro" },
-          { "label": "AutoSell Engine", "href": "/services#autosell-engine" },
-          { "label": "LocalDom SEO", "href": "/services#localdom-seo" },
-          { "label": "GlobalScale Suite", "href": "/services#globalscale-suite" },
-          { "label": "OperateOS", "href": "/services#operate-os" },
-          { "label": "GrowthOS Retainer", "href": "/services#growthos-retainer" }
+          {
+            "label": "RevSite Pro",
+            "href": "/services#revsite-pro"
+          },
+          {
+            "label": "AutoSell Engine",
+            "href": "/services#autosell-engine"
+          },
+          {
+            "label": "LocalDom SEO",
+            "href": "/services#localdom-seo"
+          },
+          {
+            "label": "GlobalScale Suite",
+            "href": "/services#globalscale-suite"
+          },
+          {
+            "label": "OperateOS",
+            "href": "/services#operate-os"
+          },
+          {
+            "label": "GrowthOS Retainer",
+            "href": "/services#growthos-retainer"
+          }
         ]
       },
       "industries": {
         "title": "Industries",
         "links": [
-          { "label": "Manufacturing ERP", "href": "/industries/manufacturing" },
-          { "label": "Real Estate CRM", "href": "/industries/real-estate" },
-          { "label": "Healthcare Clinics", "href": "/industries/healthcare" },
-          { "label": "E-commerce / D2C", "href": "/industries/ecommerce" },
-          { "label": "Coaching / EdTech", "href": "/industries/edtech" }
+          {
+            "label": "Manufacturing ERP",
+            "href": "/industries/manufacturing"
+          },
+          {
+            "label": "Real Estate CRM",
+            "href": "/industries/real-estate"
+          },
+          {
+            "label": "Healthcare Clinics",
+            "href": "/industries/healthcare"
+          },
+          {
+            "label": "E-commerce / D2C",
+            "href": "/industries/ecommerce"
+          },
+          {
+            "label": "Coaching / EdTech",
+            "href": "/industries/edtech"
+          }
         ]
       },
       "company": {
         "title": "Company",
         "links": [
-          { "label": "Pricing", "href": "/pricing" },
-          { "label": "About", "href": "/about" },
-          { "label": "Case Studies", "href": "/case-studies" },
-          { "label": "Contact", "href": "/contact" },
-          { "label": "Privacy", "href": "/privacy" },
-          { "label": "Terms", "href": "/terms" }
+          {
+            "label": "Pricing",
+            "href": "/pricing"
+          },
+          {
+            "label": "About",
+            "href": "/about"
+          },
+          {
+            "label": "Case Studies",
+            "href": "/case-studies"
+          },
+          {
+            "label": "Contact",
+            "href": "/contact"
+          },
+          {
+            "label": "Privacy",
+            "href": "/privacy"
+          },
+          {
+            "label": "Terms",
+            "href": "/terms"
+          }
         ]
       }
     },
@@ -563,9 +708,18 @@
         "scope": "Up to 8–12 pages",
         "reqTag": "Pages as per requirements",
         "costRows": [
-          { "label": "Design & development", "value": "As per scope" },
-          { "label": "1st-year hosting", "value": "Included" },
-          { "label": "Foundational SEO setup", "value": "Included" }
+          {
+            "label": "Design & development",
+            "value": "As per scope"
+          },
+          {
+            "label": "1st-year hosting",
+            "value": "Included"
+          },
+          {
+            "label": "Foundational SEO setup",
+            "value": "Included"
+          }
         ],
         "extras": [
           "Free SSL certificate",
@@ -577,22 +731,55 @@
           {
             "heading": "Infrastructure",
             "items": [
-              { "label": "99.9% uptime", "on": true },
-              { "label": "10–20GB storage", "on": true },
-              { "label": "Weekly backups", "on": true },
-              { "label": "2–3 email accounts", "on": true },
-              { "label": "Global CDN", "on": false },
-              { "label": "Priority support", "on": false }
+              {
+                "label": "99.9% uptime",
+                "on": true
+              },
+              {
+                "label": "10–20GB storage",
+                "on": true
+              },
+              {
+                "label": "Weekly backups",
+                "on": true
+              },
+              {
+                "label": "2–3 email accounts",
+                "on": true
+              },
+              {
+                "label": "Global CDN",
+                "on": false
+              },
+              {
+                "label": "Priority support",
+                "on": false
+              }
             ]
           },
           {
             "heading": "SEO included",
             "items": [
-              { "label": "Keyword research", "on": true },
-              { "label": "On-page SEO", "on": true },
-              { "label": "Meta + schema setup", "on": true },
-              { "label": "Google Business Profile", "on": false },
-              { "label": "Ongoing SEO consulting", "on": false }
+              {
+                "label": "Keyword research",
+                "on": true
+              },
+              {
+                "label": "On-page SEO",
+                "on": true
+              },
+              {
+                "label": "Meta + schema setup",
+                "on": true
+              },
+              {
+                "label": "Google Business Profile",
+                "on": false
+              },
+              {
+                "label": "Ongoing SEO consulting",
+                "on": false
+              }
             ]
           }
         ],
@@ -611,10 +798,22 @@
         "scope": "Up to 20–30 pages",
         "reqTag": "Pages as per requirements",
         "costRows": [
-          { "label": "Design & development", "value": "As per scope" },
-          { "label": "1st-year premium hosting", "value": "Included" },
-          { "label": "Standard SEO strategy", "value": "Included" },
-          { "label": "WhatsApp + lead capture", "value": "As per scope" }
+          {
+            "label": "Design & development",
+            "value": "As per scope"
+          },
+          {
+            "label": "1st-year premium hosting",
+            "value": "Included"
+          },
+          {
+            "label": "Standard SEO strategy",
+            "value": "Included"
+          },
+          {
+            "label": "WhatsApp + lead capture",
+            "value": "As per scope"
+          }
         ],
         "extras": [
           "Professional logo design",
@@ -627,22 +826,55 @@
           {
             "heading": "Infrastructure",
             "items": [
-              { "label": "99.95% uptime", "on": true },
-              { "label": "50GB storage", "on": true },
-              { "label": "Daily backups", "on": true },
-              { "label": "5–10 email accounts", "on": true },
-              { "label": "Global CDN", "on": true },
-              { "label": "Priority support (6 hrs)", "on": true }
+              {
+                "label": "99.95% uptime",
+                "on": true
+              },
+              {
+                "label": "50GB storage",
+                "on": true
+              },
+              {
+                "label": "Daily backups",
+                "on": true
+              },
+              {
+                "label": "5–10 email accounts",
+                "on": true
+              },
+              {
+                "label": "Global CDN",
+                "on": true
+              },
+              {
+                "label": "Priority support (6 hrs)",
+                "on": true
+              }
             ]
           },
           {
             "heading": "SEO included",
             "items": [
-              { "label": "Advanced keyword research", "on": true },
-              { "label": "Technical SEO audit", "on": true },
-              { "label": "Local SEO + Maps", "on": true },
-              { "label": "Content calendar", "on": true },
-              { "label": "3 months SEO consulting", "on": true }
+              {
+                "label": "Advanced keyword research",
+                "on": true
+              },
+              {
+                "label": "Technical SEO audit",
+                "on": true
+              },
+              {
+                "label": "Local SEO + Maps",
+                "on": true
+              },
+              {
+                "label": "Content calendar",
+                "on": true
+              },
+              {
+                "label": "3 months SEO consulting",
+                "on": true
+              }
             ]
           }
         ],
@@ -659,10 +891,22 @@
         "scope": "Up to 40–60 pages / store",
         "reqTag": "Fully requirement-based",
         "costRows": [
-          { "label": "Custom design & development", "value": "As per scope" },
-          { "label": "1st-year enterprise hosting", "value": "Included" },
-          { "label": "Advanced SEO program", "value": "Included" },
-          { "label": "E-commerce / custom features", "value": "As per scope" }
+          {
+            "label": "Custom design & development",
+            "value": "As per scope"
+          },
+          {
+            "label": "1st-year enterprise hosting",
+            "value": "Included"
+          },
+          {
+            "label": "Advanced SEO program",
+            "value": "Included"
+          },
+          {
+            "label": "E-commerce / custom features",
+            "value": "As per scope"
+          }
         ],
         "extras": [
           "Complete brand kit",
@@ -676,22 +920,55 @@
           {
             "heading": "Infrastructure",
             "items": [
-              { "label": "99.99% uptime", "on": true },
-              { "label": "100GB+ storage", "on": true },
-              { "label": "Hourly backups", "on": true },
-              { "label": "20 email accounts", "on": true },
-              { "label": "Premium CDN + WAF", "on": true },
-              { "label": "Priority support (4 hrs)", "on": true }
+              {
+                "label": "99.99% uptime",
+                "on": true
+              },
+              {
+                "label": "100GB+ storage",
+                "on": true
+              },
+              {
+                "label": "Hourly backups",
+                "on": true
+              },
+              {
+                "label": "20 email accounts",
+                "on": true
+              },
+              {
+                "label": "Premium CDN + WAF",
+                "on": true
+              },
+              {
+                "label": "Priority support (4 hrs)",
+                "on": true
+              }
             ]
           },
           {
             "heading": "SEO included",
             "items": [
-              { "label": "Competitor analysis", "on": true },
-              { "label": "Technical SEO + Core Web Vitals", "on": true },
-              { "label": "Local + content SEO", "on": true },
-              { "label": "Conversion-rate optimisation", "on": true },
-              { "label": "4 months SEO consulting", "on": true }
+              {
+                "label": "Competitor analysis",
+                "on": true
+              },
+              {
+                "label": "Technical SEO + Core Web Vitals",
+                "on": true
+              },
+              {
+                "label": "Local + content SEO",
+                "on": true
+              },
+              {
+                "label": "Conversion-rate optimisation",
+                "on": true
+              },
+              {
+                "label": "4 months SEO consulting",
+                "on": true
+              }
             ]
           }
         ],
@@ -708,10 +985,22 @@
         "scope": "Custom portal / platform",
         "reqTag": "Fully requirement-based",
         "costRows": [
-          { "label": "Custom platform engineering", "value": "As per scope" },
-          { "label": "Dedicated cloud infrastructure", "value": "Included" },
-          { "label": "Strategic SEO + growth program", "value": "Included" },
-          { "label": "Integrations / APIs / CRM / ERP", "value": "As per scope" }
+          {
+            "label": "Custom platform engineering",
+            "value": "As per scope"
+          },
+          {
+            "label": "Dedicated cloud infrastructure",
+            "value": "Included"
+          },
+          {
+            "label": "Strategic SEO + growth program",
+            "value": "Included"
+          },
+          {
+            "label": "Integrations / APIs / CRM / ERP",
+            "value": "As per scope"
+          }
         ],
         "extras": [
           "Full brand & design system",
@@ -725,22 +1014,55 @@
           {
             "heading": "Infrastructure",
             "items": [
-              { "label": "99.99% uptime SLA", "on": true },
-              { "label": "Auto-scaling storage", "on": true },
-              { "label": "Real-time backups", "on": true },
-              { "label": "Unlimited email accounts", "on": true },
-              { "label": "Premium CDN + DDoS protection", "on": true },
-              { "label": "24/7 dedicated support", "on": true }
+              {
+                "label": "99.99% uptime SLA",
+                "on": true
+              },
+              {
+                "label": "Auto-scaling storage",
+                "on": true
+              },
+              {
+                "label": "Real-time backups",
+                "on": true
+              },
+              {
+                "label": "Unlimited email accounts",
+                "on": true
+              },
+              {
+                "label": "Premium CDN + DDoS protection",
+                "on": true
+              },
+              {
+                "label": "24/7 dedicated support",
+                "on": true
+              }
             ]
           },
           {
             "heading": "SEO + growth",
             "items": [
-              { "label": "Full competitor & market analysis", "on": true },
-              { "label": "6 months ongoing SEO", "on": true },
-              { "label": "Content marketing plan", "on": true },
-              { "label": "Link building", "on": true },
-              { "label": "Monthly revenue reporting", "on": true }
+              {
+                "label": "Full competitor & market analysis",
+                "on": true
+              },
+              {
+                "label": "6 months ongoing SEO",
+                "on": true
+              },
+              {
+                "label": "Content marketing plan",
+                "on": true
+              },
+              {
+                "label": "Link building",
+                "on": true
+              },
+              {
+                "label": "Monthly revenue reporting",
+                "on": true
+              }
             ]
           }
         ],
@@ -758,11 +1080,26 @@
           "scale": "3–5 pages only",
           "highlight": false,
           "features": [
-            { "label": "Basic template design", "on": false },
-            { "label": "Email-only support", "on": false },
-            { "label": "No SEO included", "on": false },
-            { "label": "No free extras", "on": false },
-            { "label": "Limited revisions", "on": false }
+            {
+              "label": "Basic template design",
+              "on": false
+            },
+            {
+              "label": "Email-only support",
+              "on": false
+            },
+            {
+              "label": "No SEO included",
+              "on": false
+            },
+            {
+              "label": "No free extras",
+              "on": false
+            },
+            {
+              "label": "Limited revisions",
+              "on": false
+            }
           ]
         },
         {
@@ -772,11 +1109,26 @@
           "highlight": true,
           "badge": "Best value",
           "features": [
-            { "label": "Conversion-tuned design", "on": true },
-            { "label": "Fast human support", "on": true },
-            { "label": "Advanced SEO included", "on": true },
-            { "label": "Free extras + automation", "on": true },
-            { "label": "Requirement-based scope", "on": true }
+            {
+              "label": "Conversion-tuned design",
+              "on": true
+            },
+            {
+              "label": "Fast human support",
+              "on": true
+            },
+            {
+              "label": "Advanced SEO included",
+              "on": true
+            },
+            {
+              "label": "Free extras + automation",
+              "on": true
+            },
+            {
+              "label": "Requirement-based scope",
+              "on": true
+            }
           ]
         },
         {
@@ -785,11 +1137,26 @@
           "scale": "15–20 pages",
           "highlight": false,
           "features": [
-            { "label": "Good design", "on": true },
-            { "label": "Phone support", "on": true },
-            { "label": "Basic SEO only", "on": false },
-            { "label": "Few extras", "on": false },
-            { "label": "Hidden add-on costs", "on": false }
+            {
+              "label": "Good design",
+              "on": true
+            },
+            {
+              "label": "Phone support",
+              "on": true
+            },
+            {
+              "label": "Basic SEO only",
+              "on": false
+            },
+            {
+              "label": "Few extras",
+              "on": false
+            },
+            {
+              "label": "Hidden add-on costs",
+              "on": false
+            }
           ]
         }
       ]
@@ -797,32 +1164,219 @@
     "advantages": {
       "title": "Why teams pick Sanat Dynamo",
       "items": [
-        { "icon": "layers", "title": "More system, more value", "body": "You don't just get more pages — you get automation, SEO and analytics wired in. Competitors charge for each separately." },
-        { "icon": "sliders", "title": "Requirement-based pricing", "body": "No rigid packages. We scope exactly what your business needs — nothing more, nothing less. You pay for outcomes." },
-        { "icon": "gift", "title": "Free extras on every plan", "body": "Logo, WhatsApp, analytics, SSL — included. Agencies routinely bill ₹5–15K extra for the same things." },
-        { "icon": "zap", "title": "Blazing-fast builds", "body": "CDN, image optimisation and caching ship by default — pages load under 1.5s while competitors crawl past 3s." },
-        { "icon": "search", "title": "SEO built in, not bolted on", "body": "Technical SEO foundations come with every plan. Agencies charge ₹8K+ for this as a separate line item." },
-        { "icon": "smartphone", "title": "Mobile-first by design", "body": "70%+ of your buyers are on a phone. Every build is engineered thumb-first, not shrunk down from desktop." },
-        { "icon": "shield", "title": "Enterprise-grade security", "body": "Free SSL, DDoS protection, malware scanning and automated backups — your data is protected from day one." },
-        { "icon": "headphones", "title": "Honest, human support", "body": "Talk to the engineer who built your system. 6–24 hr response — and we stay with you long after launch." }
+        {
+          "icon": "layers",
+          "title": "More system, more value",
+          "body": "You don't just get more pages — you get automation, SEO and analytics wired in. Competitors charge for each separately."
+        },
+        {
+          "icon": "sliders",
+          "title": "Requirement-based pricing",
+          "body": "No rigid packages. We scope exactly what your business needs — nothing more, nothing less. You pay for outcomes."
+        },
+        {
+          "icon": "gift",
+          "title": "Free extras on every plan",
+          "body": "Logo, WhatsApp, analytics, SSL — included. Agencies routinely bill ₹5–15K extra for the same things."
+        },
+        {
+          "icon": "zap",
+          "title": "Blazing-fast builds",
+          "body": "CDN, image optimisation and caching ship by default — pages load under 1.5s while competitors crawl past 3s."
+        },
+        {
+          "icon": "search",
+          "title": "SEO built in, not bolted on",
+          "body": "Technical SEO foundations come with every plan. Agencies charge ₹8K+ for this as a separate line item."
+        },
+        {
+          "icon": "smartphone",
+          "title": "Mobile-first by design",
+          "body": "70%+ of your buyers are on a phone. Every build is engineered thumb-first, not shrunk down from desktop."
+        },
+        {
+          "icon": "shield",
+          "title": "Enterprise-grade security",
+          "body": "Free SSL, DDoS protection, malware scanning and automated backups — your data is protected from day one."
+        },
+        {
+          "icon": "headphones",
+          "title": "Honest, human support",
+          "body": "Talk to the engineer who built your system. 6–24 hr response — and we stay with you long after launch."
+        }
       ]
     },
     "table": {
       "title": "Plan comparison at a glance",
       "featureLabel": "Capability",
       "othersLabel": "Other agencies",
-      "tierLabels": ["Launch", "Growth", "Scale", "Enterprise"],
+      "tierLabels": [
+        "Launch",
+        "Growth",
+        "Scale",
+        "Enterprise"
+      ],
       "rows": [
-        { "feature": "Pages (req-based)", "others": "3–5 pages", "values": ["Up to 8–12", "Up to 20–30", "Up to 40–60", "Portal / custom"], "on": [true, true, true, true] },
-        { "feature": "SSL certificate", "others": "Extra ₹2–3K", "values": ["Free", "Free", "Free", "Free"], "on": [true, true, true, true] },
-        { "feature": "CDN (speed)", "others": "Extra ₹5–10K", "values": ["—", "Global CDN", "Premium CDN", "Premium + DDoS"], "on": [false, true, true, true] },
-        { "feature": "SEO", "others": "Extra ₹8–15K", "values": ["Foundational", "Standard", "Advanced", "Strategic"], "on": [true, true, true, true] },
-        { "feature": "Logo / brand", "others": "Extra ₹5–10K", "values": ["—", "Logo", "Brand kit", "Design system"], "on": [false, true, true, true] },
-        { "feature": "WhatsApp integration", "others": "Extra ₹8–15K", "values": ["Chat button", "Business", "Business + SMS", "Full gateway"], "on": [true, true, true, true] },
-        { "feature": "Automation / CRM", "others": "Not offered", "values": ["—", "Lead capture", "Cart + CRM", "ERP + CRM"], "on": [false, true, true, true] },
-        { "feature": "Backups", "others": "Weekly", "values": ["Weekly", "Daily", "Hourly", "Real-time"], "on": [true, true, true, true] },
-        { "feature": "Support response", "others": "24–48 hrs", "values": ["24 hrs", "6 hrs", "4 hrs", "24/7 dedicated"], "on": [true, true, true, true] },
-        { "feature": "Transparent pricing", "others": "Hidden charges", "values": ["All-inclusive", "All-inclusive", "All-inclusive", "All-inclusive"], "on": [true, true, true, true] }
+        {
+          "feature": "Pages (req-based)",
+          "others": "3–5 pages",
+          "values": [
+            "Up to 8–12",
+            "Up to 20–30",
+            "Up to 40–60",
+            "Portal / custom"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "SSL certificate",
+          "others": "Extra ₹2–3K",
+          "values": [
+            "Free",
+            "Free",
+            "Free",
+            "Free"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "CDN (speed)",
+          "others": "Extra ₹5–10K",
+          "values": [
+            "—",
+            "Global CDN",
+            "Premium CDN",
+            "Premium + DDoS"
+          ],
+          "on": [
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "SEO",
+          "others": "Extra ₹8–15K",
+          "values": [
+            "Foundational",
+            "Standard",
+            "Advanced",
+            "Strategic"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "Logo / brand",
+          "others": "Extra ₹5–10K",
+          "values": [
+            "—",
+            "Logo",
+            "Brand kit",
+            "Design system"
+          ],
+          "on": [
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "WhatsApp integration",
+          "others": "Extra ₹8–15K",
+          "values": [
+            "Chat button",
+            "Business",
+            "Business + SMS",
+            "Full gateway"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "Automation / CRM",
+          "others": "Not offered",
+          "values": [
+            "—",
+            "Lead capture",
+            "Cart + CRM",
+            "ERP + CRM"
+          ],
+          "on": [
+            false,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "Backups",
+          "others": "Weekly",
+          "values": [
+            "Weekly",
+            "Daily",
+            "Hourly",
+            "Real-time"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "Support response",
+          "others": "24–48 hrs",
+          "values": [
+            "24 hrs",
+            "6 hrs",
+            "4 hrs",
+            "24/7 dedicated"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "feature": "Transparent pricing",
+          "others": "Hidden charges",
+          "values": [
+            "All-inclusive",
+            "All-inclusive",
+            "All-inclusive",
+            "All-inclusive"
+          ],
+          "on": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
       ]
     },
     "highlight": {
@@ -967,10 +1521,26 @@
     "title": "The math behind the headline.",
     "subtitle": "We measure ourselves the same way our clients do — by what shows up in the bank account.",
     "items": [
-      { "value": "127%", "label": "Average revenue lift", "detail": "Across 50+ engagements in the last 18 months." },
-      { "value": "65%", "label": "Average CPA reduction", "detail": "Most clients see ad spend halve in 90 days." },
-      { "value": "₹40Cr+", "label": "Client revenue impacted", "detail": "Tracked dollar-for-dollar against baseline." },
-      { "value": "90 days", "label": "Average payback", "detail": "Most engagements pay for themselves in one quarter." }
+      {
+        "value": "127%",
+        "label": "Average revenue lift",
+        "detail": "Across 50+ engagements in the last 18 months."
+      },
+      {
+        "value": "65%",
+        "label": "Average CPA reduction",
+        "detail": "Most clients see ad spend halve in 90 days."
+      },
+      {
+        "value": "₹40Cr+",
+        "label": "Client revenue impacted",
+        "detail": "Tracked dollar-for-dollar against baseline."
+      },
+      {
+        "value": "90 days",
+        "label": "Average payback",
+        "detail": "Most engagements pay for themselves in one quarter."
+      }
     ]
   },
   "cityBanner": {
@@ -1015,7 +1585,14 @@
             "Custom software development, AI automation, WhatsApp Business API flows, local SEO, and CRM integration are the components. But they have to be architected together. A fast website with no follow-up is as leaky as a CRM with no inbound. A revenue system ties them together into one coherent engine.",
             "For D2C brands, a revenue system means: high-conversion storefront + cart recovery + repeat purchase engine + SEO-driven organic traffic. For real estate, it's: direct lead capture + WhatsApp nurturing + virtual tours + local SEO dominance. For clinics: online booking + appointment reminders + patient retention + Google Maps visibility. The pattern is always the same — the specifics change by industry."
           ],
-          "keywords": ["revenue system", "revenue engine", "conversion optimization", "custom software", "growth infrastructure", "business automation"]
+          "keywords": [
+            "revenue system",
+            "revenue engine",
+            "conversion optimization",
+            "custom software",
+            "growth infrastructure",
+            "business automation"
+          ]
         },
         {
           "id": "why-websites-fail",
@@ -1032,7 +1609,15 @@
             "The sixth is analytics. If you can't see what's working, you can't improve it. GA4, Search Console, heatmaps, and custom event tracking are table stakes.",
             "The seventh is compounding. A website you ship and forget gets worse every month. A revenue system gets better every month — because we're tuning conversion, shipping new automation, and adding content."
           ],
-          "keywords": ["website conversion", "core web vitals", "mobile first design", "trust signals", "SEO fundamentals", "cart abandonment", "conversion rate optimization"]
+          "keywords": [
+            "website conversion",
+            "core web vitals",
+            "mobile first design",
+            "trust signals",
+            "SEO fundamentals",
+            "cart abandonment",
+            "conversion rate optimization"
+          ]
         },
         {
           "id": "whatsapp-automation-playbook",
@@ -1051,7 +1636,15 @@
             "Flow 8 — Lead routing. When a new lead comes in, auto-route to the right salesperson with full context. Cuts response time from hours to seconds.",
             "All 8 flows run on the official WhatsApp Business API, fully compliant with Meta's policies. We build, deploy, and maintain them as part of AutoSell Engine."
           ],
-          "keywords": ["WhatsApp Business API", "WhatsApp automation", "cart abandonment recovery", "appointment reminders", "CRM automation", "lead nurturing", "customer retention"]
+          "keywords": [
+            "WhatsApp Business API",
+            "WhatsApp automation",
+            "cart abandonment recovery",
+            "appointment reminders",
+            "CRM automation",
+            "lead nurturing",
+            "customer retention"
+          ]
         },
         {
           "id": "local-seo-for-india",
@@ -1070,7 +1663,15 @@
             "Step 8 — Technical SEO. Mobile-first, fast loading, HTTPS, clean URL structure, XML sitemap, robots.txt, canonical tags. Without these, nothing else matters.",
             "Done right, local SEO delivers top 3 rankings for 5–10 high-intent keywords within 4–6 months — and those rankings compound. You stop paying for every visitor."
           ],
-          "keywords": ["local SEO India", "Google Business Profile optimization", "local keyword research", "citation building India", "reviews management", "schema markup LocalBusiness", "hyperlocal marketing"]
+          "keywords": [
+            "local SEO India",
+            "Google Business Profile optimization",
+            "local keyword research",
+            "citation building India",
+            "reviews management",
+            "schema markup LocalBusiness",
+            "hyperlocal marketing"
+          ]
         },
         {
           "id": "erp-vs-excel",
@@ -1086,7 +1687,15 @@
             "A custom ERP (like our OperateOS) is the right call when: you're ₹5Cr+ turnover, you have 20+ employees, you run on 5+ tools that don't talk to each other, and your business has workflows no off-the-shelf ERP handles. We build in 12–16 weeks, phased delivery, ₹3–15L total.",
             "The ROI math: if your accountant spends 8 hours/week reconciling Excel + Tally + WhatsApp + vendor emails, and a custom ERP cuts that to 1 hour/week, you save 364 hours/year. At ₹500/hour, that's ₹1.82L/year just from accounting. Multiply by sales, procurement, HR, and inventory teams, and most custom ERPs pay back in 6–9 months."
           ],
-          "keywords": ["custom ERP India", "Tally vs ERP", "SAP alternative SME", "SME automation India", "Zoho Odoo comparison", "GST compliance ERP", "inventory management SME"]
+          "keywords": [
+            "custom ERP India",
+            "Tally vs ERP",
+            "SAP alternative SME",
+            "SME automation India",
+            "Zoho Odoo comparison",
+            "GST compliance ERP",
+            "inventory management SME"
+          ]
         }
       ],
       "about": [
@@ -1103,7 +1712,13 @@
             "Three years in, we've worked with 50+ businesses across five industries. Every engagement is measured the same way: did revenue go up, or costs come down, in the 90-day window after go-live? If yes, we kept working. If no, we'd rather be honest about it than stretch the engagement.",
             "That's still our north star. A revenue-focused systems partner, not a typical agency."
           ],
-          "keywords": ["Sanat Dynamo founding", "revenue focused agency", "accountable agency India", "outcome driven agency", "fixed scope fixed price"]
+          "keywords": [
+            "Sanat Dynamo founding",
+            "revenue focused agency",
+            "accountable agency India",
+            "outcome driven agency",
+            "fixed scope fixed price"
+          ]
         },
         {
           "id": "how-we-hire",
@@ -1117,7 +1732,13 @@
             "Process-wise, we use direct Slack with the build team (no intermediary account managers), weekly demos, and written changelogs. You see what's being built in real time — no black-box cycles, no 'we'll update you next Friday'. This is how product companies work internally; we apply the same discipline to client engagements.",
             "The tradeoff is we're more expensive per hour than a typical agency. The math still works: you get senior execution, faster decisions, fewer rework cycles, and a system that actually moves your numbers."
           ],
-          "keywords": ["senior engineers agency", "small agency team", "embedded engineering team", "direct slack agency", "weekly demos"]
+          "keywords": [
+            "senior engineers agency",
+            "small agency team",
+            "embedded engineering team",
+            "direct slack agency",
+            "weekly demos"
+          ]
         },
         {
           "id": "guarantees",
@@ -1132,7 +1753,13 @@
             "What we don't guarantee is a specific revenue number. We can project it from benchmark data, we can commit to hitting conversion, traffic, and automation targets — but we won't guarantee that your revenue will grow by exactly X%. Anyone who does is lying.",
             "What we will do is measure everything honestly against the baseline, month over month, and tell you what's working and what isn't. If something isn't paying back, we'll say so and pivot."
           ],
-          "keywords": ["fixed scope fixed price agency", "written scope document", "agency guarantees", "accountable delivery", "honest metrics reporting"]
+          "keywords": [
+            "fixed scope fixed price agency",
+            "written scope document",
+            "agency guarantees",
+            "accountable delivery",
+            "honest metrics reporting"
+          ]
         }
       ],
       "services": [
@@ -1151,7 +1778,14 @@
             "GrowthOS Retainer is ₹60K–1.5L/month depending on scope. Typically includes 40 dev hours, 4 blog posts, WhatsApp flow maintenance, and monthly optimization. Fixed SLA, fixed deliverables, fixed price.",
             "Why higher than a ₹15K website agency? Because we ship systems that actually move revenue. A ₹60K RevSite Pro delivering a 2% conversion lift on ₹50L monthly revenue is worth ₹12L/year. A ₹15K brochure website delivering 0 is worth ₹0. The math always works at our end of the market."
           ],
-          "keywords": ["agency pricing India", "fixed price agency", "outcome based pricing", "senior engineering rates", "RevSite pricing", "ERP cost India"]
+          "keywords": [
+            "agency pricing India",
+            "fixed price agency",
+            "outcome based pricing",
+            "senior engineering rates",
+            "RevSite pricing",
+            "ERP cost India"
+          ]
         },
         {
           "id": "package-comparison",
@@ -1168,7 +1802,13 @@
             "If your biggest problem is 'I need a tech partner long-term, not just a project', start with GrowthOS Retainer. Embedded senior team, fixed monthly cost, compounding output.",
             "Still not sure? Book a free Revenue Audit. We'll map your entire funnel and tell you exactly which system has the highest ROI for your specific business — no pitch, just diagnosis."
           ],
-          "keywords": ["which agency package", "revenue system decision", "SME digital transformation", "agency comparison", "growth strategy India"]
+          "keywords": [
+            "which agency package",
+            "revenue system decision",
+            "SME digital transformation",
+            "agency comparison",
+            "growth strategy India"
+          ]
         },
         {
           "id": "timeline-expectations",
@@ -1185,7 +1825,13 @@
             "GrowthOS Retainer — Starts delivering in week 1. Every month is a compounding improvement on the last. Most clients see meaningful revenue uplift by month 3, with continued improvements monthly after.",
             "These are honest numbers. We've hit them consistently across 50+ engagements. A faster promise is usually a worse outcome."
           ],
-          "keywords": ["agency project timeline", "website rebuild timeline", "ERP implementation time", "SEO results timeline", "WhatsApp automation setup time"]
+          "keywords": [
+            "agency project timeline",
+            "website rebuild timeline",
+            "ERP implementation time",
+            "SEO results timeline",
+            "WhatsApp automation setup time"
+          ]
         }
       ],
       "industries": [
@@ -1204,7 +1850,14 @@
             "Stage 6 — Add retention infrastructure. Loyalty programs, subscription boxes, referral engines. These are the mechanisms that turn ₹50L brands into ₹1Cr brands. Without them, you plateau.",
             "The full playbook takes 9–12 months to execute. Most brands we work with go from ₹30–50L to ₹1Cr+ monthly GMV in that window, at the same or lower ad spend."
           ],
-          "keywords": ["D2C India growth", "Shopify conversion optimization", "cart abandonment recovery", "repeat purchase rate D2C", "international expansion D2C", "D2C unit economics"]
+          "keywords": [
+            "D2C India growth",
+            "Shopify conversion optimization",
+            "cart abandonment recovery",
+            "repeat purchase rate D2C",
+            "international expansion D2C",
+            "D2C unit economics"
+          ]
         },
         {
           "id": "real-estate-deep-dive",
@@ -1222,7 +1875,14 @@
             "Step 5 — Local SEO dominance. Rank for '[city] flats for sale', '[locality] apartments', '3 BHK [city]'. Free leads compounding over time.",
             "The end result is a pipeline where 60%+ of your leads come from your own channels, at 40% lower CPL, with 2x conversion to site visit and 3x conversion to deal. We've seen it work for 10+ Indian real estate developers."
           ],
-          "keywords": ["real estate lead generation India", "99acres alternative", "NRI real estate marketing", "virtual tour real estate", "real estate CRM India", "housing.com dependency"]
+          "keywords": [
+            "real estate lead generation India",
+            "99acres alternative",
+            "NRI real estate marketing",
+            "virtual tour real estate",
+            "real estate CRM India",
+            "housing.com dependency"
+          ]
         },
         {
           "id": "edtech-admissions",
@@ -1241,7 +1901,14 @@
             "Step 5 — Student engagement after enrollment. Attendance tracking, assignment reminders, progress reports to parents. This reduces dropout by 30%+ — which directly compounds into referrals.",
             "The full automated admissions + retention stack is built in AutoSell Engine + OperateOS. Most coaching institutes recoup the investment in one admission cycle."
           ],
-          "keywords": ["coaching institute CRM India", "automated admissions", "online fee payment", "coaching institute marketing", "student engagement system", "JEE NEET coaching marketing"]
+          "keywords": [
+            "coaching institute CRM India",
+            "automated admissions",
+            "online fee payment",
+            "coaching institute marketing",
+            "student engagement system",
+            "JEE NEET coaching marketing"
+          ]
         }
       ],
       "caseStudies": [
@@ -1258,7 +1925,12 @@
             "Step 4 — Case study numbers. When we publish a case study, the numbers come directly from the monthly tracking. We never round up, we never cherry-pick. If conversion went from 0.6% to 2.1%, we say 2.1%, not 'over 2x'.",
             "Step 5 — Client review. Every case study is reviewed and approved by the client before publishing. They see the numbers we're quoting and the claims we're making, and sign off. If they want anonymization (because of competitive concerns), we anonymize — but the numbers stay accurate."
           ],
-          "keywords": ["case study methodology", "verified results agency", "transparent metrics", "baseline measurement"]
+          "keywords": [
+            "case study methodology",
+            "verified results agency",
+            "transparent metrics",
+            "baseline measurement"
+          ]
         },
         {
           "id": "what-we-dont-share",
@@ -1272,7 +1944,13 @@
             "Some outcomes are too early to publish. A 90-day revenue lift is real. A 6-month compounding trend is more meaningful. We wait until the story is fully told before writing it up.",
             "If you're evaluating us and want to talk to a current client, we can usually arrange a reference call — including with clients whose stories aren't public. Honest references matter more than glossy case studies."
           ],
-          "keywords": ["agency transparency", "honest case studies", "client references", "NDA projects", "agency track record"]
+          "keywords": [
+            "agency transparency",
+            "honest case studies",
+            "client references",
+            "NDA projects",
+            "agency track record"
+          ]
         }
       ],
       "contact": [
@@ -1291,7 +1969,12 @@
             "Your biggest operational frustration right now (e.g., 'my team spends 20 hours/week on manual WhatsApp follow-ups').",
             "With these five data points, we can usually identify 2–3 specific revenue leaks in the first 15 minutes and show you exactly what it would take to fix them. The other 15 minutes we spend on questions from you. No slide deck, no pitch."
           ],
-          "keywords": ["revenue audit preparation", "business metrics audit", "agency discovery call", "business diagnosis"]
+          "keywords": [
+            "revenue audit preparation",
+            "business metrics audit",
+            "agency discovery call",
+            "business diagnosis"
+          ]
         },
         {
           "id": "response-time",
@@ -1306,7 +1989,12 @@
             "Day 4 (within 24 hours of the call) — Written summary of the audit. 2–4 pages. What we found, what we'd recommend, rough investment range, and the next step if you want to proceed.",
             "Day 5–7 — You decide. No pressure, no follow-up-every-day harassment. If you want to move forward, the next step is a paid discovery session (3 hours, ₹15K, offset against any project). If you don't, we close the loop cleanly and you walk away with a free written audit."
           ],
-          "keywords": ["agency response time", "revenue audit process", "discovery call agency", "how agencies work"]
+          "keywords": [
+            "agency response time",
+            "revenue audit process",
+            "discovery call agency",
+            "how agencies work"
+          ]
         }
       ]
     }

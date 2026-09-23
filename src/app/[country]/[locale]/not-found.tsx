@@ -42,7 +42,7 @@ export default function NotFound() {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <LocalizedLink
             href="/"
-            className="group inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg transition-all hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2 rounded-full bg-accent-strong px-6 py-3 text-sm font-semibold text-accent-foreground shadow-lg transition-all hover:-translate-y-0.5"
           >
             <Home size={16} />
             Go to homepage

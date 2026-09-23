@@ -73,7 +73,7 @@ export function CountryTrustBlock({
         <div className="mx-auto max-w-4xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-1.5">
             <MapPin size={12} className="text-accent" />
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               {c.countryName}
             </span>
           </div>

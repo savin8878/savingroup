@@ -72,8 +72,8 @@ export async function generateMetadata({
   // Google discards the cluster for every member, including the indexable one.
   const indexable = isCityIndexable(baseCity, country, lc);
 
-  const title = `Contact Sanat Dynamo in ${city.name} — Book a Revenue Audit`;
-  const description = `Book a 45-minute revenue audit for your ${city.name} business. WhatsApp, phone, or written request — IST hours, INR + GST invoicing, response within one business day.`;
+  const title = `Contact Sanat Dynamo in ${city.name} — Request a Free Revenue Audit`;
+  const description = `Request a free 45-minute revenue audit for your ${city.name} business. WhatsApp, phone, or written request — IST hours, INR + GST invoicing, response within one business day.`;
 
   const alternates = buildCityAlternates({
     country,
@@ -230,7 +230,7 @@ export default async function CityContactPage({
         eyebrow={`Contact · ${city.name}`}
         title={
           <>
-            Book a 45-minute revenue audit in{" "}
+            Request a free 45-minute revenue audit in{" "}
             <span className="text-accent">{city.name}</span>.
           </>
         }
@@ -319,12 +319,12 @@ export default async function CityContactPage({
               {
                 step: "01",
                 title: "WhatsApp / phone within 1 business day",
-                body: "We confirm fit, scope a 45-minute discovery call, and share a calendar invite for that week.",
+                body: "We confirm fit, book your free 45-minute revenue audit, and share a calendar invite for that week.",
               },
               {
                 step: "02",
-                title: "45-minute discovery call (paid · ₹15,000)",
-                body: `We map your funnel end-to-end on a live call. Identify the top 3 revenue leaks. The fee is fully credited if you proceed.`,
+                title: "Discovery Sprint — 3 hours (paid · ₹15,000)",
+                body: `Only if the free audit says there is something worth building. We map your funnel end-to-end, rank every revenue leak, and the fee is credited in full against the build.`,
               },
               {
                 step: "03",
@@ -437,7 +437,7 @@ export default async function CityContactPage({
               {" "}{org?.leadRole?.toLowerCase() ?? "engagement lead"} who
               handles {city.name} engagements.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Sparkles size={11} />
               Audit slots: 3 open this week
             </div>
@@ -490,11 +490,11 @@ export default async function CityContactPage({
             >
               <div className="flex items-center gap-2">
                 <Icon size={16} className="text-accent" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Next page
                 </span>
               </div>
-              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent sm:text-lg">
+              <div className="mt-3 font-display text-base font-semibold tracking-tight text-foreground transition-colors group-hover:text-accent-strong sm:text-lg">
                 {label}
               </div>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">

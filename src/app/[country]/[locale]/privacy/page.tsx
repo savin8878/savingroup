@@ -69,7 +69,7 @@ export default function PrivacyPage() {
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-32">
               <div className="rounded-3xl border border-border bg-surface/60 p-7">
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Last updated
                 </div>
                 <div className="mt-2 font-display text-xl font-semibold text-foreground">
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
                         key={s.title}
                         className="flex items-start gap-3 text-muted-foreground"
                       >
-                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-strong">
                           0{i + 1}
                         </span>
                         {s.title}

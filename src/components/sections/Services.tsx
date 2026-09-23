@@ -1,8 +1,11 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { ArrowUpRight, Check, Sparkles } from "lucide-react";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
+import { ArrowUpRight, Check } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import LocalizedLink from "../LocalizedLink";
 import { serviceIllustrations } from "../illustrations";
@@ -43,21 +46,12 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
           Negative margin lets cards bleed to viewport edges on phone. */}
       <div className="mt-10 -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-16 sm:flex-col sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 sm:snap-none md:grid md:grid-cols-2 lg:grid-cols-3">
         {items.map((s, i) => (
-          <motion.article
+          <Reveal
+            as="article"
+            delay={(i % 3) * 0.08}
             key={s.id}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: (i % 3) * 0.08 }}
-            className="group relative flex w-[82vw] max-w-[320px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all duration-500 hover:-translate-y-1 hover:border-accent/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-7 md:h-full"
+            className="group relative flex w-[82vw] max-w-[320px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-surface/60 p-5 transition-colors hover:border-accent/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:p-7 md:h-full"
           >
-            {/* Background decorations — heavy blur kept off mobile so cards stay crisp */}
-            <div className="pointer-events-none absolute -right-20 -top-20 hidden h-48 w-48 rounded-full bg-accent/5 blur-3xl transition-opacity duration-500 group-hover:bg-accent/15 sm:block" />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-            />
-
             {/* Sketch illustration */}
             {(() => {
               const Illust = serviceIllustrations[i];
@@ -69,7 +63,7 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
             })()}
 
             <div className="flex items-start justify-between">
-              <span className="font-mono text-xs uppercase tracking-[0.22em] text-accent">
+              <span className="font-mono text-xs uppercase tracking-[0.22em] text-accent-strong">
                 {s.number}
               </span>
               <ArrowUpRight
@@ -105,16 +99,15 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
                 </li>
               ))}
               {s.deliverables.length > 3 && (
-                <li className="pl-5 text-xs font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                <li className="pl-5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                   +{s.deliverables.length - 3} more
                 </li>
               )}
             </ul>
 
-            {/* Outcome highlight */}
-            <div className="mt-6 rounded-2xl border border-accent/25 bg-accent/5 p-4">
-              <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
-                <Sparkles size={11} />
+            {/* Outcome highlight — a rule and a label, not a card inside a card. */}
+            <div className="mt-6 border-t border-border pt-5">
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent-strong">
                 Top outcome
               </div>
               <div className="mt-1.5 text-sm font-semibold text-foreground">
@@ -124,7 +117,7 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
 
             <div className="mt-6 flex items-end justify-between border-t border-border pt-5">
               <div>
-                <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+                <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   Investment
                 </div>
                 <div className="mt-1 font-display text-sm font-semibold text-foreground">
@@ -133,12 +126,12 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
               </div>
               <LocalizedLink
                 href={`/services#${s.id}`}
-                className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground hover:text-accent"
+                className="font-mono text-[10px] uppercase tracking-[0.22em] text-foreground hover:text-accent-strong"
               >
                 Details →
               </LocalizedLink>
             </div>
-          </motion.article>
+          </Reveal>
         ))}
       </div>
       <SnapRowHint count={items.length} />
@@ -147,7 +140,7 @@ export function Services({ t, expanded = false, country, noPadding }: ServicesPr
         <div className="mt-12 flex justify-center">
           <LocalizedLink
             href="/services"
-            className="group inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-sm transition-all hover:border-accent/40 hover:text-accent"
+            className="group inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-6 py-3 text-sm font-semibold text-foreground backdrop-blur-sm transition-all hover:border-accent/40 hover:text-accent-strong"
           >
             Compare all packages
             <ArrowUpRight

@@ -1,8 +1,11 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import { ArrowUpRight, TrendingUp, Quote } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import LocalizedLink from "../LocalizedLink";
 import type { Messages } from "@/lib/i18n";
 import { getCountryContent } from "@/lib/country-content";
@@ -73,13 +76,10 @@ export function CaseStudies({
 
       <div className="mt-8 space-y-6">
         {items.map((cs, i) => (
-          <motion.article
+          <Reveal
+            as="article"
             key={cs.id}
             id={cs.id}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.05 }}
             className="group relative overflow-hidden rounded-3xl border border-border bg-surface/60 transition-all hover:border-accent/30 hover:bg-surface"
           >
             <div
@@ -90,7 +90,7 @@ export function CaseStudies({
               {/* Left: title + meta */}
               <div className="lg:col-span-5">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent">
+                  <span className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent-strong">
                     {cs.industry}
                   </span>
                   <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -145,7 +145,7 @@ export function CaseStudies({
                       <div className="mt-3 font-display text-xl font-semibold tracking-tight text-foreground">
                         {m.value}
                       </div>
-                      <div className="mt-1 text-xs font-semibold text-accent">
+                      <div className="mt-1 text-xs font-semibold text-accent-strong">
                         {m.delta}
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export function CaseStudies({
                     </blockquote>
                     <LocalizedLink
                       href={`/case-studies#${cs.id}`}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-foreground transition-all hover:border-accent hover:text-accent"
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-foreground transition-all hover:border-accent hover:text-accent-strong"
                     >
                       Read case
                       <ArrowUpRight size={12} />
@@ -168,7 +168,7 @@ export function CaseStudies({
                 )}
               </div>
             </div>
-          </motion.article>
+          </Reveal>
         ))}
       </div>
     </Section>

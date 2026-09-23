@@ -759,7 +759,7 @@ function RecentPostsBlock({
       <div className="lg:col-span-5 lg:text-right">
         <LocalizedLink
           href={`/cities/${citySlug}/blog`}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-accent/40 hover:text-accent-strong"
         >
           Open full {cityName} journal
           <ArrowUpRight size={14} />
@@ -784,7 +784,7 @@ function RecentPostsBlock({
               <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
                 {p.excerpt}
               </p>
-              <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent">
+              <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-strong">
                 Read post <ArrowUpRight size={12} />
               </div>
             </LocalizedLink>

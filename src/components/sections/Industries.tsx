@@ -1,6 +1,8 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import {
   ShoppingBag,
   Building2,
@@ -12,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import LocalizedLink from "../LocalizedLink";
 import { industryIllustrations } from "../illustrations";
@@ -75,12 +78,9 @@ export function Industries({
           const Icon = iconMap[ind.id as keyof typeof iconMap];
           const isFeatured = i === 0;
           return (
-            <motion.div
+            <Reveal
+              delay={i * 0.05}
               key={ind.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
               id={ind.id}
               className={`group relative flex w-[82vw] max-w-[320px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all duration-500 hover:border-accent/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-7 ${
                 isFeatured ? "lg:col-span-7 lg:row-span-2" : "lg:col-span-5"
@@ -88,7 +88,7 @@ export function Industries({
             >
               <div className="pointer-events-none absolute -right-24 -top-24 hidden h-56 w-56 rounded-full bg-accent/5 blur-3xl transition-opacity duration-500 group-hover:bg-accent/15 sm:block" />
               {isFeatured && (
-                <div className="absolute right-6 top-6 z-10 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                <div className="absolute right-6 top-6 z-10 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                   Largest segment
                 </div>
               )}
@@ -118,7 +118,7 @@ export function Industries({
                   so the card reads differently on /us/en vs /de/en. */}
               {countryContent?.industries.angle[ind.id as IndustryKey] && (
                 <p className="mt-3 rounded-xl border-l-2 border-accent/60 bg-accent/5 px-3 py-2 text-xs leading-relaxed text-foreground">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                     {countryContent.countryName}
                   </span>{" "}
                   {countryContent.industries.angle[ind.id as IndustryKey]}
@@ -158,11 +158,11 @@ export function Industries({
 
               <div className="mt-auto flex items-center justify-between border-t border-border pt-6">
                 <div className="min-w-0 flex-1 pr-4">
-                  <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent">
+                  <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-accent-strong">
                     <Sparkles size={10} />
                     Outcome
                   </div>
-                  <div className="mt-1 truncate text-xs font-semibold text-accent">
+                  <div className="mt-1 truncate text-xs font-semibold text-accent-strong">
                     {ind.outcome}
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export function Industries({
                   <ArrowUpRight size={14} />
                 </LocalizedLink>
               </div>
-            </motion.div>
+            </Reveal>
           );
         })}
       </div>

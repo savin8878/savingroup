@@ -1,8 +1,11 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import { TrendingDown, AlertTriangle } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { ButtonLink } from "../primitives/button";
 import { SnapRowHint } from "../primitives/snap-row-hint";
 import { LeakFunnel } from "../illustrations";
@@ -32,24 +35,21 @@ export function Problem({ t, noPadding }: { t: Messages; noPadding?: boolean }) 
       {/* Mobile: snap-x carousel (4 stat-rich cards). sm+: grid. */}
       <div className="mt-10 -mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-16 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
         {t.problem.points.map((p, i) => (
-          <motion.div
+          <Reveal
             key={p.label}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5, delay: i * 0.06 }}
+            delay={i * 0.06}
             className="group relative flex w-[82vw] max-w-[320px] flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-surface/80 p-5 transition-all duration-500 hover:-translate-y-1 hover:border-danger/40 hover:bg-surface sm:w-auto sm:max-w-none sm:flex-shrink sm:rounded-3xl sm:bg-surface/60 sm:p-7 sm:backdrop-blur-sm"
           >
             <div className="pointer-events-none absolute -right-16 -top-16 hidden h-40 w-40 rounded-full bg-danger/5 blur-2xl transition-opacity duration-500 group-hover:bg-danger/15 sm:block" />
 
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                 Leak · 0{i + 1}
               </span>
               <TrendingDown size={16} className="text-danger/70" />
             </div>
 
-            <div className="mt-6 font-display text-5xl font-semibold leading-none tracking-tight text-foreground sm:text-[3.25rem]">
+            <div className="font-editorial mt-6 text-[2.5rem] font-semibold tracking-tight text-foreground sm:text-[2.75rem]">
               {p.stat}
             </div>
             <div className="mt-3 text-sm font-semibold text-foreground">
@@ -62,20 +62,17 @@ export function Problem({ t, noPadding }: { t: Messages; noPadding?: boolean }) 
             {/* Mini meter */}
             <div className="mt-6">
               <div className="h-1 w-full overflow-hidden rounded-full bg-border/60">
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${[55, 70, 100, 80][i] || 60}%` }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 1.1, delay: 0.2 + i * 0.06, ease: "easeOut" }}
+                <div
                   className="h-full bg-gradient-to-r from-danger/70 to-accent"
+                  style={{ width: `${[55, 70, 100, 80][i] || 60}%` }}
                 />
               </div>
-              <div className="mt-2 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
+              <div className="mt-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                 <span>Severity</span>
                 <span className="text-danger/80">High</span>
               </div>
             </div>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
       <SnapRowHint count={t.problem.points.length} />

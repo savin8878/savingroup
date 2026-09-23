@@ -1,8 +1,11 @@
-"use client";
-
-import { motion } from "framer-motion";
+/*
+ * Server component. It carried "use client" only for the framer-motion
+ * entrance wrapper; that is now <Reveal>, a small client island of its own,
+ * so none of this markup ships to the browser as JavaScript any more.
+ */
 import { Check, X, Shield } from "lucide-react";
 import { Section, SectionHeader } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { ApproachDuality } from "../illustrations";
 import type { Messages } from "@/lib/i18n";
 
@@ -18,11 +21,7 @@ export function Approach({ t, noPadding }: { t: Messages; noPadding?: boolean })
         meta={`${count} differences`}
       />
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6 }}
+      <Reveal
         className="border-grad mt-16 overflow-hidden rounded-3xl shadow-xl"
       >
         <div className="grid grid-cols-1 md:grid-cols-2">
@@ -44,11 +43,11 @@ export function Approach({ t, noPadding }: { t: Messages; noPadding?: boolean })
           </div>
           <div className="hidden border-b border-l border-border bg-accent-soft p-6 md:block">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-accent-foreground">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-strong text-accent-foreground">
                 <Shield size={14} strokeWidth={2.5} />
               </div>
               <div>
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
                   Sanat Dynamo
                 </div>
                 <div className="text-sm font-semibold text-foreground">
@@ -88,7 +87,7 @@ export function Approach({ t, noPadding }: { t: Messages; noPadding?: boolean })
             </div>
           ))}
         </div>
-      </motion.div>
+      </Reveal>
 
       {/* Visual duality: Chaos vs System */}
       <div className="mt-12 hidden lg:block">

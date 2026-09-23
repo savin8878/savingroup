@@ -8,8 +8,23 @@ import LocalizedLink from "../LocalizedLink";
 import type { Messages } from "@/lib/i18n";
 import { getCountryContent } from "@/lib/country-content";
 import { isResolvableCountry } from "@/lib/constants";
+import { AUDIT, CTA_LABEL } from "@/lib/offer";
 
-export function Faq({ t, country }: { t: Messages; country?: string }) {
+export function Faq({
+  t,
+  country,
+  limit,
+}: {
+  t: Messages;
+  country?: string;
+  /**
+   * Cap the rendered list. The homepage passes one so the FAQ stops being a
+   * scroll of its own — but whoever passes it MUST build the FAQPage JSON-LD
+   * from the same cap, or the rich result markup describes answers that are
+   * not on the page.
+   */
+  limit?: number;
+}) {
   const [open, setOpen] = useState<number | null>(0);
 
   const countryContent =
@@ -19,9 +34,10 @@ export function Faq({ t, country }: { t: Messages; country?: string }) {
   // prepending) preserves the most important global questions at the top
   // of the rendered list while adding unique market-relevant Q&As at the
   // bottom — which is where Google's FAQ rich-result picker reads from too.
-  const items = countryContent
+  const all = countryContent
     ? [...t.faq.items, ...countryContent.faqAdditions]
     : t.faq.items;
+  const items = limit ? all.slice(0, limit) : all;
 
   return (
     <Section id="faq">
@@ -42,14 +58,14 @@ export function Faq({ t, country }: { t: Messages; country?: string }) {
               Still have questions?
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Book a free 30-minute call. We&apos;ll answer everything specific to
-              your business — no slide deck, no pitch.
+              {AUDIT.supportLine} We&apos;ll answer everything specific to your
+              business — no slide deck, no pitch.
             </p>
             <LocalizedLink
               href="/contact"
-              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground shadow-[0_8px_28px_-10px_oklch(0.78_0.165_70/0.6)]"
+              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-accent-strong px-5 py-2.5 text-sm font-semibold text-accent-foreground"
             >
-              Talk to a strategist
+              {CTA_LABEL}
               <ArrowUpRight
                 size={14}
                 className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -82,7 +98,7 @@ export function Faq({ t, country }: { t: Messages; country?: string }) {
                       transition={{ duration: 0.25 }}
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors ${
                         isOpen
-                          ? "border-accent bg-accent text-accent-foreground"
+                          ? "border-accent bg-accent-strong text-accent-foreground"
                           : "border-border text-accent"
                       }`}
                     >
@@ -108,6 +124,16 @@ export function Faq({ t, country }: { t: Messages; country?: string }) {
               );
             })}
           </div>
+
+          {limit && all.length > items.length && (
+            <LocalizedLink
+              href="/contact"
+              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-accent-strong hover:underline"
+            >
+              Have a question that isn&apos;t here? Ask it on the audit
+              <ArrowUpRight size={14} />
+            </LocalizedLink>
+          )}
         </div>
       </div>
     </Section>

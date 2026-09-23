@@ -374,7 +374,7 @@ export function CountryMarketContext({
       <div className="rounded-3xl border border-border bg-surface/40 p-6 sm:p-10">
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent">
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
               <Globe2 size={11} />
               {interpolate(eyebrowTpl, vars)}
             </div>

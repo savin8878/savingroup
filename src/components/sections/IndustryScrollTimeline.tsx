@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import LocalizedLink from "../LocalizedLink";
 import { Section, Eyebrow } from "../primitives/section";
+import { Reveal } from "../primitives/reveal";
 import { industryIllustrations } from "../illustrations";
 import { SECTOR_THEMES } from "../illustrations/IndustrySegmentVisuals";
 import type { IndustryKey } from "@/lib/country-content";
@@ -236,13 +237,7 @@ function TimelineRow({
         {/* RIGHT — stuck-state → outcome flow */}
         <div className="lg:col-span-7">
           {/* Pain card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-danger/25 bg-danger/[0.04] p-5 sm:p-6"
-          >
+          <Reveal className="rounded-2xl border border-danger/25 bg-danger/[0.04] p-5 sm:p-6">
             <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-danger/80">
               <AlertTriangle size={11} />
               Stuck state
@@ -258,7 +253,7 @@ function TimelineRow({
                 </li>
               ))}
             </ul>
-          </motion.div>
+          </Reveal>
 
           {/* Vertical migration connector */}
           <div className="relative my-3 flex items-center justify-center">
@@ -307,11 +302,8 @@ function TimelineRow({
           </div>
 
           {/* Outcome card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+          <Reveal
+            delay={0.15}
             className="rounded-2xl border p-5 sm:p-6"
             style={{
               borderColor: accent.replace(")", " / 0.4)"),
@@ -333,12 +325,9 @@ function TimelineRow({
             {theme && (
               <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                 {theme.outcomeMetrics.slice(0, 4).map((m, idx) => (
-                  <motion.div
+                  <Reveal
                     key={m.label}
-                    initial={{ opacity: 0, y: 8 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.3 + idx * 0.06 }}
+                    delay={0.05 * idx}
                     className="rounded-xl border border-border bg-background/70 p-3"
                   >
                     <div
@@ -350,7 +339,7 @@ function TimelineRow({
                     <div className="mt-1 text-[10px] leading-tight text-muted-foreground">
                       {m.label}
                     </div>
-                  </motion.div>
+                  </Reveal>
                 ))}
               </div>
             )}
@@ -370,7 +359,7 @@ function TimelineRow({
                 className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
             </LocalizedLink>
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </motion.article>
