@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 /**
  * Contextual capability sketches for FeatureGrid.
- * Each maps to specific Sanat Dynamo capabilities, not generic icons.
+ * Each maps to specific Savin Group capabilities, not generic icons.
  * Blueprint-style with brand colors.
  */
 

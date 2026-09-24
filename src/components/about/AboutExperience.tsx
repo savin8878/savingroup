@@ -23,7 +23,7 @@ export function AboutExperience({ copy: c, base, ctaLabel, aboutLabel }: { copy:
   return <AboutMotion>
     <section className={styles.hero} aria-labelledby="about-title">
       <div className={home.container}>
-        <div className={styles.eyebrow}><span className={home.signal} /><span>Sanat Dynamo / {aboutLabel}</span><span className={styles.edition}>{c.layers[0]} / {c.layers[2]}</span></div>
+        <div className={styles.eyebrow}><span className={home.signal} /><span>Savin Group / {aboutLabel}</span><span className={styles.edition}>{c.layers[0]} / {c.layers[2]}</span></div>
         <div className={styles.heroGrid}>
           <div className={styles.heroCopy}>
             <h1 id="about-title"><span>{c.hero[0]}</span><span>{c.hero[1]}</span><em>{c.hero[2]}</em></h1>

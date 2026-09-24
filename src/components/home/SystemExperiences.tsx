@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react";
+import dynamic from "next/dynamic";
 import styles from "./SystemExperiences.module.css";
+
+const ProcurementExperience = dynamic(() => import("./ProcurementExperience"), { ssr: false });
 
 type GlyphName = "machine" | "iot" | "data" | "erp" | "ai" | "automation" | "dashboard" | "decision" | "code" | "integration";
 
@@ -50,6 +53,7 @@ const journey = [
 const journeyPaths = ["M125 99H375", "M375 99H625", "M625 99H875", "M875 99V329", "M875 329H625", "M625 329H375", "M375 329H125"];
 
 export function ConnectedJourney() {
+  const [procurementOpen, setProcurementOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const detailId = useId();
   const { reduced, paused } = useMotionState(ref);
@@ -87,7 +91,7 @@ export function ConnectedJourney() {
         {journeyPaths.map((path, index) => <g key={path}><path className={styles.wireBase} d={path} /><path className={`${styles.wireActive} ${index < active ? styles.wireOn : ""}`} d={path} pathLength="1" /></g>)}
       </svg>
       <div className={styles.journeyGrid}>
-        {journey.map((stage, index) => <button key={stage.title} className={`${styles.journeyNode} ${index <= active ? styles.nodeConnected : ""} ${index === selected ? styles.nodeSelected : ""}`} style={{ gridArea: `stage${index + 1}` }} type="button" aria-pressed={selected === index} aria-controls={detailId} onClick={() => setChosen(index)}>
+        {journey.map((stage, index) => <button key={stage.title} className={`${styles.journeyNode} ${index <= active ? styles.nodeConnected : ""} ${index === selected ? styles.nodeSelected : ""}`} style={{ gridArea: `stage${index + 1}` }} type="button" aria-pressed={selected === index} aria-controls={detailId} aria-haspopup={stage.glyph === "erp" ? "dialog" : undefined} onClick={() => { setChosen(index); if (stage.glyph === "erp") setProcurementOpen(true); }}>
           <span className={styles.nodeTop}><span className={styles.nodeNumber}>0{index + 1}</span><span className={styles.nodeIndicator} /></span>
           <Glyph name={stage.glyph} className={styles.journeyIcon} />
           <span className={styles.nodeTitle}>{stage.title}</span><span className={styles.nodeLabel}>{stage.label}</span>
@@ -100,6 +104,7 @@ export function ConnectedJourney() {
       <div className={styles.output}><span className={styles.eyebrow}>Output</span><span>{journey[selected].output}<span aria-hidden="true">↗</span></span></div>
     </div>
     <p className={styles.diagramFootnote}>An illustrative system architecture. Built around your equipment, your software, and your way of working.</p>
+    {procurementOpen && <ProcurementExperience onClose={() => setProcurementOpen(false)} />}
   </div>;
 }
 
@@ -115,6 +120,7 @@ const capabilities = [
 ] as const;
 
 export function CapabilityExplorer() {
+  const [procurementOpen, setProcurementOpen] = useState(false);
   const [selected, setSelected] = useState(0);
   const panelId = useId();
   const capability = capabilities[selected];
@@ -126,7 +132,7 @@ export function CapabilityExplorer() {
       </svg>
       <div className={styles.ecosystemGrid}>
         <div className={styles.ecosystemHub}><span className={styles.hubMark} aria-hidden="true"><i /><i /><i /></span><span>One connected <br />business</span></div>
-        {capabilities.map((item, index) => <button key={item.title} type="button" className={`${styles.capabilityNode} ${index === selected ? styles.capabilitySelected : ""}`} style={{ gridColumn: ((item.position - 1) % 3) + 1, gridRow: Math.floor((item.position - 1) / 3) + 1 }} aria-pressed={index === selected} aria-controls={panelId} onClick={() => setSelected(index)}><Glyph name={item.glyph} /><span>{item.title}</span><span className={styles.capabilityNodeArrow} aria-hidden="true">↗</span></button>)}
+        {capabilities.map((item, index) => <button key={item.title} type="button" className={`${styles.capabilityNode} ${index === selected ? styles.capabilitySelected : ""}`} style={{ gridColumn: ((item.position - 1) % 3) + 1, gridRow: Math.floor((item.position - 1) / 3) + 1 }} aria-pressed={index === selected} aria-controls={panelId} aria-haspopup={item.glyph === "erp" ? "dialog" : undefined} onClick={() => { setSelected(index); if (item.glyph === "erp") setProcurementOpen(true); }}><Glyph name={item.glyph} /><span>{item.title}</span><span className={styles.capabilityNodeArrow} aria-hidden="true">↗</span></button>)}
       </div>
       <p className={styles.ecosystemHint}>Explore a capability. See how it connects.</p>
     </div>
@@ -137,6 +143,7 @@ export function CapabilityExplorer() {
       <div className={styles.useCase}><span className={styles.eyebrow}>In practice</span><p>{capability.example}</p></div>
       <span className={styles.capabilityTag}>{capability.tag}</span>
     </div>
+    {procurementOpen && <ProcurementExperience onClose={() => setProcurementOpen(false)} />}
   </div>;
 }
 

@@ -3,10 +3,10 @@
 import { motion } from "framer-motion";
 
 /**
- * "Revenue Engine Blueprint" — Sanat Dynamo's signature hero visual.
+ * "Revenue Engine Blueprint" — Savin Group's signature hero visual.
  *
  * Not a generic network diagram. This is an **architectural schematic**
- * of the exact system Sanat Dynamo builds for every client:
+ * of the exact system Savin Group builds for every client:
  *
  *   Traffic → Website → Automation → CRM → Revenue (compounding)
  *

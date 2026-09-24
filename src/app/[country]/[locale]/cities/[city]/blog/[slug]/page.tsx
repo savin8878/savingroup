@@ -78,7 +78,7 @@ export async function generateMetadata({
   });
 
   return {
-    title: `${post.title} · ${city.name} Journal · Sanat Dynamo`,
+    title: `${post.title} · ${city.name} Journal · Savin Group`,
     description: post.excerpt,
     keywords: post.keywords.join(", "),
     metadataBase: new URL(BASE_URL),
@@ -88,7 +88,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.excerpt,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "article",
       publishedTime: post.publishedAt,

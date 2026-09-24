@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
  * "Chaos vs System" — Visual split for the Approach section.
  *
  * Left: scattered, disconnected tools (typical agency output)
- * Right: clean, unified revenue system (Sanat Dynamo's approach)
+ * Right: clean, unified revenue system (Savin Group's approach)
  *
  * Shows the exact comparison from the content:
  * websites vs systems, aesthetics vs ROI, one-off vs compounding.
@@ -102,8 +102,8 @@ export function ApproachDuality({ className = "" }: { className?: string }) {
         <text x="160" y="232" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" letterSpacing="0.1em" fill="oklch(0.65 0.22 25 / 0.5)">OUTPUT-FOCUSED</text>
       </motion.g>
 
-      {/* === RIGHT SIDE: SANAT DYNAMO (System) === */}
-      <motion.text variants={popIn(0)} x="480" y="20" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" letterSpacing="0.15em" fill="oklch(0.78 0.165 70 / 0.6)">SANAT DYNAMO</motion.text>
+      {/* === RIGHT SIDE: Savin Group (System) === */}
+      <motion.text variants={popIn(0)} x="480" y="20" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="8" letterSpacing="0.15em" fill="oklch(0.78 0.165 70 / 0.6)">Savin Group</motion.text>
 
       {/* Clean unified system — connected pipeline */}
       {/* Stage boxes in clean flow */}

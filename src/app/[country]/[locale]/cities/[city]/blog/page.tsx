@@ -57,7 +57,7 @@ export async function generateMetadata({
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
   const identity = getCityIdentity(citySlug);
 
-  const title = `${city.name} Journal — Field Notes on Building Revenue Systems in ${city.name}${identity ? ` (${identity.nickname})` : ""} · Sanat Dynamo`;
+  const title = `${city.name} Journal — Field Notes on Building Revenue Systems in ${city.name}${identity ? ` (${identity.nickname})` : ""} · Savin Group`;
   const description = `Long-form posts on what we ship in ${city.name}: local SEO, lead routing, dealer portals, and the moves agencies serving ${city.name} consistently miss.`;
 
   const alternates = buildCityAlternates({
@@ -77,7 +77,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "website",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],
@@ -137,7 +137,7 @@ export default async function CityBlogIndexPage({
     "@context": "https://schema.org",
     "@type": "Blog",
     "@id": `${blogUrl}#blog`,
-    name: `${city.name} Journal — Sanat Dynamo`,
+    name: `${city.name} Journal — Savin Group`,
     url: blogUrl,
     description: `Long-form posts on operating in ${city.name}.`,
     blogPost: posts.map((p) => ({
@@ -242,7 +242,7 @@ export default async function CityBlogIndexPage({
                     }}
                   >
                     <BookOpen size={11} />
-                    Sanat Dynamo · {city.name} Journal
+                    Savin Group · {city.name} Journal
                   </span>
                   <span>VOL. I</span>
                   <span>·</span>

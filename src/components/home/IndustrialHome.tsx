@@ -51,7 +51,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
     <HomeMotion>
       <section className={styles.hero} aria-labelledby="home-title" data-home-scene>
         <div className={styles.container}>
-          <div className={styles.heroEyebrow}><span className={styles.signal} /><span>THE FUTURE OF BUSINESS OPERATIONS</span><span className={styles.heroEdition}>SANAT DYNAMO / SYSTEMS ENGINEERING</span></div>
+          <div className={styles.heroEyebrow}><span className={styles.signal} /><span>THE FUTURE OF BUSINESS OPERATIONS</span><span className={styles.heroEdition}>Savin Group / SYSTEMS ENGINEERING</span></div>
           <div className={styles.heroGrid}>
             <div className={styles.heroCopy}>
               <h1 id="home-title">Your operations.<br />Intelligently<br /><em>connected.</em></h1>
@@ -194,7 +194,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
         <div className={styles.container}>
           <div className={styles.finalEyebrow}><span className={styles.signal} /> THE NEXT CONNECTION STARTS WITH A CONVERSATION</div>
           <div className={styles.finalGrid}><div><p>Have a business process that shouldn’t be manual?</p><h2 id="final-title">Let’s <em>engineer it.</em></h2><Link href={`${base}/contact`} className={styles.primaryButton}>{CTA_LABEL}<ArrowUpRight size={19} aria-hidden="true" /></Link><span className={styles.finalNote}><Check size={14} aria-hidden="true" />Free {AUDIT.duration} audit. A written diagnosis. A clear next step.</span></div><div className={styles.finalCircuit} aria-hidden="true"><svg viewBox="0 0 300 230" fill="none"><path d="M0 50H85V115H165M0 180H85V115M165 115H230V30H300M230 115V200H300" /><path className={styles.circuitFlow} d="M0 50H85V115H230V30H300" /><circle cx="165" cy="115" r="32" /><path d="m150 115 10 10 21-23" /></svg><span>YOUR NEXT CHAPTER</span></div></div>
-          <div className={styles.finalFooter}><span>SANAT DYNAMO</span><span>Systems. Automation. Scale.</span><a href="#home-title">Back to top<ArrowUpRight size={13} aria-hidden="true" /></a></div>
+          <div className={styles.finalFooter}><span>Savin Group</span><span>Systems. Automation. Scale.</span><a href="#home-title">Back to top<ArrowUpRight size={13} aria-hidden="true" /></a></div>
         </div>
       </section>
     </HomeMotion>

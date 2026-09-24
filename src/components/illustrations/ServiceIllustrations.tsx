@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 /**
- * Contextual blueprint sketches for each of Sanat Dynamo's 6 service packages.
+ * Contextual blueprint sketches for each of Savin Group's 6 service packages.
  * Each illustration tells the specific story of that service — not generic icons.
  *
  * Uses consistent "dark blueprint" visual language:

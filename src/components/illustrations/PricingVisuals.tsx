@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
  *                    chart / crown). Drawn with `currentColor` so they inherit
  *                    the card's text colour and adapt to light/dark.
  * - `PricingValueViz` — the "How we're different" hero visual: a value-stack
- *                    comparison. The competitor stack is short; the Sanat Dynamo
+ *                    comparison. The competitor stack is short; the Savin Group
  *                    stack grows tall with the components that ship for free
  *                    (design, SEO, CDN, automation, support) — all on the SAME
  *                    price baseline. Visually: "more system, same budget".
@@ -104,7 +104,7 @@ const ACCENT = "oklch(0.78 0.165 70";
 const NEUTRAL = "oklch(0.62 0.02 260";
 
 export function PricingValueViz({ className = "" }: { className?: string }) {
-  // Stacked value blocks for the Sanat Dynamo column — bottom to top.
+  // Stacked value blocks for the Savin Group column — bottom to top.
   const ourBlocks = [
     { label: "DESIGN", c: ACCENT },
     { label: "HOSTING", c: ACCENT },
@@ -236,7 +236,7 @@ export function PricingValueViz({ className = "" }: { className?: string }) {
         viewport={{ once: true }}
         transition={{ delay: 0.2 }}
       >
-        SANAT DYNAMO
+        Savin Group
       </motion.text>
 
       {/* Other agencies — short stack + "what's missing" ghosts */}
@@ -260,7 +260,7 @@ export function PricingValueViz({ className = "" }: { className?: string }) {
         </motion.text>
       ))}
 
-      {/* Sanat Dynamo — tall value stack */}
+      {/* Savin Group — tall value stack */}
       {ourBlocks.map((b, i) => block(ourX, i, b.label, b.c, 0.3 + i * 0.1))}
 
       {/* "more value" bracket between the two stack tops */}

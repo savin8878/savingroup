@@ -95,7 +95,7 @@ export function CityStickyShell({
 
   const tel = phoneNumber.replace(/[^+\d]/g, "");
   const wa = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hi Sanat Dynamo, I'm in ${city.name} and want to book a revenue audit.`
+    `Hi Savin Group, I'm in ${city.name} and want to book a revenue audit.`
   )}`;
 
   return (

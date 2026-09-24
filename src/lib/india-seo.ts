@@ -1,5 +1,5 @@
 /**
- * India-Specific SEO Optimizations for Sanat Dynamo
+ * India-Specific SEO Optimizations for Savin Group
  *
  * This module provides utilities for maximizing search visibility in India,
  * including:

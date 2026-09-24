@@ -63,7 +63,7 @@ export interface CityContent {
   /** Lat/lng for LocalBusiness `GeoCoordinates`. City centroid. */
   geo: { lat: string; lng: string };
 
-  /** Up to ~60 chars including " — Sanat Dynamo" suffix */
+  /** Up to ~60 chars including " — Savin Group" suffix */
   metaTitle: string;
   /** Up to ~160 chars */
   metaDescription: string;
@@ -137,7 +137,7 @@ const MUMBAI: CityContent = {
   stateCode: "MH",
   population: "20M+ metropolitan",
   geo: { lat: "19.0760", lng: "72.8777" },
-  metaTitle: "Best Website Development Company in Mumbai · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Mumbai · Savin Group",
   metaDescription:
     "Top website development & revenue automation agency in Mumbai. We build high-conversion sites, WhatsApp CRM, and SEO systems for D2C, BFSI, and real estate teams across BKC, Andheri, Lower Parel, and Powai.",
   metaKeywords:
@@ -205,7 +205,7 @@ const MUMBAI: CityContent = {
   testimonials: [
     {
       quote:
-        "We were burning ₹18L/mo on Meta and our Shopify was eating two-thirds of those clicks. Sanat Dynamo's team rebuilt the funnel in six weeks. The recovery alone paid back the engagement inside the second month.",
+        "We were burning ₹18L/mo on Meta and our Shopify was eating two-thirds of those clicks. Savin Group's team rebuilt the funnel in six weeks. The recovery alone paid back the engagement inside the second month.",
       author: "Founder",
       role: "D2C skincare brand · Bandra, Mumbai",
     },
@@ -227,7 +227,7 @@ const DELHI: CityContent = {
   stateCode: "DL",
   population: "32M+ NCR",
   geo: { lat: "28.6139", lng: "77.2090" },
-  metaTitle: "Best Website Development Company in Delhi NCR · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Delhi NCR · Savin Group",
   metaDescription:
     "Top web development & SEO agency in Delhi NCR. We build revenue-engineering websites, WhatsApp automation, and lead funnels for D2C, edtech, and real estate teams across Gurugram, Noida, Connaught Place, and Greater Noida.",
   metaKeywords:
@@ -295,7 +295,7 @@ const DELHI: CityContent = {
   testimonials: [
     {
       quote:
-        "Our last microsite took an agency 9 weeks. Sanat Dynamo did it in 11 days, and it actually converts. The WhatsApp recovery alone is worth what we paid for the build.",
+        "Our last microsite took an agency 9 weeks. Savin Group did it in 11 days, and it actually converts. The WhatsApp recovery alone is worth what we paid for the build.",
       author: "Sales Director",
       role: "Real estate developer · Gurugram",
     },
@@ -311,7 +311,7 @@ const BENGALURU: CityContent = {
   stateCode: "KA",
   population: "13M+ metro",
   geo: { lat: "12.9716", lng: "77.5946" },
-  metaTitle: "Best Website Development Company in Bengaluru · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Bengaluru · Savin Group",
   metaDescription:
     "Top web development & SaaS-focused agency in Bengaluru. We build conversion-engineered marketing sites, B2B funnels, and SEO systems for startups and SaaS teams across Koramangala, Indiranagar, Whitefield, and HSR Layout.",
   metaKeywords:
@@ -379,7 +379,7 @@ const BENGALURU: CityContent = {
   testimonials: [
     {
       quote:
-        "We've worked with three agencies before this. Sanat Dynamo is the first one that actually understood our integration story without us hand-holding them through it.",
+        "We've worked with three agencies before this. Savin Group is the first one that actually understood our integration story without us hand-holding them through it.",
       author: "Co-founder",
       role: "B2B SaaS · HSR Layout, Bengaluru",
     },
@@ -401,7 +401,7 @@ const PUNE: CityContent = {
   stateCode: "MH",
   population: "7.2M+ metro",
   geo: { lat: "18.5204", lng: "73.8567" },
-  metaTitle: "Best Website Development Company in Pune · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Pune · Savin Group",
   metaDescription:
     "Top web development & ERP agency in Pune. We build manufacturing portals, education funnels, and revenue-systems for SMEs across Hinjewadi, Kharadi, Baner, and Hadapsar. INR-priced, GST-compliant.",
   metaKeywords:
@@ -485,7 +485,7 @@ const CHENNAI: CityContent = {
   stateCode: "TN",
   population: "11M+ metro",
   geo: { lat: "13.0827", lng: "80.2707" },
-  metaTitle: "Best Website Development Company in Chennai · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Chennai · Savin Group",
   metaDescription:
     "Top web development & healthcare-automation agency in Chennai. We build hospital portals, auto-industry catalogs, and IT-services funnels across Adyar, T. Nagar, OMR, and Anna Nagar.",
   metaKeywords:
@@ -569,7 +569,7 @@ const HYDERABAD: CityContent = {
   stateCode: "TG",
   population: "10M+ metro",
   geo: { lat: "17.3850", lng: "78.4867" },
-  metaTitle: "Best Website Development Company in Hyderabad · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Hyderabad · Savin Group",
   metaDescription:
     "Top web development & pharma-tech agency in Hyderabad. We build IT services funnels, pharma portals, and SaaS marketing systems across HITEC City, Gachibowli, Madhapur, and Banjara Hills.",
   metaKeywords:
@@ -653,7 +653,7 @@ const KOLKATA: CityContent = {
   stateCode: "WB",
   population: "14M+ metro",
   geo: { lat: "22.5726", lng: "88.3639" },
-  metaTitle: "Best Website Development Company in Kolkata · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Kolkata · Savin Group",
   metaDescription:
     "Top web development & MSME-focused agency in Kolkata. We modernise legacy manufacturing portals, education funnels, and retail websites across Salt Lake Sector V, New Town, Park Street, and Howrah.",
   metaKeywords:
@@ -721,7 +721,7 @@ const KOLKATA: CityContent = {
   testimonials: [
     {
       quote:
-        "We've been in business since 1986. Sanat Dynamo respected what we'd built and added what we lacked. Our first US buyer found us through Google.",
+        "We've been in business since 1986. Savin Group respected what we'd built and added what we lacked. Our first US buyer found us through Google.",
       author: "Director",
       role: "Jute textile exporter · Howrah, Kolkata",
     },
@@ -737,7 +737,7 @@ const AHMEDABAD: CityContent = {
   stateCode: "GJ",
   population: "8M+ metro",
   geo: { lat: "23.0225", lng: "72.5714" },
-  metaTitle: "Best Website Development Company in Ahmedabad · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Ahmedabad · Savin Group",
   metaDescription:
     "Top web development & D2C agency in Ahmedabad. We build textile portals, pharma sites, and revenue funnels for SMEs across SG Highway, Bopal, Vastrapur, and Prahlad Nagar. Gujarati-language native.",
   metaKeywords:
@@ -890,7 +890,7 @@ const JAIPUR: CityContent = {
   stateCode: "RJ",
   population: "4M+ metro",
   geo: { lat: "26.9124", lng: "75.7873" },
-  metaTitle: "Best Website Development Company in Jaipur · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Jaipur · Savin Group",
   metaDescription:
     "Top web development & D2C agency in Jaipur. We build jewellery e-commerce, edtech funnels, and revenue systems for brands across C-Scheme, Malviya Nagar, Vaishali Nagar, and Mansarovar.",
   metaKeywords:
@@ -980,7 +980,7 @@ const INDORE: CityContent = {
   stateCode: "MP",
   population: "3.5M+ metro",
   geo: { lat: "22.7196", lng: "75.8577" },
-  metaTitle: "Best Website Development Company in Indore · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Indore · Savin Group",
   metaDescription:
     "Top web development & D2C agency in Indore. We build food-processing portals, MSME modernisation, and tier-2 D2C launches across Vijay Nagar, AB Road, Bhawarkuan, and Palasia.",
   metaKeywords:
@@ -1064,7 +1064,7 @@ const BHOPAL: CityContent = {
   stateCode: "MP",
   population: "2.5M+ metro",
   geo: { lat: "23.2599", lng: "77.4126" },
-  metaTitle: "Best Website Development Company in Bhopal · Sanat Dynamo",
+  metaTitle: "Best Website Development Company in Bhopal · Savin Group",
   metaDescription:
     "Top web development & education-focused agency in Bhopal. We build coaching admission funnels, government-aligned portals, and MSME revenue systems across MP Nagar, New Market, Arera Colony, and Habibganj.",
   metaKeywords:

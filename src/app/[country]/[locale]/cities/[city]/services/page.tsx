@@ -67,7 +67,7 @@ export async function generateMetadata({
   // Google discards the cluster for every member, including the indexable one.
   const indexable = isCityIndexable(baseCity, country, lc);
 
-  const title = `Web Development, SEO & Automation Services in ${city.name} · Sanat Dynamo`;
+  const title = `Web Development, SEO & Automation Services in ${city.name} · Savin Group`;
   const description = `6 productized revenue systems built for ${city.name} businesses — high-conversion websites, WhatsApp & CRM automation, local SEO, multi-language sites, custom ERPs, and growth retainers. Fixed scope, fixed price.`;
 
   const alternates = buildCityAlternates({
@@ -87,7 +87,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "website",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],
@@ -153,7 +153,7 @@ export default async function CityServicesPage({
   const offerCatalogLd = {
     "@context": "https://schema.org",
     "@type": "OfferCatalog",
-    name: `Sanat Dynamo Services in ${city.name}`,
+    name: `Savin Group Services in ${city.name}`,
     url: `${BASE_URL}${prefix}/cities/${city.slug}/services`,
     itemListElement: t.services.items.map((s, i) => ({
       "@type": "Offer",

@@ -80,7 +80,7 @@ export default function TermsPage() {
             Terms of <span className="text-accent">service.</span>
           </>
         }
-        subtitle="The rules of the road when you work with Sanat Dynamo."
+        subtitle="The rules of the road when you work with Savin Group."
         breadcrumb="Terms"
       />
       <Section className="pt-8">

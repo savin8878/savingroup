@@ -43,7 +43,7 @@ export async function CityBanner({ t, country, locale = "en" }: CityBannerProps)
   // requesting IP. The banner is mounted on seven routes including the
   // homepage, so the machine-readable postal address of the business changed
   // on every request: a fetch from one network published
-  // `"Sanat Dynamo — Gādarwāra"` with a Gādarwāra address, another published
+  // `"Savin Group — Gādarwāra"` with a Gādarwāra address, another published
   // Jaipur. Structured data has to state a fact about the business, not a fact
   // about the visitor. The visible "now serving <city>" copy below is fine —
   // it reads as personalization, not as a claimed premises.

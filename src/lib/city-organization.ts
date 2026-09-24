@@ -1,5 +1,5 @@
 /**
- * Per-city operational layer — how Sanat Dynamo *actually delivers* in each
+ * Per-city operational layer — how Savin Group *actually delivers* in each
  * metro. Sits alongside `cities.ts` (commercial copy), `city-extras.ts`
  * (operational hidden gem + global peers), and `city-identity.ts`
  * (heritage + visual identity).

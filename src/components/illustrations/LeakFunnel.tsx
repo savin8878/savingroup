@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
  *
  * Shows a business pipeline with visible cracks at each stage,
  * revenue drops marked with diagnostic annotations,
- * and a severity meter — exactly how Sanat Dynamo frames the audit.
+ * and a severity meter — exactly how Savin Group frames the audit.
  *
  * Matches the content: 7% lost/slow page, 70% leads go cold,
  * 100% ad-dependent, 20+ hrs wasted.

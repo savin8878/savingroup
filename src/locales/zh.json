@@ -1,13 +1,13 @@
 {
   "brand": {
-    "name": "Sanat Dynamo",
+    "name": "Savin Group",
     "tagline": "系统。自动化。规模化。",
     "oneLiner": "我们构建收入系统,帮助企业销售更多、运营更精益、增长更快 — 通过定制软件、AI 自动化和 SEO。",
     "promise": "我们不只是构建软件。我们构建在您睡觉时为您工作的收入引擎。"
   },
   "seo": {
-    "title": "Sanat Dynamo — 我们构建收入系统,不仅仅是网站",
-    "description": "Sanat Dynamo 是一家以收入为核心的系统和自动化合作伙伴。我们帮助 D2C 品牌、房地产公司、诊所、培训机构和中小企业增加销售、自动化运营并高效扩张。",
+    "title": "Savin Group — 我们构建收入系统,不仅仅是网站",
+    "description": "Savin Group 是一家以收入为核心的系统和自动化合作伙伴。我们帮助 D2C 品牌、房地产公司、诊所、培训机构和中小企业增加销售、自动化运营并高效扩张。",
     "keywords": "代理商, 定制软件, AI 自动化, SEO, WhatsApp 自动化, ERP, D2C, 房地产, 诊所, 培训, 中小企业, 印度"
   },
   "nav": {
@@ -400,7 +400,7 @@
             "delta": "-65%"
           }
         ],
-        "quote": "Sanat Dynamo 不只是为我们建了一个网站。他们重建了我们的销售方式。我们在 7 个月内达到了年度收入目标。",
+        "quote": "Savin Group 不只是为我们建了一个网站。他们重建了我们的销售方式。我们在 7 个月内达到了年度收入目标。",
         "author": "创始人,D2C 护肤品牌"
       },
       {
@@ -484,7 +484,7 @@
         "role": "CEO,在线培训机构"
       },
       {
-        "quote": "大多数代理商在发布后就消失了。Sanat Dynamo 把它当作第一天来对待。每个月都比上一个月更好。",
+        "quote": "大多数代理商在发布后就消失了。Savin Group 把它当作第一天来对待。每个月都比上一个月更好。",
         "author": "Dr. Anil K.",
         "role": "董事,多城市牙科诊所"
       },
@@ -534,7 +534,7 @@
     "trustNote": "无需承诺。无需推销。只做诊断。"
   },
   "about": {
-    "eyebrow": "关于 Sanat Dynamo",
+    "eyebrow": "关于 Savin Group",
     "title": "我们是一家以收入为核心的系统合作伙伴。不是典型的代理商。",
     "lead": "大多数代理商拿到您的简报,构建您要求的东西,然后消失。我们从诊断真正的问题开始 — 无论是转化问题、运营瓶颈还是可见性差距 — 然后构建解决它的确切系统。",
     "body": [
@@ -681,13 +681,13 @@
   },
   "pages": {
     "home": {
-      "metaTitle": "Sanat Dynamo — 我们构建收入系统,而非仅仅是网站",
+      "metaTitle": "Savin Group — 我们构建收入系统,而非仅仅是网站",
       "metaDescription": "定制软件、AI 自动化和 SEO — 作为 D2C 品牌、房地产、诊所、培训机构和中小企业的统一增长引擎。",
       "metaKeywords": "收入系统, 定制软件开发, AI 自动化, WhatsApp 自动化, SEO 代理商, ERP 开发, 印度"
     },
     "about": {
-      "metaTitle": "关于 Sanat Dynamo — 以收入为核心的系统合作伙伴",
-      "metaDescription": "了解 Sanat Dynamo 背后的资深团队。我们已与 50+ 企业合作。",
+      "metaTitle": "关于 Savin Group — 以收入为核心的系统合作伙伴",
+      "metaDescription": "了解 Savin Group 背后的资深团队。我们已与 50+ 企业合作。",
       "metaKeywords": "收入代理商, 增长合作伙伴, 印度代理商, 嵌入式团队"
     },
     "services": {
@@ -711,13 +711,13 @@
       "metaKeywords": "免费收入审核, 业务增长咨询, 代理商联系"
     },
     "privacy": {
-      "metaTitle": "隐私政策 — Sanat Dynamo",
-      "metaDescription": "Sanat Dynamo 如何收集、使用和保护您的信息。",
+      "metaTitle": "隐私政策 — Savin Group",
+      "metaDescription": "Savin Group 如何收集、使用和保护您的信息。",
       "metaKeywords": "隐私政策, 数据保护, GDPR"
     },
     "terms": {
-      "metaTitle": "服务条款 — Sanat Dynamo",
-      "metaDescription": "与 Sanat Dynamo 合作时的规则。",
+      "metaTitle": "服务条款 — Savin Group",
+      "metaDescription": "与 Savin Group 合作时的规则。",
       "metaKeywords": "服务条款, 代理商合同, 项目协议"
     }
   }

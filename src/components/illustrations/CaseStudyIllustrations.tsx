@@ -60,7 +60,7 @@ export function RevenueGrowthChart({ className = "" }: { className?: string }) {
         <text x="407" y="34" textAnchor="middle" fontFamily="var(--font-display)" fontSize="10" fontWeight="700" fill="var(--accent)">+127%</text>
       </motion.g>
 
-      {/* "Sanat Dynamo starts" annotation */}
+      {/* "Savin Group starts" annotation */}
       <motion.g initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.8 }}>
         <line x1="60" y1="135" x2="60" y2="175" stroke="var(--accent)" strokeWidth="0.5" strokeDasharray="2 2" />
         <text x="60" y="183" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="5.5" fill="var(--accent)">START</text>

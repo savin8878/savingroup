@@ -35,14 +35,14 @@ export async function generateMetadata({
   });
   if (locale !== "en") return metadata;
   const title = "Industrial Automation, AI & Connected Business Systems";
-  const description = "Sanat Dynamo connects custom software, AI, ERP and industrial systems to reduce manual work and give growing businesses clearer, faster operations.";
+  const description = "Savin Group connects custom software, AI, ERP and industrial systems to reduce manual work and give growing businesses clearer, faster operations.";
   return {
     ...metadata,
     title,
     description,
     keywords: "industrial automation, AI agents, IoT, ERP, custom software, workflow automation, business intelligence, systems integration, digital transformation",
-    openGraph: { ...metadata.openGraph, title: `${title} · Sanat Dynamo`, description },
-    twitter: { ...metadata.twitter, title: `${title} · Sanat Dynamo`, description },
+    openGraph: { ...metadata.openGraph, title: `${title} · Savin Group`, description },
+    twitter: { ...metadata.twitter, title: `${title} · Savin Group`, description },
   };
 }
 

@@ -134,10 +134,10 @@ export function EmbeddedTeamVisual({ className = "" }: { className?: string }) {
         </motion.g>
       ))}
 
-      {/* Sanat Dynamo — embedded INSIDE the boundary */}
+      {/* Savin Group — embedded INSIDE the boundary */}
       <motion.g variants={pop(4)}>
         <rect x="190" y="115" width="100" height="34" rx="10" fill="var(--svg-node-fill)" stroke="var(--accent)" strokeWidth="1.5" />
-        <text x="240" y="133" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="7" letterSpacing="0.1em" fill="var(--accent)">SANAT DYNAMO</text>
+        <text x="240" y="133" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="7" letterSpacing="0.1em" fill="var(--accent)">Savin Group</text>
         <text x="240" y="143" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="5" fill="var(--muted-foreground)">EMBEDDED TEAM</text>
       </motion.g>
 

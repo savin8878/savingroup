@@ -205,7 +205,7 @@ export function IndiaGeoFooter({
   const itemListLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `Sanat Dynamo — Indian cities (${pageKey})`,
+    name: `Savin Group — Indian cities (${pageKey})`,
     itemListOrder: "https://schema.org/ItemListOrderAscending",
     numberOfItems: INDIA_CITIES.length,
     itemListElement: INDIA_CITIES.map((city, i) => ({

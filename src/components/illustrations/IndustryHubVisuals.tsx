@@ -352,7 +352,7 @@ function ConstellationSVG({
         letterSpacing="0.18em"
         fill="oklch(0.78 0.165 70 / 0.7)"
       >
-        SANAT DYNAMO
+        Savin Group
       </text>
       <text
         x={cx}

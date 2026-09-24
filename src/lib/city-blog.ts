@@ -59,7 +59,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Jaipur block-print buyers — domestic and NRI — pay a premium for traceability. A page that names the cluster, the artisan family, and the technique outperforms a generic 'handmade in India' badge by 3x. Here's the operational build.",
       readTime: 9,
-      author: "Sanat Dynamo · Jaipur desk",
+      author: "Savin Group · Jaipur desk",
       publishedAt: "2026-04-22",
       keywords: [
         "block-print website Jaipur",
@@ -138,7 +138,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Mumbai CPMs are the highest in India and rising. Brands burning ₹15L+/month on Meta keep optimizing creative when the actual leak is the 4-hour gap between cart abandon and first WhatsApp touch. Close that window to 90 seconds and the paid budget compresses by a third.",
       readTime: 8,
-      author: "Sanat Dynamo · Mumbai desk",
+      author: "Savin Group · Mumbai desk",
       publishedAt: "2026-04-29",
       keywords: [
         "WhatsApp cart recovery Mumbai",
@@ -219,7 +219,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "NCR builders pay ₹500–₹2,000 per portal lead and lose 70% in the first five minutes because the SDR is on lunch or another call. The agencies optimizing CPC are missing the whole game — sub-5-minute routing with WhatsApp fallback is the lever.",
       readTime: 9,
-      author: "Sanat Dynamo · NCR desk",
+      author: "Savin Group · NCR desk",
       publishedAt: "2026-05-01",
       keywords: [
         "real estate CRM Delhi NCR",
@@ -300,7 +300,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Bengaluru SaaS marketing sites lose US deals because the buyer — usually a tech lead — bounces from the hero, scrolls past pricing, and lands on /docs to evaluate. If your docs look pitch-decky, the deal is over. The funnel is /pricing → /docs → /demo.",
       readTime: 10,
-      author: "Sanat Dynamo · Bengaluru desk",
+      author: "Savin Group · Bengaluru desk",
       publishedAt: "2026-04-26",
       keywords: [
         "SaaS marketing site Bengaluru",
@@ -380,7 +380,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Pune manufacturers spend on marketing sites that don't move revenue while their dealers — the actual buyers — still phone reps for stock and price lists. The lever is a Tally-integrated dealer login with WhatsApp order updates.",
       readTime: 9,
-      author: "Sanat Dynamo · Pune desk",
+      author: "Savin Group · Pune desk",
       publishedAt: "2026-05-03",
       keywords: [
         "Pune manufacturer website",
@@ -462,7 +462,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Chennai healthcare and coaching buyers Google in Tamil more than agencies admit. Sites that ship en-only schema lose the bottom-of-funnel intent. Bilingual hreflang + Tamil schema + locality pages catch what most agencies miss.",
       readTime: 8,
-      author: "Sanat Dynamo · Chennai desk",
+      author: "Savin Group · Chennai desk",
       publishedAt: "2026-04-30",
       keywords: [
         "Tamil SEO Chennai",
@@ -542,7 +542,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Hyderabad pharma buyers — procurement at hospitals, regulatory at CDSCO partners — Google for your DMF, GMP, and quality docs before they ever look at your product range. If your /quality and /compliance pages don't outrank your homepage on intent searches, you're invisible.",
       readTime: 9,
-      author: "Sanat Dynamo · Hyderabad desk",
+      author: "Savin Group · Hyderabad desk",
       publishedAt: "2026-05-02",
       keywords: [
         "Hyderabad pharma website",
@@ -623,7 +623,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Kolkata buyers — trader, jeweller, B2B — fill a form if it offers a callback in 10 minutes. They will not fill one promising an email reply. Most agencies ship the same desk-bound template that's been losing Kolkata revenue for a decade.",
       readTime: 7,
-      author: "Sanat Dynamo · Kolkata desk",
+      author: "Savin Group · Kolkata desk",
       publishedAt: "2026-04-28",
       keywords: [
         "Kolkata B2B website",
@@ -702,7 +702,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Ahmedabad textile clusters live on WhatsApp groups, not portals. A website doesn't reach them; a catalog link seeded into the right group does. We build for the buyer with the phone in their hand on the shop floor.",
       readTime: 8,
-      author: "Sanat Dynamo · Ahmedabad desk",
+      author: "Savin Group · Ahmedabad desk",
       publishedAt: "2026-05-05",
       keywords: [
         "Ahmedabad textile website",
@@ -783,7 +783,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Indore SMEs check your tracker UI before they call you. Whoever ships a public consignment-lookup widget on the homepage closes the trust gap before the first call. We ship the tracker first, marketing copy second.",
       readTime: 8,
-      author: "Sanat Dynamo · Indore desk",
+      author: "Savin Group · Indore desk",
       publishedAt: "2026-05-04",
       keywords: [
         "Indore logistics website",
@@ -856,7 +856,7 @@ export const CITY_BLOG_POSTS: Record<string, CityBlogPost[]> = {
       excerpt:
         "Bhopal's revenue mix is heavy on state government, PSU, and central-board buyers — and they procure on RFP, not Razorpay. A downloadable proposal kit with capability statement, GST + MSME certs, and a clean compliance one-pager closes more than any homepage redesign.",
       readTime: 8,
-      author: "Sanat Dynamo · Bhopal desk",
+      author: "Savin Group · Bhopal desk",
       publishedAt: "2026-05-06",
       keywords: [
         "Bhopal government procurement",

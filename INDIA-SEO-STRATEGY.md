@@ -2,7 +2,7 @@
 
 **Status**: Implementation underway  
 **Last Updated**: 2026-07-24  
-**Author**: Sanat Dynamo Engineering  
+**Author**: Savin Group Engineering  
 **Target**: Dominate search rankings across all major Indian cities (Delhi, Mumbai, Bengaluru, etc.)
 
 ---

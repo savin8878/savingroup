@@ -22,7 +22,7 @@ import type { CityOrganization } from "@/lib/city-organization";
 import type { CityIdentity } from "@/lib/city-identity";
 
 /**
- * Visualizations of how Sanat Dynamo operates inside each metro.
+ * Visualizations of how Savin Group operates inside each metro.
  *
  *   - PresenceOrbit       — animated orbit of remote HQ + on-site visit cadence
  *   - EngagementJourney   — 4-phase animated timeline (discovery → compound)
@@ -31,7 +31,7 @@ import type { CityIdentity } from "@/lib/city-identity";
  *   - ProofGrid           — 4 quantified outcomes specific to this metro
  *   - CommercialPosture   — billing / GST / TDS terms surfaced clearly
  *
- * Together these tell the story SEO needs ("how to work with Sanat Dynamo
+ * Together these tell the story SEO needs ("how to work with Savin Group
  * in {city}") and conversion needs ("what does delivery actually look like
  * here").
  */

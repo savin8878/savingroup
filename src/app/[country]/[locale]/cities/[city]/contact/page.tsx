@@ -72,7 +72,7 @@ export async function generateMetadata({
   // Google discards the cluster for every member, including the indexable one.
   const indexable = isCityIndexable(baseCity, country, lc);
 
-  const title = `Contact Sanat Dynamo in ${city.name} — Request a Free Revenue Audit`;
+  const title = `Contact Savin Group in ${city.name} — Request a Free Revenue Audit`;
   const description = `Request a free 45-minute revenue audit for your ${city.name} business. WhatsApp, phone, or written request — IST hours, INR + GST invoicing, response within one business day.`;
 
   const alternates = buildCityAlternates({
@@ -92,7 +92,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "website",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],
@@ -161,12 +161,12 @@ export default async function CityContactPage({
   const contactLd = {
     "@context": "https://schema.org",
     "@type": "ContactPage",
-    name: `Contact Sanat Dynamo in ${city.name}`,
+    name: `Contact Savin Group in ${city.name}`,
     url: `${BASE_URL}${prefix}/cities/${city.slug}/${SUB_PATH}`,
     mainEntity: {
       "@type": "LocalBusiness",
       "@id": `${BASE_URL}${prefix}/cities/${city.slug}#business`,
-      name: `Sanat Dynamo · ${city.name}`,
+      name: `Savin Group · ${city.name}`,
       url: `${BASE_URL}${prefix}/cities/${city.slug}`,
       telephone: phoneDisplay,
       email: t.contact.details.email,

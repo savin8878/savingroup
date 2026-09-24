@@ -67,7 +67,7 @@ export async function generateMetadata({
 
   const lc = (LOCALE_CODES.includes(locale as Locale) ? locale : "en") as Locale;
 
-  const title = `About ${city.name} (${identity.nickname}) — Heritage, Industries & Why We Build Here · Sanat Dynamo`;
+  const title = `About ${city.name} (${identity.nickname}) — Heritage, Industries & Why We Build Here · Savin Group`;
   const description = `${city.name} is ${identity.nickname.toLowerCase()}: ${identity.tagline} ${identity.nicknameOrigin.split(".")[0]}.`;
 
   const alternates = buildCityAlternates({
@@ -87,7 +87,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "article",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],

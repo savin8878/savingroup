@@ -268,7 +268,7 @@ function SketchTitle({
         fill={`${color.replace(")", " / 0.4)")}`}
         variants={fade(0.6)}
       >
-        SHEET 01 / SANAT DYNAMO ATLAS
+        SHEET 01 / Savin Group ATLAS
       </motion.text>
     </g>
   );

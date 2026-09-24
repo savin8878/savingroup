@@ -8,7 +8,7 @@ import { Pause, Play, Sparkles } from "lucide-react";
  * HeroBackground — an infinite, left→right sketched storyboard background.
  *
  * The scene reads like a whiteboard diagram that tells the story of how a
- * visitor becomes a customer in the Sanat Dynamo system:
+ * visitor becomes a customer in the Savin Group system:
  *
  *   01 ATTENTION → 02 CHANNELS → 03 WEBSITE → 04 CAPTURE →
  *   05 QUALIFY   → 06 NURTURE  → 07 REVENUE → 08 LOYALTY

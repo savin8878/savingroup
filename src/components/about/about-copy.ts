@@ -47,9 +47,9 @@ export interface AboutCopy {
 }
 
 export const EN_ABOUT: AboutCopy = {
-  meta: "Meet Sanat Dynamo: the systems partner connecting software, AI and operations around the people who run your business.",
+  meta: "Meet Savin Group: the systems partner connecting software, AI and operations around the people who run your business.",
   hero: ["Good businesses.", "Better connected.", "Built around people."],
-  intro: "We’re Sanat Dynamo. We bring business understanding and systems engineering together to make complex operations work as one.",
+  intro: "We’re Savin Group. We bring business understanding and systems engineering together to make complex operations work as one.",
   explore: "Meet our way of thinking",
   blueprint: "The thinking behind the system",
   layers: ["People & purpose", "Connected systems", "Business outcomes"],

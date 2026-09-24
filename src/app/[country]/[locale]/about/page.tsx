@@ -10,8 +10,8 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   const language = resolveAboutLocale(locale);
   const metadata = await buildPageMetadata({ page: "about", country, locale: language });
   const description = getAboutCopy(language).meta;
-  const title = `${getTranslation(language).nav.about} | Sanat Dynamo`;
-  return { ...metadata, title, description, openGraph: { ...metadata.openGraph, title, description }, twitter: { ...metadata.twitter, title, description } };
+  const title = `${getTranslation(language).nav.about} | Savin Group`;
+  return { ...metadata, title: { absolute: title }, description, openGraph: { ...metadata.openGraph, title, description }, twitter: { ...metadata.twitter, title, description } };
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ country: string; locale: string }> }) {

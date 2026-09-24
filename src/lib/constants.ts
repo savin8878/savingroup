@@ -1,4 +1,4 @@
-// Site-wide constants for Sanat Dynamo
+// Site-wide constants for Savin Group
 
 export const BASE_URL = "https://www.savingroup.in";
 
@@ -174,19 +174,19 @@ export const SOCIAL_PROFILES: ReadonlyArray<{
 /**
  * The brand's own name, and the domain it trades under.
  *
- * These differ — the site is Sanat Dynamo, the domain is savingroup.in — and
+ * These differ — the site is Savin Group, the domain is savingroup.in — and
  * nothing on the site acknowledged it, so a visitor who noticed had no way to
  * tell whether they were on the right site. The footer now states the pairing
  * plainly.
  *
  * `legalNote` is deliberately a bare statement of fact about this website. If
- * Sanat Dynamo is a unit, brand or subsidiary of a company called Savin Group,
+ * Savin Group is a unit, brand or subsidiary of a company called Savin Group,
  * say so here — that is a matter of record only the owner can supply, and
  * guessing at a corporate relationship in a footer is how you end up with a
  * misleading disclosure.
  */
 export const BRAND = {
-  name: "Sanat Dynamo",
+  name: "Savin Group",
   domain: "savingroup.in",
-  legalNote: "Sanat Dynamo is the trading name for this site, savingroup.in.",
+  legalNote: "Savin Group is the trading name for this site, savingroup.in.",
 } as const;

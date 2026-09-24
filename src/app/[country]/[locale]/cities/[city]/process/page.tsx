@@ -75,8 +75,8 @@ export async function generateMetadata({
   // Google discards the cluster for every member, including the indexable one.
   const indexable = isCityIndexable(baseCity, country, lc);
 
-  const title = `How We Work in ${city.name} — Engagement Process, Cadence & Stack · Sanat Dynamo`;
-  const description = `The 4-phase engagement journey, weekly cadence, tooling, and commercial terms for Sanat Dynamo builds in ${city.name}. Fixed-price proposals, weekly Friday demos, GST-compliant invoicing.`;
+  const title = `How We Work in ${city.name} — Engagement Process, Cadence & Stack · Savin Group`;
+  const description = `The 4-phase engagement journey, weekly cadence, tooling, and commercial terms for Savin Group builds in ${city.name}. Fixed-price proposals, weekly Friday demos, GST-compliant invoicing.`;
 
   const alternates = buildCityAlternates({
     country,
@@ -95,7 +95,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "article",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],
@@ -164,7 +164,7 @@ export default async function CityProcessPage({
   const howToLd = {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    name: `Engagement process for Sanat Dynamo in ${city.name}`,
+    name: `Engagement process for Savin Group in ${city.name}`,
     description: org.presenceTagline,
     step: org.engagement.map((phase, i) => ({
       "@type": "HowToStep",
@@ -386,7 +386,7 @@ export default async function CityProcessPage({
               style={{ color: identity?.themeColor ?? "var(--accent)" }}
             >
               <Sparkles size={11} />
-              Sanat Dynamo in {city.name}
+              Savin Group in {city.name}
             </div>
             <ul className="mt-5 space-y-3 text-sm leading-relaxed text-foreground">
               {[

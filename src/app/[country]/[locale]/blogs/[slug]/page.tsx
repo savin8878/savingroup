@@ -79,7 +79,7 @@ export async function generateMetadata({
       title: post.title,
       description,
       url: canonical,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       type: "article",
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt ?? post.publishedAt,
@@ -251,7 +251,7 @@ export default async function BlogDetailPage({
     },
     publisher: {
       "@type": "Organization",
-      name: "Sanat Dynamo",
+      name: "Savin Group",
       url: BASE_URL,
       logo: {
         "@type": "ImageObject",

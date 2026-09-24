@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             Privacy <span className="text-accent">policy.</span>
           </>
         }
-        subtitle="How Sanat Dynamo collects, uses, and protects your information."
+        subtitle="How Savin Group collects, uses, and protects your information."
         breadcrumb="Privacy"
       />
       <Section className="pt-8">

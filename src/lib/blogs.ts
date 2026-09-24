@@ -244,7 +244,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "auditLens",
@@ -370,7 +370,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "leakyFunnel",
@@ -490,7 +490,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "whatsappFlow",
@@ -621,7 +621,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "layerStack",
@@ -733,7 +733,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -857,7 +857,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 90,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "auditLens",
@@ -967,7 +967,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 86,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "whatsappFlow",
@@ -1076,7 +1076,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 78,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "auditLens",
@@ -1182,7 +1182,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 72,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "whatsappFlow",
@@ -1290,7 +1290,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 81,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "leakyFunnel",
@@ -1395,7 +1395,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 76,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "layerStack",
@@ -1503,7 +1503,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 83,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -1612,7 +1612,7 @@ export const BLOG_POSTS: BlogPost[] = [
     popularityScore: 74,
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -1762,7 +1762,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "auditLens",
@@ -1919,7 +1919,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "leakyFunnel",
@@ -2072,7 +2072,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "layerStack",
@@ -2223,7 +2223,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "whatsappFlow",
@@ -2380,7 +2380,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -2462,7 +2462,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: "Named entities: the atomic unit LLMs actually retrieve",
         paragraphs: [
-          "Language models don't retrieve \"your page.\" They retrieve chunks — 200-to-500-word passages — indexed by the named entities inside them. A passage that mentions \"Sanat Dynamo's 45-minute audit\" is dramatically more retrievable than one that says \"our service.\"",
+          "Language models don't retrieve \"your page.\" They retrieve chunks — 200-to-500-word passages — indexed by the named entities inside them. A passage that mentions \"Savin Group's 45-minute audit\" is dramatically more retrievable than one that says \"our service.\"",
           "The discipline is to name things. Products, frameworks, methodologies, people, places. Our [five-layer revenue stack](/blogs/5-layer-revenue-stack) is an entity. The [45-minute revenue audit](/blogs/revenue-audit-45-minutes) is an entity. Generic nouns — \"our process,\" \"the system,\" \"best practices\" — are invisible to retrieval.",
         ],
         pullQuote:
@@ -2551,7 +2551,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -2724,7 +2724,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "layerStack",
@@ -2889,7 +2889,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "seoPeakGraph",
@@ -3051,7 +3051,7 @@ export const BLOG_POSTS: BlogPost[] = [
     },
     author: {
       name: "Kanha Singh",
-      role: "Founder, Sanat Dynamo",
+      role: "Founder, Savin Group",
       bio: "Writes about revenue systems, SME conversion, and the unglamorous ops work that compounds.",
     },
     heroSketch: "layerStack",

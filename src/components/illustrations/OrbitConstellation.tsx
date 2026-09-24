@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 /**
  * Animated orbital constellation SVG for the TechStack section.
  * Shows tech tools orbiting around a central core — representing
- * the integrated tech ecosystem Sanat Dynamo deploys.
+ * the integrated tech ecosystem Savin Group deploys.
  */
 export function OrbitConstellation({ className = "" }: { className?: string }) {
   const orbitItems = [

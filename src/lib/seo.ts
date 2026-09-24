@@ -190,9 +190,9 @@ interface BuildMetadataArgs {
  * detection fails. The city is added only when it makes the title fit.
  *
  * Examples:
- *   IN, detected city: "Sanat Dynamo in Bangalore, India — We Build Revenue Systems…"
- *   IN, no city:       "Sanat Dynamo in India — We Build Revenue Systems…"
- *   US, detected city: "Sanat Dynamo in New York, United States — We Build…"
+ *   IN, detected city: "Savin Group in Bangalore, India — We Build Revenue Systems…"
+ *   IN, no city:       "Savin Group in India — We Build Revenue Systems…"
+ *   US, detected city: "Savin Group in New York, United States — We Build…"
  *
  * Length budget: ~85 chars. The country always wins; city is dropped first
  * if total length would exceed the budget.
@@ -206,8 +206,8 @@ function geoifyTitle(title: string, geo: GeoInfo): string {
   const countryOnlyInsert = `in ${country}`;
 
   // 1. Try inserting "in {city}, {country}" right after the brand name
-  //    Matches: "Sanat Dynamo —", "Sanat Dynamo -", "Sanat Dynamo ·", "Sanat Dynamo |"
-  const brandRe = /^(Sanat Dynamo)(\s*[—\-·|])/;
+  //    Matches: "Savin Group —", "Savin Group -", "Savin Group ·", "Savin Group |"
+  const brandRe = /^(Savin Group)(\s*[—\-·|])/;
 
   if (brandRe.test(title)) {
     // First try full city+country
@@ -222,8 +222,8 @@ function geoifyTitle(title: string, geo: GeoInfo): string {
     // but always keep the country in the title
     const parts = title.split(/\s*[—\-·|]\s*/);
     if (parts.length >= 2) {
-      const core = `Sanat Dynamo ${countryOnlyInsert} — ${parts[1]}`;
-      return core.length <= 90 ? core : `Sanat Dynamo ${countryOnlyInsert} — ${parts[1].slice(0, 40)}…`;
+      const core = `Savin Group ${countryOnlyInsert} — ${parts[1]}`;
+      return core.length <= 90 ? core : `Savin Group ${countryOnlyInsert} — ${parts[1].slice(0, 40)}…`;
     }
     return withCountry;
   }
@@ -627,7 +627,7 @@ export async function buildIndustryPageMetadata({
       title: ogTitle,
       description: ogDescription,
       url: fullUrl,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${locale}_${country.toUpperCase()}`,
       type: "article",
       images: [
@@ -635,7 +635,7 @@ export async function buildIndustryPageMetadata({
           url: `${BASE_URL}/og.png`,
           width: 1200,
           height: 630,
-          alt: "Sanat Dynamo",
+          alt: "Savin Group",
         },
       ],
     },
@@ -662,9 +662,9 @@ export async function buildIndustryPageMetadata({
           follow: true,
           googleBot: { index: false, follow: true },
         },
-    authors: [{ name: "Sanat Dynamo" }],
-    creator: "Sanat Dynamo",
-    publisher: "Sanat Dynamo",
+    authors: [{ name: "Savin Group" }],
+    creator: "Savin Group",
+    publisher: "Savin Group",
     other: otherMeta,
   };
 }
@@ -687,7 +687,7 @@ export function buildIndustryServiceJsonLd(
     description: industry.metaDescription,
     provider: {
       "@type": "Organization",
-      name: "Sanat Dynamo",
+      name: "Savin Group",
       url: BASE_URL,
     },
     areaServed: {
@@ -718,7 +718,7 @@ export function buildServiceJsonLd(
     name: service.name,
     serviceType: service.kicker,
     description: service.summary,
-    provider: { "@type": "Organization", name: "Sanat Dynamo" },
+    provider: { "@type": "Organization", name: "Savin Group" },
     url: `${BASE_URL}/${country}/${locale}/services#${service.id}`,
     areaServed: "Worldwide",
     offers: {
@@ -754,7 +754,7 @@ export function buildCityLocalBusinessJsonLd(
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": url,
-    name: `Sanat Dynamo — ${city.name}`,
+    name: `Savin Group — ${city.name}`,
     description: city.metaDescription,
     url,
     image: `${BASE_URL}/og.png`,
@@ -890,7 +890,7 @@ export function buildServiceAreaJsonLd(
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: "Sanat Dynamo — India",
+    name: "Savin Group — India",
     description: "Web development and digital marketing agency serving Indian cities",
     url: `${BASE_URL}/in/${locale}`,
     areaServed: cities.map(city => ({

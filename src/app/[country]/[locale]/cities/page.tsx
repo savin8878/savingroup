@@ -55,7 +55,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "website",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],
@@ -102,7 +102,7 @@ export default async function CitiesIndexPage({
   const itemListLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Cities served by Sanat Dynamo in India",
+    name: "Cities served by Savin Group in India",
     itemListOrder: "https://schema.org/ItemListOrderAscending",
     numberOfItems: INDIA_CITIES.length,
     itemListElement: INDIA_CITIES.map((city, i) => ({

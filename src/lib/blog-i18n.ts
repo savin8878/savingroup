@@ -125,7 +125,7 @@ const EN: BlogUiStrings = {
   blogTitleLead: "Opinionated notes on",
   blogTitleAccent: "revenue systems.",
   blogSubtitle:
-    "Long-form writing from the Sanat Dynamo team — revenue audits, conversion rate optimization, WhatsApp sales automation, the 5-layer revenue stack, and the SEO work that actually ranks. Written for SME founders.",
+    "Long-form writing from the Savin Group team — revenue audits, conversion rate optimization, WhatsApp sales automation, the 5-layer revenue stack, and the SEO work that actually ranks. Written for SME founders.",
   breadcrumb: "Blog",
 
   whyWeWriteEyebrow: "Why we write",
@@ -163,7 +163,7 @@ const EN: BlogUiStrings = {
   byCategoryAccent: "exact problem.",
 
   authorEyebrow: "Meet the writer",
-  authorReadStory: "Read the Sanat Dynamo story",
+  authorReadStory: "Read the Savin Group story",
   authorBookAudit: "Request a 45-minute audit",
 
   newsletterEyebrow: "The newsletter",
@@ -226,14 +226,14 @@ const EN: BlogUiStrings = {
 
   listFaqs: [
     {
-      question: "What does the Sanat Dynamo blog cover?",
+      question: "What does the Savin Group blog cover?",
       answer:
         "Revenue systems, conversion rate optimization, WhatsApp sales automation, the 5-layer revenue stack, SEO, and the operational glue that ties them together — written for founders of Indian SMEs, D2C brands, real estate firms, clinics and coaching institutes.",
     },
     {
       question: "Who writes the blog?",
       answer:
-        "Posts are written by Kanha Singh, founder of Sanat Dynamo. Every post is drawn from real engagements — we don't write about hypotheticals.",
+        "Posts are written by Kanha Singh, founder of Savin Group. Every post is drawn from real engagements — we don't write about hypotheticals.",
     },
     {
       question: "How often do new posts ship?",
@@ -262,7 +262,7 @@ const HI: BlogUiStrings = {
   blogTitleLead: "Revenue systems पर",
   blogTitleAccent: "opinionated notes।",
   blogSubtitle:
-    "Sanat Dynamo team से long-form writing — revenue audits, CRO, WhatsApp sales automation, 5-layer revenue stack और वो SEO जो असल में rank करता है। SME founders के लिए लिखा गया।",
+    "Savin Group team से long-form writing — revenue audits, CRO, WhatsApp sales automation, 5-layer revenue stack और वो SEO जो असल में rank करता है। SME founders के लिए लिखा गया।",
 
   whyWeWriteEyebrow: "हम क्यों लिखते हैं",
   whyWeWriteTitle: "ज़्यादातर growth content सिर्फ़ theory है जिसे advice कहा जाता है।",
@@ -299,7 +299,7 @@ const HI: BlogUiStrings = {
   byCategoryAccent: "post ढूँढें।",
 
   authorEyebrow: "लेखक से मिलें",
-  authorReadStory: "Sanat Dynamo की कहानी पढ़ें",
+  authorReadStory: "Savin Group की कहानी पढ़ें",
   authorBookAudit: "45-मिनट का audit book करें",
 
   newsletterEyebrow: "Newsletter",
@@ -362,14 +362,14 @@ const HI: BlogUiStrings = {
 
   listFaqs: [
     {
-      question: "Sanat Dynamo blog क्या cover करता है?",
+      question: "Savin Group blog क्या cover करता है?",
       answer:
         "Revenue systems, CRO, WhatsApp sales automation, 5-layer revenue stack, SEO और इनको जोड़ने वाला operational काम — Indian SMEs, D2C brands, real estate firms, clinics और coaching institutes के founders के लिए।",
     },
     {
       question: "Blog कौन लिखता है?",
       answer:
-        "Posts Kanha Singh, Sanat Dynamo के founder, लिखते हैं। हर post असली engagements से आती है — हम hypotheticals नहीं लिखते।",
+        "Posts Kanha Singh, Savin Group के founder, लिखते हैं। हर post असली engagements से आती है — हम hypotheticals नहीं लिखते।",
     },
     {
       question: "नई posts कितनी बार आती हैं?",

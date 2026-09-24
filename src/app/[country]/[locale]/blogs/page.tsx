@@ -73,18 +73,18 @@ export async function generateMetadata({
     title:
       "Blog · Revenue Systems, WhatsApp Automation, SEO & CRO for Indian SMEs",
     description:
-      "Field notes from the Sanat Dynamo team — revenue audits, conversion rate optimization, WhatsApp sales automation, real estate lead scoring, clinic automation, D2C catalog optimization, Google Ads for SMEs, Core Web Vitals and SEO that actually ranks.",
+      "Field notes from the Savin Group team — revenue audits, conversion rate optimization, WhatsApp sales automation, real estate lead scoring, clinic automation, D2C catalog optimization, Google Ads for SMEs, Core Web Vitals and SEO that actually ranks.",
     keywords: BLOG_PRIMARY_KEYWORDS,
     authors: [
       { name: "Kanha Singh", url: `${BASE_URL}/${country}/${locale}/about` },
     ],
     alternates,
     openGraph: {
-      title: "Sanat Dynamo · Blog",
+      title: "Savin Group · Blog",
       description:
         "Revenue audits, CRO, WhatsApp automation, D2C catalog optimization, SEO — 13+ long-form field notes for SME founders.",
       url: canonical,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       type: "website",
       locale: `${locale}_${country.toUpperCase()}`,
       images: [
@@ -92,13 +92,13 @@ export async function generateMetadata({
           url: `${BASE_URL}/og.png`,
           width: 1200,
           height: 630,
-          alt: "Sanat Dynamo Blog",
+          alt: "Savin Group Blog",
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Sanat Dynamo · Blog",
+      title: "Savin Group · Blog",
       description:
         "Opinionated long-form writing on revenue systems, conversion, WhatsApp automation, and SEO.",
       images: [`${BASE_URL}/og.png`],
@@ -170,14 +170,14 @@ export default async function BlogsIndexPage({
     "@context": "https://schema.org",
     "@type": "Blog",
     "@id": `${BASE_URL}${prefix}/blogs`,
-    name: "Sanat Dynamo Blog",
+    name: "Savin Group Blog",
     description:
       "Long-form writing on revenue systems, conversion rate optimization, WhatsApp sales automation, the 5-layer revenue stack, Core Web Vitals, Google Ads and SEO.",
     url: `${BASE_URL}${prefix}/blogs`,
     inLanguage: locale,
     publisher: {
       "@type": "Organization",
-      name: "Sanat Dynamo",
+      name: "Savin Group",
       url: BASE_URL,
       logo: { "@type": "ImageObject", url: `${BASE_URL}/og.png` },
     },
@@ -680,7 +680,7 @@ export default async function BlogsIndexPage({
                   Kanha Singh
                 </div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-                  Founder · Sanat Dynamo
+                  Founder · Savin Group
                 </div>
               </div>
             </div>
@@ -689,7 +689,7 @@ export default async function BlogsIndexPage({
                 {ui.authorEyebrow}
               </div>
               <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Kanha runs Sanat Dynamo. He writes this blog the way he writes
+                Kanha runs Savin Group. He writes this blog the way he writes
                 internal retro notes — specific, opinionated, and mostly drawn
                 from whichever client project shipped last week. Before
                 building revenue systems for SMEs full-time he spent years in

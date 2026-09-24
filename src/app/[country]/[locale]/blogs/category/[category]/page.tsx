@@ -169,7 +169,7 @@ export async function generateMetadata({
       title: copy.metaTitle,
       description: copy.metaDescription,
       url: canonical,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       type: "website",
       locale: `${locale}_${country.toUpperCase()}`,
       images: [
@@ -245,7 +245,7 @@ export default async function BlogCategoryPage({
     isPartOf: {
       "@type": "Blog",
       "@id": `${BASE_URL}${prefix}/blogs`,
-      name: "Sanat Dynamo Blog",
+      name: "Savin Group Blog",
     },
     about: copy.keywords.map((k) => ({ "@type": "Thing", name: k })),
     hasPart: posts.map((p) => ({

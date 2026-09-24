@@ -48,7 +48,7 @@ export function Approach({ t, noPadding }: { t: Messages; noPadding?: boolean })
               </div>
               <div>
                 <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-                  Sanat Dynamo
+                  Savin Group
                 </div>
                 <div className="text-sm font-semibold text-foreground">
                   Outcome-focused

@@ -1,0 +1,228 @@
+.dialog { position: fixed; inset: 0; width: min(1280px, calc(100vw - 48px)); max-width: none; height: min(940px, calc(100dvh - 48px)); max-height: none; padding: 0; margin: auto; border: 1px solid var(--home-line, #d9ddd4); color: var(--home-ink, #222824); background: var(--home-paper, #f5f4f0); box-shadow: 0 28px 100px #10181255; overflow: hidden; }
+.dialog::backdrop { background: #101812b3; backdrop-filter: blur(7px); }
+.shell { height: 100%; display: flex; flex-direction: column; font-family: var(--font-sans), sans-serif; --ink: var(--home-ink, #222824); --muted: var(--home-muted, #626760); --accent: var(--home-accent, #b8471f); --line: var(--home-line, #d9ddd4); --paper: var(--home-paper, #f5f4f0); --surface: var(--home-surface, #fff); --soft: var(--home-soft, #eeeee7); }
+.dialog button { font-family: inherit; cursor: pointer; }
+.dialog button:disabled { cursor: default; opacity: .45; }
+.dialog :is(button, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 20px 32px 18px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.eyebrow { color: var(--accent); font: 9px/1.6 var(--font-mono),monospace; letter-spacing: .06em; text-transform: uppercase; }
+.header h2 { font-size: 28px; margin: 6px 0 0; letter-spacing: -.045em; line-height: 1.2; }
+.header p { color: var(--muted); margin: 6px 0 0; font-size: 11px; line-height: 1.65; }
+.close { width: 40px; height: 40px; border: 1px solid var(--line); background: transparent; color: var(--ink); display: grid; place-items: center; flex-shrink: 0; }
+.close:hover { color: var(--accent); border-color: var(--accent); }
+.timeline { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); border-bottom: 1px solid var(--line); padding: 0 26px; flex-shrink: 0; background: var(--surface); }
+.stageButton { position: relative; display: flex; align-items: flex-start; flex-direction: column; gap: 10px; padding: 18px 10px; border: 0; background: transparent; color: var(--muted); text-align: left; min-width: 0; }
+.stageButton > span { font: 9px var(--font-mono), monospace; min-height: 12px; display: flex; align-items: center; }
+.stageButton strong { font-size: 10px; font-weight: 500; line-height: 1.4; }
+.stageButton > i { position: absolute; bottom: -1px; left: 9px; right: 9px; height: 2px; background: transparent; }
+.stageButton[aria-current="step"] { color: var(--accent); }
+.stageButton[aria-current="step"] > i { background: var(--accent); }
+.stageButton:hover { background: var(--paper); color: var(--ink); }
+.scrollBody { overflow-y: auto; min-height: 0; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 25px 32px 22px; flex: 1; }
+.stageIntro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 45px; margin-bottom: 20px; min-height: 74px; }
+.stageIntro h3 { font-size: 26px; letter-spacing: -.04em; line-height: 1.18; margin: 9px 0 0; max-width: 430px; }
+.stageIntro > p { color: var(--muted); font-size: 12px; line-height: 1.85; margin: 0; max-width: 500px; }
+.workspace { display: grid; grid-template-columns: minmax(0,1.85fr) minmax(0,1fr); border: 1px solid var(--line); }
+.scenePanel { min-width: 0; }
+.sceneBar { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 15px 18px; font: 8px/1.6 var(--font-mono),monospace; color: var(--muted); border-bottom: 1px solid var(--line); }
+.sceneBar > span:first-child { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+.sceneBar i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.scene { overflow: hidden; }
+.sceneSvg { display: block; width: 100%; height: auto; max-height: 320px; color: var(--ink); stroke-linejoin: round; stroke-linecap: round; }
+.sceneSvg text { fill: var(--muted); stroke: none; font-family: var(--font-mono), monospace; }
+.gridLine { stroke: var(--line); stroke-width: .6; opacity: .45; }
+.gridDot { fill: var(--muted); opacity: .22; }
+.annotation { font-size: 8px; letter-spacing: .6px; }
+.routeBase { stroke: var(--line); stroke-width: 1.5; }
+.routeActive { stroke: var(--accent); stroke-width: 1.5; }
+.station > rect, .completedStation > rect, .currentStation > rect { fill: var(--paper); stroke: var(--line); stroke-width: 1.1; }
+.station > text, .completedStation > text, .currentStation > text { font-size: 9px; }
+.station .stationIndex, .completedStation .stationIndex, .currentStation .stationIndex { font-size: 10px; }
+.completedStation > rect { fill: var(--surface); }
+.currentStation > rect { stroke: var(--accent); fill: var(--surface); }
+.currentStation > text { fill: var(--accent); }
+.documentGlyph, .documentAccent { stroke: var(--muted); stroke-width: 1.3; fill: var(--paper); }
+.documentGlyph text, .documentAccent text { font-size: 10px; }
+.documentAccent { stroke: var(--accent); }
+.documentAccent text { fill: var(--accent); }
+.envelope { fill: var(--surface); stroke: var(--accent); stroke-width: 1.6; }
+.checkCircle { fill: var(--paper); stroke: var(--accent); }
+.completedStation > g > path { stroke: var(--accent); }
+.movingMessage { transform: translateX(78px); animation: messageTravel 2.8s ease-in-out infinite; }
+.noteBox { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.sceneSvg .noteTitle { font-size: 10px; fill: var(--ink); }
+.sceneSvg .noteText { font-size: 9px; }
+.accentDot { fill: var(--accent); }
+.supplierWire { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 5; opacity: .65; }
+.supplierOutgoing { animation: rfqOut 2.8s ease-in-out infinite; animation-delay: var(--delay); transform: translate(390px,239px); }
+.supplierIncoming { animation: quoteIn 2.8s ease-in-out infinite; animation-delay: var(--delay); transform: translate(546px,239px); }
+.selectedQuote { fill: var(--surface); stroke: var(--accent); stroke-width: 1.2; }
+.approvalStamp { stroke: var(--accent); stroke-width: 1.4; }
+.approvalStamp > circle, .approvalStamp > path { animation: approvalDraw 1.4s ease both; stroke-dasharray: 160; stroke-dashoffset: 0; }
+.sceneCaption { display: flex; align-items: center; justify-content: space-between; margin: 0 18px; padding: 10px 0 14px; gap: 20px; font-size: 10px; color: var(--muted); }
+.sceneCaptionArrow { color: var(--accent); font-size: 18px; }
+.transportBar, .recordTrail { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-top: 1px solid var(--line); min-height: 69px; }
+.transportBar > span, .recordTrail > span { font: 8px/1.5 var(--font-mono),monospace; color: var(--muted); }
+.transportBar > div { display: flex; gap: 5px; margin-left: auto; }
+.transportBar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 37px; padding: 7px 10px; border: 1px solid var(--line); color: var(--muted); background: var(--paper); font-size: 10px !important; }
+.transportBar button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+.transportBar > p { font-size: 9px; color: var(--muted); flex-basis: 100%; margin: 0; line-height: 1.7; }
+.recordTrail > div { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.recordTrail > div > span { font: 8px var(--font-mono),monospace; padding: 7px; border: 1px solid var(--line); }
+.recordTrail > div > span[data-done="true"] { color: var(--accent); border-color: var(--accent); }
+.documentPanel { padding: 23px; border-left: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
+.paperHeader { display: flex; align-items: center; gap: 9px; font-size: 11px; flex-wrap: wrap; }
+.paperHeader > svg { color: var(--accent); flex-shrink: 0; }
+.paperHeader > span:last-child { color: var(--muted); font: 8px var(--font-mono),monospace; margin-left: auto; }
+.paperStatus { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); font: 8px/1.6 var(--font-mono),monospace; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.paperStatus > i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.documentFields { margin: 15px 0 0; }
+.documentFields > div { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 8px 0; font-size: 10px; line-height: 1.65; }
+.documentFields dt { color: var(--muted); flex: 1; }
+.documentFields dd { margin: 0; text-align: right; flex: 1.1; }
+.orderTotal, .documentRoute, .documentLink { display: flex; flex-direction: column; gap: 7px; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 18px; }
+.orderTotal > span, .documentRoute > span, .documentLink > span { font-size: 9px; line-height: 1.7; color: var(--muted); }
+.orderTotal strong { font: 500 30px var(--font-display),sans-serif; letter-spacing: -.04em; }
+.documentRoute strong, .documentLink strong { font-size: 10px; line-height: 1.8; font-weight: 500; }
+.documentFooter { margin-top: auto; padding-top: 27px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 8px; line-height: 1.65; }
+.documentFooter svg { color: var(--accent); flex-shrink: 0; }
+.quoteHeader, .quoteRow { display: grid; grid-template-columns: 1.05fr 1fr .85fr; gap: 8px; padding: 15px 5px; border-bottom: 1px solid var(--line); font-size: 9px; align-items: center; }
+.quoteHeader { color: var(--muted); font: 8px/1.5 var(--font-mono),monospace; margin-top: 9px; }
+.quoteRow > span:first-child { display: flex; align-items: center; gap: 5px; }
+.quoteRow[data-chosen="true"] { color: var(--accent); }
+.quoteRow strong { font-weight: 500; }
+.quoteNote { font-size: 10px; color: var(--muted); line-height: 1.85; margin: 19px 0 0; }
+.eventLog { display: flex; align-items: center; gap: 10px; font-size: 11px; line-height: 1.7; padding-top: 18px; }
+.eventIcon { color: var(--accent); display: flex; flex-shrink: 0; }
+.eventTag { font: 7px/1.6 var(--font-mono),monospace; letter-spacing: .04em; margin-left: auto; color: var(--muted); }
+.controls { flex-shrink: 0; border-top: 1px solid var(--line); padding: 16px 32px; display: flex; align-items: center; gap: 30px; background: var(--surface); }
+.playback { display: flex; align-items: center; gap: 6px; }
+.controls button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 40px; border: 1px solid var(--line); padding: 9px 13px; background: var(--paper); color: var(--ink); font-size: 10px !important; }
+.controls button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.controls .playButton { background: #ad431e; border-color: #ad431e; color: white; min-width: 95px; }
+.controls .playButton:hover:not(:disabled) { background: #8f3617; color: white; }
+.controls .restart { padding-inline: 10px; border-color: transparent; background: transparent; }
+.progressWrap { flex: 1; display: flex; align-items: center; gap: 17px; }
+.progressWrap > span { white-space: nowrap; font: 8px var(--font-mono),monospace; color: var(--muted); }
+.progressTrack { --progress: 0; height: 2px; flex: 1; background: var(--line); overflow: hidden; }
+.progressTrack > span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(var(--progress)); }
+.stepControls { display: flex; gap: 6px; }
+.warehouse, .airport, .port { fill: var(--paper); stroke: var(--muted); stroke-width: 1.15; }
+.warehouse text { font-size: 8px; }
+.door { fill: var(--soft); }
+.distantBuildings { stroke: var(--line); }
+.roadEdge { stroke: var(--muted); stroke-width: 1; }
+.roadLane { stroke: var(--line); stroke-width: 1.7; }
+.truck, .ship, .aircraft { stroke: var(--ink); stroke-width: 1.5; fill: var(--paper); }
+.truck text, .ship text, .aircraft text { font-size: 8px; fill: var(--ink); }
+.cargoBox, .containerAccent { fill: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
+.truck .tyre { fill: var(--ink); stroke: var(--ink); }
+.wheel { stroke: var(--paper); fill: none; transform-box: fill-box; transform-origin: center; animation: wheelRoll 1.2s linear infinite; }
+.vehicleLights { stroke: var(--accent); fill: var(--accent); }
+.pallet { fill: var(--soft); stroke: var(--accent); stroke-width: 1.2; }
+.movingTruck { transform: translateX(180px); animation: truckDrive var(--stage-duration) cubic-bezier(.24,.02,.43,1) both; }
+.plannedTruck { transform: translateX(326px); }
+.plannedTruck .wheel, .receiptTruck .wheel { animation: none; }
+.loadingPallet { transform: translate(155px,260px); animation: loadPallet 5s ease-in-out both; }
+.receiptTruck { transform: translateX(546px); }
+.unloadingPallet { transform: translate(520px,250px); animation: unloadPallet 4s ease-in-out both; }
+.receiptSignal { animation: receiptSignal 1s ease 2.5s both; }
+.waterLine { stroke: var(--muted); }
+.waves { stroke: var(--line); stroke-width: 1.4; animation: waveDrift 3s linear infinite; }
+.hull { fill: var(--soft); }
+.containerBox { fill: var(--paper); }
+.movingShip { transform: translateX(210px); animation: shipSail var(--stage-duration) ease-in-out both; }
+.plannedShip { transform: translateX(330px); }
+.shipBob { animation: shipBob 3s ease-in-out infinite; }
+.craneLoad { transform: translateY(165px); animation: craneLower 5.5s ease-in-out both; }
+.craneCable { stroke: var(--muted); stroke-width: 1.2; }
+.clouds { stroke: var(--line); animation: cloudDrift 9s linear both; }
+.flightRoute { stroke: var(--line); stroke-dasharray: 5 7; }
+.movingAircraft { transform: translate(140px,285px); animation: aircraftFlight var(--stage-duration) ease-in-out both; }
+.plannedAircraft { transform: translate(382px,268px); }
+.airPallet { transform: translate(194px,280px); animation: aircraftLoad 5s ease-in-out both; }
+.routeMarkers { stroke: var(--line); fill: var(--paper); }
+.routeMarkers > circle { stroke: var(--accent); }
+.shell[data-running="false"] *, .shell[data-running="false"] *::before, .shell[data-running="false"] *::after { animation-play-state: paused !important; }
+.shell[data-reduced="true"] * { animation: none !important; transition: none !important; }
+.shell[data-reduced="true"] .movingTruck, .shell[data-reduced="true"] .movingShip { transform: translateX(400px); }
+.shell[data-reduced="true"] .movingAircraft { transform: translate(410px,155px); }
+.shell[data-reduced="true"] .receiptSignal { opacity: 1; }
+@keyframes messageTravel { 0% { transform: translateX(0); opacity: 0; } 15% { opacity: 1; } 80% { transform: translateX(156px); opacity: 1; } 100% { transform: translateX(156px); opacity: 0; } }
+@keyframes rfqOut { 0% { transform: translate(390px,239px); opacity: 0; } 12% { opacity: 1; } 35% { transform: translate(390px,278px); } 65% { transform: translate(calc(390px + var(--branch)),278px); } 85% { transform: translate(calc(390px + var(--branch)),316px); opacity: 1; } 100% { transform: translate(calc(390px + var(--branch)),316px); opacity: 0; } }
+@keyframes quoteIn { 0% { transform: translate(calc(390px + var(--branch)),316px); opacity: 0; } 12% { opacity: 1; } 35% { transform: translate(calc(390px + var(--branch)),278px); } 65% { transform: translate(546px,278px); } 85% { transform: translate(546px,239px); opacity: 1; } 100% { transform: translate(546px,239px); opacity: 0; } }
+@keyframes approvalDraw { from { stroke-dashoffset: 160; } to { stroke-dashoffset: 0; } }
+@keyframes wheelRoll { to { transform: rotate(360deg); } }
+@keyframes truckDrive { 0%,8% { transform: translateX(180px); } 88%,100% { transform: translateX(581px); } }
+@keyframes loadPallet { 0%,15% { transform: translate(155px,260px); } 35% { transform: translate(155px,227px); } 80%,100% { transform: translate(291px,227px); opacity: 0; } }
+@keyframes unloadPallet { 0%,15% { transform: translate(520px,250px); opacity: 0; } 25% { opacity: 1; } 75%,100% { transform: translate(652px,264px); } }
+@keyframes receiptSignal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes waveDrift { to { transform: translateX(40px); } }
+@keyframes shipSail { 0%,8% { transform: translateX(205px); } 92%,100% { transform: translateX(575px); } }
+@keyframes shipBob { 0%,100% { transform: translateY(1px) rotate(-.5deg); } 50% { transform: translateY(-3px) rotate(.5deg); } }
+@keyframes craneLower { 0%,12% { transform: translateY(162px); } 70%,100% { transform: translateY(225px); } }
+@keyframes cloudDrift { to { transform: translateX(-35px); } }
+@keyframes aircraftFlight { 0%,8% { transform: translate(140px,285px) rotate(0); } 32% { transform: translate(290px,232px) rotate(-13deg); } 65% { transform: translate(463px,148px) rotate(-6deg); } 93%,100% { transform: translate(641px,119px) rotate(0); } }
+@keyframes aircraftLoad { 0%,10% { transform: translate(194px,280px); } 45% { transform: translate(291px,280px); } 90%,100% { transform: translate(354px,269px); opacity: 0; } }
+@media (max-width: 1000px) {
+  .dialog { width: calc(100vw - 32px); height: calc(100dvh - 32px); }
+  .header, .scrollBody { padding-inline: 24px; }
+  .header h2 { font-size: 25px; }
+  .timeline { padding-inline: 14px; }
+  .stageButton { padding-inline: 8px; }
+  .stageButton strong { font-size: 9px; }
+  .stageIntro { gap: 25px; }
+  .stageIntro h3 { font-size: 23px; }
+  .workspace { grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); }
+  .documentPanel { padding: 18px; }
+  .sceneBar { padding-inline: 13px; font-size: 7px; gap: 10px; }
+  .sceneBar > span:last-child { display: none; }
+  .transportBar { padding-inline: 13px; gap: 9px; }
+  .transportBar > div { margin-left: 0; }
+  .transportBar > span { flex-basis: 100%; }
+  .controls { padding-inline: 24px; }
+}
+@media (max-width: 700px) {
+  .dialog { width: calc(100vw - 16px); height: calc(100dvh - 16px); }
+  .header { padding: 20px 17px 16px; gap: 12px; }
+  .header h2 { font-size: 23px; line-height: 1.2; max-width: 280px; }
+  .header p { font-size: 10px; max-width: 290px; }
+  .eyebrow { font-size: 8px; }
+  .close { width: 34px; height: 34px; }
+  .timeline { grid-template-columns: repeat(4,minmax(0,1fr)); padding-inline: 7px; }
+  .stageButton { padding: 10px 7px; gap: 6px; }
+  .stageButton:nth-child(-n+4) { border-bottom: 1px solid var(--line); }
+  .stageButton strong { font-size: 9px; }
+  .stageButton > span { font-size: 8px; }
+  .scrollBody { padding: 21px 16px 18px; }
+  .stageIntro { display: block; min-height: 0; margin-bottom: 21px; }
+  .stageIntro h3 { font-size: 25px; line-height: 1.25; margin-top: 7px; }
+  .stageIntro > p { font-size: 11px; margin-top: 12px; line-height: 1.8; }
+  .workspace { grid-template-columns: 1fr; }
+  .sceneBar { padding: 13px; }
+  .sceneCaption { font-size: 9px; margin-inline: 13px; padding-block: 8px 11px; }
+  .transportBar, .recordTrail { padding: 12px 13px; }
+  .transportBar > div { margin-left: auto; }
+  .transportBar > span { flex-basis: auto; font-size: 7px; }
+  .transportBar button { font-size: 9px !important; padding: 7px; gap: 5px; }
+  .transportBar button svg { width: 14px; }
+  .documentPanel { border-left: 0; border-top: 1px solid var(--line); padding: 20px; }
+  .documentFields > div { font-size: 11px; }
+  .documentFooter { font-size: 9px; }
+  .quoteRow { font-size: 11px; }
+  .eventLog { font-size: 10px; align-items: flex-start; }
+  .eventIcon { margin-top: 2px; }
+  .eventTag { display: none; }
+  .controls { padding: 12px 16px; gap: 10px; flex-wrap: wrap; }
+  .progressWrap { order: -1; flex-basis: 100%; gap: 13px; }
+  .progressWrap > span { font-size: 7px; }
+  .stepControls { margin-left: auto; }
+  .controls button { min-height: 38px; padding: 8px 10px; }
+  .controls .playButton { min-width: 84px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog *, .dialog *::before, .dialog *::after { animation: none !important; transition: none !important; }
+  .movingTruck, .movingShip { transform: translateX(400px); }
+  .movingAircraft { transform: translate(410px,155px); }
+  .receiptSignal { opacity: 1; }
+}

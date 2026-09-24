@@ -67,7 +67,7 @@ export async function generateMetadata({
   // Google discards the cluster for every member, including the indexable one.
   const indexable = isCityIndexable(baseCity, country, lc);
 
-  const title = `${city.name} Case Studies — Revenue Wins, Real Numbers · Sanat Dynamo`;
+  const title = `${city.name} Case Studies — Revenue Wins, Real Numbers · Savin Group`;
   const description = `Real ${city.name} engagements with named industries, measured outcomes, and revenue moved. ${city.heroStats[0]?.value ?? ""} ${city.heroStats[0]?.label?.toLowerCase() ?? "impacted"}.`;
 
   const alternates = buildCityAlternates({
@@ -87,7 +87,7 @@ export async function generateMetadata({
       title,
       description,
       url: `${BASE_URL}${alternates.canonical}`,
-      siteName: "Sanat Dynamo",
+      siteName: "Savin Group",
       locale: `${lc}_${country.toUpperCase()}`,
       type: "article",
       images: [{ url: `${BASE_URL}/og.png`, width: 1200, height: 630 }],

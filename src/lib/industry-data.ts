@@ -115,7 +115,7 @@ const manufacturing: IndustrySeoData = {
   serviceType: "Manufacturing ERP & Operations Software Development",
 
   metaTitle:
-    "Manufacturing ERP for Indian SMEs — Tally Alternative, GST E-Invoicing, Production Planning | Sanat Dynamo",
+    "Manufacturing ERP for Indian SMEs — Tally Alternative, GST E-Invoicing, Production Planning | Savin Group",
   metaDescription:
     "Custom manufacturing ERP for ₹5–100Cr Indian SMEs. Replace Tally + spreadsheets with one cloud system: production planning, inventory across godowns, GST e-invoicing, e-way bills, daily P&L. Built for Ahmedabad textile, Gujarat chemical, Pune engineering.",
   metaKeywords:
@@ -290,7 +290,7 @@ const realEstate: IndustrySeoData = {
   serviceType: "Real Estate CRM & Lead Management Software Development",
 
   metaTitle:
-    "Real Estate CRM India — Lead Management for Builders, Brokers, NRI Sales | Sanat Dynamo",
+    "Real Estate CRM India — Lead Management for Builders, Brokers, NRI Sales | Savin Group",
   metaDescription:
     "Lead-to-site-visit systems for Indian real estate. CRM that routes 99acres / MagicBricks / Housing.com leads in under 5 minutes, NRI-ready project sites, and local SEO that ranks for '3BHK in {locality}'. 3–5x qualified inbound, 40% lower CPL.",
   metaKeywords:
@@ -465,7 +465,7 @@ const healthcare: IndustrySeoData = {
   serviceType: "Healthcare Clinic Management Software & Patient Booking",
 
   metaTitle:
-    "Clinic Management Software India — Patient Booking, EMR, Google Reviews | Sanat Dynamo",
+    "Clinic Management Software India — Patient Booking, EMR, Google Reviews | Savin Group",
   metaDescription:
     "Patient booking, EMR, and retention software for Indian dental, derma, ortho, fertility, and multispecialty clinics. Stop being held hostage by Practo. Own your booking, WhatsApp reminders, and Google Maps presence. 60% fewer calls, 25% drop in no-shows.",
   metaKeywords:
@@ -640,7 +640,7 @@ const ecommerce: IndustrySeoData = {
   serviceType: "D2C E-commerce Development & Conversion Optimization",
 
   metaTitle:
-    "Shopify & D2C E-commerce Development India — CRO, WhatsApp, SEO | Sanat Dynamo",
+    "Shopify & D2C E-commerce Development India — CRO, WhatsApp, SEO | Savin Group",
   metaDescription:
     "D2C revenue systems for Indian Shopify and WooCommerce brands. Storefront CRO (1%→3% conversion), WhatsApp cart recovery, SEO that beats Meta-ad dependency, retention that 2x's repeat rate. ₹10L–₹2Cr GMV brands stop renting traffic and start owning it.",
   metaKeywords:
@@ -815,7 +815,7 @@ const edtech: IndustrySeoData = {
   serviceType: "EdTech & Coaching Institute Software Development",
 
   metaTitle:
-    "Coaching Institute & EdTech Software India — Enrollment, LMS, Razorpay | Sanat Dynamo",
+    "Coaching Institute & EdTech Software India — Enrollment, LMS, Razorpay | Savin Group",
   metaDescription:
     "Enrollment funnels and LMS for Indian coaching — JEE, NEET, UPSC, CA, CAT. 200–5,000 student institutes go offline-to-hybrid with website, fee + EMI flow, attendance, live class, and doubt-clearing in one stack. 3-4x faster enrollment, 30% lower drop-off.",
   metaKeywords:
