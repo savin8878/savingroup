@@ -27,7 +27,7 @@ async function lookupBigDataCloud(
   try {
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=${lang}`;
     const res = await fetch(url, {
-      headers: { "User-Agent": "SanatDynamo/1.0" },
+      headers: { "User-Agent": "SavinGroup/1.0" },
       signal: AbortSignal.timeout(3000),
     });
     if (!res.ok) return null;
@@ -53,7 +53,7 @@ async function lookupNominatim(
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${lang}&zoom=10`;
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "SanatDynamo/1.0 (contact: hello@sanatdynamo.com)",
+        "User-Agent": "SavinGroup/1.0 (contact: savingroup@gmail.com)",
       },
       signal: AbortSignal.timeout(3000),
     });

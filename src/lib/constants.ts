@@ -163,7 +163,7 @@ export const URLS_PER_SITEMAP = 50000;
  * back on the moment a real URL is added here — no other edit needed.
  *
  * TO ENABLE: add the full profile URL, e.g.
- *   { platform: "linkedin", url: "https://www.linkedin.com/company/sanat-dynamo" }
+ *   { platform: "linkedin", url: "https://www.linkedin.com/company/savin-group" }
  * `platform` must be one of the keys in the footer's icon map.
  */
 export const SOCIAL_PROFILES: ReadonlyArray<{

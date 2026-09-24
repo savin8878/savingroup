@@ -15,11 +15,21 @@
 :global([dir="rtl"]) .title > span,
 :global([dir="rtl"]) .title > em { unicode-bidi: plaintext; text-align: right; }
 
+/* "Word &" / "word —" pairs in display headings stay on one line. */
+.keep { white-space: nowrap; }
+
+/* Tap targets ≥ 40px without changing the layout: the hit area grows, the
+   row keeps the same height as on the blog index. */
+.page > button { min-height: 40px; }
+.nav a { min-height: 40px; }
+.finalCta > div > div:last-child > a { min-height: 40px; margin-block: -4px; }
+
 /* ── Hero ──────────────────────────────────────────────────────────────── */
 .hero { padding-bottom: 0; }
 .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 24px; padding-bottom: 12px; }
 .topbar > nav { min-width: 0; }
-.back { display: inline-flex; align-items: center; gap: 9px; min-height: 28px; color: var(--home-muted); font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .07em; text-transform: uppercase; transition: color .2s; }
+.topbar ol a { min-height: 40px; margin: -6px -8px; padding-inline: 8px; }
+.back { display: inline-flex; align-items: center; gap: 9px; min-height: 40px; margin-block: -6px; padding-inline-start: 8px; color: var(--home-muted); font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .07em; text-transform: uppercase; transition: color .2s; }
 .back:hover { color: var(--home-accent); }
 .back svg { transition: transform .2s; }
 .back:hover svg { transform: translateX(-3px); }
@@ -39,24 +49,35 @@
 .statValue small { margin-inline-start: 5px; font-size: 14px; letter-spacing: -.02em; color: var(--home-muted); }
 .statLabel { font: 8px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
 
-/* "This page answers" — the SEO keyword strip, as a hairline row. */
-.answers { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 14px 24px; align-items: start; padding: 22px 0 34px; border-top: 1px solid var(--home-line); }
+/* "This page answers" — the SEO keyword strip, as a hairline row. The tags
+   start on the second stat column so the two rows share one grid. */
+.answers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 0; align-items: start; padding: 22px 0 34px; border-top: 1px solid var(--home-line); }
+.answers > ul { grid-column: 2 / -1; padding-inline-start: 24px; }
 .answersLabel { display: flex; align-items: center; gap: 9px; min-height: 28px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-accent); }
 .answersLabel > i { width: 5px; height: 5px; border-radius: 50%; background: var(--home-accent); flex-shrink: 0; }
 
 /* ── Posts section ─────────────────────────────────────────────────────── */
 .nav { margin-bottom: 28px; }
 .leadPost { margin-bottom: 40px; }
-.more { display: flex; align-items: center; gap: 14px; margin: 0 0 18px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
-.more::after { content: ""; flex: 1; height: 1px; background: var(--home-line); }
-/* Closing cell in a short last row: a link to the full library. */
-.fillerItem { background: var(--home-paper); background-image: radial-gradient(var(--home-grid) .8px, transparent .8px); background-size: 17px 17px; }
-.filler { position: relative; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; min-height: 240px; padding: 24px; transition: box-shadow .2s; }
+
+/* Card thumbnails: keep the drawing clear of the "FIG. 0N" label row and off
+   the cell edges (the shared card lets it fill the whole frame). */
+.postGrid article > div:first-child > svg { inset: 30px 18px 10px; width: calc(100% - 36px); height: calc(100% - 40px); }
+
+/* Closing cell in a short last row: a link to the full library. It spans the
+   empty slots at 3 columns (--fill), takes the one empty slot at 2 columns,
+   and is dropped where the row is already full or the grid is one column. */
+.fillerItem { grid-column: span var(--fill, 1); background: var(--home-paper); background-image: radial-gradient(var(--home-grid) .8px, transparent .8px); background-size: 17px 17px; }
+.fillerItem[data-fill="0"] { display: none; }
+.filler { position: relative; display: flex; flex-direction: column; width: 100%; min-height: 240px; padding: 22px 24px 20px; transition: box-shadow .2s; }
 .filler:hover, .filler:focus-within { box-shadow: inset 0 0 0 1px var(--home-accent); }
 .filler:has(a:focus-visible) { outline: 2px solid var(--home-accent); outline-offset: 3px; }
 .filler .fillerTitle a:focus-visible { outline: none; }
 .fillerKicker { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
-.fillerTitle { margin: 14px 0 0; max-width: 340px; font: 500 24px/1.22 var(--font-display), sans-serif; letter-spacing: -.045em; }
+.fillerCount { margin-top: 28px; font: 500 64px/1 var(--font-display), sans-serif; letter-spacing: -.07em; color: var(--home-accent); }
+.fillerMeta { margin-top: 12px; font: 8px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
+.fillerTitle { margin: auto 0 0; padding-top: 30px; max-width: 340px; font: 500 24px/1.22 var(--font-display), sans-serif; letter-spacing: -.045em; }
+.filler .dirFoot { margin-top: 0; }
 .fillerTitle a { color: var(--home-ink); transition: color .2s; }
 .fillerTitle a::after { content: ""; position: absolute; inset: 0; z-index: 2; }
 .fillerTitle em { font-style: normal; color: var(--home-muted); transition: color .2s; }
@@ -64,6 +85,14 @@
 .filler:hover .dirFoot > svg { transform: translate(3px, -3px); }
 :global([dir="rtl"]) .filler:hover .dirFoot > svg { transform: scaleX(-1) translate(3px, -3px); }
 .empty { margin: 0; padding: 40px 0; border-block: 1px solid var(--home-line); font-size: 14px; color: var(--home-muted); }
+
+/* English excerpts and meta inside the RTL page (shared PostCard): resolve each
+   line by its own first strong character, so "." and "11 min read" land on
+   the right side, while the cards keep their right alignment. The takeaway
+   aside is left alone (its hidden "Key takeaways:" prefix would decide it). */
+:global([dir="rtl"]) .posts article > div :is(h3, p) { unicode-bidi: plaintext; text-align: right; }
+:global([dir="rtl"]) .posts article > div p > :is(span, time),
+:global([dir="rtl"]) .posts article > aside > span { unicode-bidi: plaintext; }
 
 /* ── Topic clusters (numbered rows) ────────────────────────────────────── */
 .clusters { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
@@ -95,7 +124,7 @@
 .dirCell:has(.dirTitle a:focus-visible) { outline: 2px solid var(--home-accent); outline-offset: 3px; }
 .dirCell .dirTitle a:focus-visible { outline: none; }
 .dirFigure { position: relative; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--home-line); background: var(--home-surface); }
-.dirFigure > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dirFigure > svg { position: absolute; inset: 16px 18px 12px; width: calc(100% - 36px); height: calc(100% - 28px); }
 .dirBody { display: flex; flex-direction: column; flex: 1; padding: 20px 22px 18px; }
 .dirKicker { display: flex; align-items: center; justify-content: space-between; gap: 12px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
 .dirKicker > span:last-child { color: var(--home-muted); }
@@ -111,8 +140,21 @@
 /* ── India directory (shared Tailwind component) re-set in the blog language ── */
 .geo > section { padding-block: 76px; border-top: 1px solid var(--home-line); background: var(--home-surface); }
 .geo > section > div { max-width: 1184px; width: calc(100% - 112px); padding-inline: 0; }
-.geo.geo h2 { max-width: 760px; margin: 18px 0 0; font-size: clamp(24px, 2.3vw, 32px); line-height: 1.2; letter-spacing: -.045em; }
-.geo.geo h3 { font-size: 15px; letter-spacing: -.02em; }
+/* Eyebrow reads like a home chapter label: mono, the pin in a 27px square. */
+.geo > section > div > div:first-of-type > div:first-child { gap: 11px; color: var(--home-muted); font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .09em; }
+.geo > section > div > div:first-of-type > div:first-child > svg { box-sizing: content-box; width: 13px; height: 13px; padding: 6px; border: 1px solid var(--home-line); color: var(--home-accent); }
+.geo.geo h2 { max-width: 760px; margin: 18px 0 0; color: var(--home-ink); font-size: clamp(24px, 2.3vw, 32px); line-height: 1.2; letter-spacing: -.045em; }
+.geo.geo h3 { color: var(--home-ink); font-size: 15px; letter-spacing: -.02em; }
+.geo article > header { border-color: var(--home-line); }
+.geo article > header > span { color: var(--home-muted); font-size: 9px; letter-spacing: .08em; }
+/* City links as hairline rows (like the cluster lists), 44px tall. */
+.geo article ul { margin-top: 0; }
+.geo article ul > li { margin: 0; border-bottom: 1px solid var(--home-line); }
+.geo article ul a { align-items: center; min-height: 44px; padding: 10px 2px; border-radius: 0; color: var(--home-ink); line-height: 1.45; }
+.geo article ul a:hover { color: var(--home-accent); background: color-mix(in srgb, var(--home-accent) 5%, transparent); }
+.geo article ul a > svg { margin-top: 0; }
+.geo article ul a:hover > svg { color: var(--home-accent); }
+:global([dir="rtl"]) .geo article ul a > svg { transform: scaleX(-1); }
 :global([dir="rtl"]) .geo h2 { unicode-bidi: plaintext; text-align: right; }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
@@ -125,12 +167,14 @@
   .hero .heroGrid { grid-template-columns: 1fr; gap: 0; }
   .hero .heroCopy h1.title { font-size: clamp(40px, 7vw, 56px); max-width: 700px; }
   .answers { grid-template-columns: 1fr; }
+  .answers > ul { grid-column: auto; padding-inline-start: 0; }
   .cluster { grid-template-columns: 40px minmax(0, 1fr); }
   .clusterPosts { grid-column: 2; }
   .directory, .directory3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* The grid drops to 2 columns here, so the spans computed for 3 no longer fit. */
-  .fillerItem { grid-column: 1 / -1 !important; }
-  .filler { min-height: 0; }
+  .directory3 > li:last-child { grid-column: 1 / -1; }
+  /* The post grid is 2 columns here: the cell fills the one empty slot, if any. */
+  .fillerItem[data-fill] { display: flex; grid-column: span 1; }
+  .fillerItem[data-fill-tablet="0"] { display: none; }
   .geo > section { padding-block: 60px; }
 }
 @media (max-width: 640px) {
@@ -145,6 +189,7 @@
   .clusterLink > .here { grid-column: 2; grid-row: 2; justify-self: start; }
   .clusterLink > span:nth-child(3):empty { display: none; }
   .clusterLink > svg { grid-column: 3; grid-row: 1; }
+  .fillerItem.fillerItem[data-fill] { display: none; }
   .directory, .directory3, .directory2 { grid-template-columns: 1fr; }
   .dirFigure { display: none; }
   .dirBody { padding: 18px 20px 16px; }
@@ -156,3 +201,9 @@
 
 /* Mono chapter labels read uppercase, like the home chapters. */
 .head > div > div:first-child > span:last-child { text-transform: uppercase; }
+
+/* Arabic has no glyphs in the mono face and falls back to a system font whose
+   8–9px size is too small to read; tracking also pulls the joined letters
+   apart. Under RTL the page's mono labels step up and drop the tracking. */
+:global([dir="rtl"]) :is(.statLabel, .answersLabel, .clusterKicker, .clusterMeta, .here, .dirKicker, .dirFoot, .fillerKicker, .fillerMeta, .back),
+:global([dir="rtl"]) .head > div > div:first-child > span:last-child { font-size: 11px; letter-spacing: 0; }

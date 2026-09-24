@@ -536,7 +536,7 @@ export function WhyPerIndustryMatrix() {
                 </div>
                 <div className="col-span-4 flex items-center gap-1.5 text-accent">
                   <Check size={11} strokeWidth={3} />
-                  Sanat build
+                  Savin build
                 </div>
               </div>
               {MATRIX_ROWS.map((row, i) => (

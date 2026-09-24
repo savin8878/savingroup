@@ -164,7 +164,7 @@ async function lookupIpWhoIs(ip: string): Promise<Partial<GeoInfo> | null> {
   try {
     const url = ip ? `https://ipwho.is/${ip}` : "https://ipwho.is/";
     const res = await fetch(url, {
-      headers: { "User-Agent": "SanatDynamo/1.0" },
+      headers: { "User-Agent": "SavinGroup/1.0" },
       signal: AbortSignal.timeout(2000),
     });
     if (!res.ok) return null;

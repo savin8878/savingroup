@@ -90,7 +90,7 @@ export async function GET() {
                 letterSpacing: "-0.02em",
               }}
             >
-              Sanat<span style={{ color: "#D9A032" }}>Dynamo</span>
+              Savin<span style={{ color: "#D9A032" }}>Group</span>
             </span>
             <span
               style={{
@@ -186,7 +186,7 @@ export async function GET() {
             letterSpacing: "0.05em",
           }}
         >
-          sanatdynamo.com
+          savingroup.in
         </div>
       </div>
     ),

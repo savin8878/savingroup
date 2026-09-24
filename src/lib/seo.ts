@@ -759,7 +759,7 @@ export function buildCityLocalBusinessJsonLd(
     url,
     image: `${BASE_URL}/og.png`,
     telephone: "+91-XXXX-XXXX", // Replace with actual number
-    email: "hello@saningroup.in",
+    email: "savingroup@gmail.com",
     priceRange: "₹₹₹",
 
     // Address in India

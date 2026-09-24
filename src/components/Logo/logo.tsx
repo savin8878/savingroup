@@ -72,7 +72,7 @@ const Logo: React.FC<LogoProps> = ({
               s.text
             )}
           >
-            Sanat<span className="text-accent">Dynamo</span>
+            Savin<span className="text-accent">Group</span>
           </span>
           <span
             className={cn(

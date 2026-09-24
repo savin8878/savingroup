@@ -403,7 +403,7 @@ export default async function BlogCategoryPage({
         />
 
         {/* 01 — every post in the category: the lead post, then the rest */}
-        <BlogSection id="category-posts" labelledBy="category-posts-title">
+        <BlogSection id="category-posts" labelledBy="category-posts-title" className={categoryStyles.posts}>
           <SectionHeading
             className={categoryStyles.head}
             number={1}
@@ -437,7 +437,9 @@ export default async function BlogCategoryPage({
                     kicker: ui.allPostsEyebrow,
                     lead: ui.allPostsTitle,
                     accent: ui.allPostsTitleAccent,
+                    count: BLOG_POSTS.length,
                     meta: pageCopy.postCount(BLOG_POSTS.length),
+                    action: ui.allPostsBackLink,
                     href: "/blogs",
                   }}
                 />
@@ -496,6 +498,7 @@ export default async function BlogCategoryPage({
 
         <FinalCta
           id="category-final-title"
+          className={categoryStyles.finalCta}
           eyebrow={t.cta.eyebrow}
           question={t.cta.subtitle}
           lead={pageCopy.finalLead}

@@ -35,7 +35,7 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": 'attachment; filename="sanat-dynamo-pricing.pdf"',
+      "Content-Disposition": 'attachment; filename="savin-group-pricing.pdf"',
       "Cache-Control": "public, max-age=3600, s-maxage=86400",
     },
   });

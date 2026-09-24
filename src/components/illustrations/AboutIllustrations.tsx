@@ -85,8 +85,8 @@ export function ValuesConstellation({ className = "" }: { className?: string }) 
 
       {/* Core */}
       <motion.circle cx="150" cy="150" r="30" fill="var(--svg-node-fill)" stroke="var(--accent)" strokeWidth="1.5" variants={pop(0)} />
-      <motion.text x="150" y="147" textAnchor="middle" fontFamily="var(--font-display)" fontSize="10" fontWeight="700" fill="var(--accent)" variants={pop(1)}>SANAT</motion.text>
-      <motion.text x="150" y="159" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="7" fill="var(--muted-foreground)" variants={pop(1)}>DYNAMO</motion.text>
+      <motion.text x="150" y="147" textAnchor="middle" fontFamily="var(--font-display)" fontSize="10" fontWeight="700" fill="var(--accent)" variants={pop(1)}>SAVIN</motion.text>
+      <motion.text x="150" y="159" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="7" fill="var(--muted-foreground)" variants={pop(1)}>GROUP</motion.text>
 
       {/* Value nodes */}
       {values.map((v, i) => {
@@ -141,7 +141,7 @@ export function EmbeddedTeamVisual({ className = "" }: { className?: string }) {
         <text x="240" y="143" textAnchor="middle" fontFamily="var(--font-mono)" fontSize="5" fill="var(--muted-foreground)">EMBEDDED TEAM</text>
       </motion.g>
 
-      {/* Connection lines from Dynamo to internal team */}
+      {/* Connection lines from Savin to internal team */}
       <motion.path d="M 220 115 C 200 105, 180 100, 180 98" stroke="var(--accent)" strokeWidth="0.8" strokeDasharray="3 3" fill="none" opacity="0.3" variants={draw(3)} />
       <motion.path d="M 240 115 C 250 105, 260 100, 260 108" stroke="var(--accent)" strokeWidth="0.8" strokeDasharray="3 3" fill="none" opacity="0.3" variants={draw(3)} />
       <motion.path d="M 210 120 C 160 110, 120 100, 100 108" stroke="var(--accent)" strokeWidth="0.8" strokeDasharray="3 3" fill="none" opacity="0.3" variants={draw(3)} />

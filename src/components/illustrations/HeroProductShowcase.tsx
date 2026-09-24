@@ -348,7 +348,7 @@ export function HeroProductShowcase({
         >
           <Lock size={9} className="shrink-0 text-success" />
           <span className="truncate font-mono text-[10px] text-muted-foreground">
-            app.sanatdynamo.com/pipeline
+            app.savingroup.in/pipeline
           </span>
         </span>
 

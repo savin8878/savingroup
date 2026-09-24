@@ -17,6 +17,15 @@ import c from "./Category.module.css";
 
 const cx = (...names: (string | false | null | undefined)[]) => names.filter(Boolean).join(" ");
 const pad = (n: number) => String(n).padStart(2, "0");
+/**
+ * Keeps "&" and "—" on the line of the word before them, so a display line never
+ * starts with one. Wraps the pair in a nowrap span; the text itself is unchanged.
+ */
+function tidy(text: string): ReactNode {
+  const parts = text.split(/(\S+ (?:&|—))/);
+  if (parts.length === 1) return text;
+  return parts.map((part, i) => (i % 2 ? <span key={i} className={c.keep}>{part}</span> : part));
+}
 
 /** The drawing that stands for each category (hero figure + directory thumbnail). */
 export const CATEGORY_SKETCH: Record<BlogCategory, BlogFigureKey> = {
@@ -57,7 +66,7 @@ export function CategoryHero({ id, titleId, breadcrumbs, breadcrumbLabel, back, 
         <BlogEyebrow edition={edition}>{eyebrow}</BlogEyebrow>
         <div className={cx(blog.heroGrid, c.heroGrid)}>
           <div className={cx(blog.heroCopy, c.heroCopy)}>
-            <h1 id={titleId} className={c.title}><span>{headline}</span><em>{accent}</em></h1>
+            <h1 id={titleId} className={c.title}><span>{tidy(headline)}</span><em>{tidy(accent)}</em></h1>
             <p className={cx(blog.heroLead, c.lead, c.bidi)}>{description}</p>
             <div className={blog.heroActions}>
               <a href={readLead.href} className={home.textButton}>{readLead.label}<ArrowDown size={16} aria-hidden="true" /></a>
@@ -93,24 +102,35 @@ export function CategoryHero({ id, titleId, breadcrumbs, breadcrumbLabel, back, 
  */
 export function CategoryPostGrid({ posts, ui, locale, columns, startIndex = 1, label, filler }: {
   posts: BlogPost[]; ui: BlogUiStrings; locale: string; columns: 2 | 3; startIndex?: number; label?: string;
-  filler: { kicker: string; lead: string; accent: string; meta: string; href: string };
+  filler: { kicker: string; lead: string; accent: string; count: number; meta: string; action: string; href: string };
 }) {
+  // Empty slots in the last row at the desktop column count and at the 2-column
+  // tablet grid. CSS shows the cell only where it closes a gap (never on 1 column).
   const empty = (columns - (posts.length % columns)) % columns;
+  const emptyTablet = posts.length % 2;
   return (
-    <ul className={cx(blog.grid, columns === 2 && blog.grid2)} aria-label={label}>
+    <ul className={cx(blog.grid, columns === 2 && blog.grid2, c.postGrid)} aria-label={label}>
       {posts.map((post, i) => (
         <li key={post.slug} data-blog-reveal="" style={revealStyle(i % columns)}>
           <PostCard post={post} ui={ui} locale={locale} variant="card" index={startIndex + i} />
         </li>
       ))}
-      {empty > 0 && (
-        <li className={c.fillerItem} style={{ gridColumn: `span ${empty}` }} data-blog-reveal="">
+      {(empty > 0 || emptyTablet > 0) && (
+        <li
+          className={c.fillerItem}
+          data-fill={empty}
+          data-fill-tablet={emptyTablet}
+          style={{ ["--fill" as string]: Math.max(empty, 1) }}
+          data-blog-reveal=""
+        >
           <div className={c.filler}>
             <span className={c.fillerKicker}>{filler.kicker}</span>
+            <span className={c.fillerCount} aria-hidden="true">{pad(filler.count)}</span>
+            <span className={c.fillerMeta}>{filler.meta}</span>
             <p className={cx(c.fillerTitle, c.bidi)}>
               <LocalizedLink href={filler.href}>{filler.lead} <em>{filler.accent}</em></LocalizedLink>
             </p>
-            <div className={c.dirFoot}><span>{filler.meta}</span><ArrowUpRight size={16} className={blog.arrow} aria-hidden="true" /></div>
+            <div className={c.dirFoot} aria-hidden="true"><span>{filler.action}</span><ArrowUpRight size={16} className={blog.arrow} /></div>
           </div>
         </li>
       )}
@@ -190,7 +210,7 @@ export function CategoryDirectory({ items, label }: { items: DirectoryItem[]; la
             <div className={c.dirBody}>
               <div className={c.dirKicker}><span>{item.label}</span><span>{pad(item.count)}</span></div>
               <h3 className={cx(c.dirTitle, c.bidi)}>
-                <LocalizedLink href={categoryHref(item.key)}>{item.headline} <em>{item.accent}</em></LocalizedLink>
+                <LocalizedLink href={categoryHref(item.key)}>{tidy(item.headline)} <em>{tidy(item.accent)}</em></LocalizedLink>
               </h3>
               <div className={c.dirFoot}>
                 <span>{item.countLabel}</span>

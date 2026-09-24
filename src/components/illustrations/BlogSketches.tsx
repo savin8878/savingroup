@@ -314,7 +314,7 @@ export function WhatsAppFlowSketch({ className }: Props) {
         <rect x="8" y="24" width="144" height="22" fill={AMBER_SOFT} stroke={AMBER_SOFT} />
         <circle cx="22" cy="35" r="7" stroke={AMBER} />
         <text x="34" y="33" fontFamily="var(--font-mono), monospace" fontSize="8" fontWeight="600" fill={INK} stroke="none">
-          SANAT · DYNAMO
+          SAVIN · GROUP
         </text>
         <text x="34" y="42" fontFamily="var(--font-mono), monospace" fontSize="6" fill={INK_SOFT} stroke="none">
           online · typing
