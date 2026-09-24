@@ -1,8 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { Check } from "lucide-react";
-import { getArticleCopy } from "../copy/article-copy";
 import { scrollToSection, useReadingState } from "./useReadingState";
 import s from "./Article.module.css";
 
@@ -11,23 +10,34 @@ export interface TocItem { id: string; label: string }
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * Sidebar reading panel: progress (% read · minutes left) and the
  * "On this page" list with an accent marker that slides to the section
- * being read. Server HTML is a complete, working list of anchor links.
+ * being read, and keeps that section in view when the sidebar scrolls.
+ * Server HTML is a complete, working list of anchor links.
  */
-export function ArticleToc({ items, title, locale, readTime }: { items: TocItem[]; title: string; locale: string; readTime: number }) {
-  const copy = getArticleCopy(locale);
-  const { active, progress } = useReadingState(items.map((item) => item.id));
+export function ArticleToc({ items, title }: { items: TocItem[]; title: string }) {
+  const { active } = useReadingState(items.map((item) => item.id));
   const list = useRef<HTMLOListElement>(null);
   const [marker, setMarker] = useState<{ y: number; h: number } | null>(null);
   const current = Math.max(0, active);
-  const percent = Math.round(progress * 100);
-  const minutesLeft = Math.max(0, Math.ceil(readTime * (1 - progress)));
 
   useLayoutEffect(() => {
     const item = list.current?.children[current] as HTMLElement | undefined;
     if (item) setMarker({ y: item.offsetTop, h: item.offsetHeight });
   }, [current, items.length]);
+
+  // Keep the active entry visible inside the scrollable sidebar body —
+  // scrolls that container only, never the page.
+  useEffect(() => {
+    const item = list.current?.children[current] as HTMLElement | undefined;
+    const box = list.current?.closest<HTMLElement>("[data-sidebar-scroll]");
+    if (!item || !box || box.scrollHeight <= box.clientHeight) return;
+    const itemTop = item.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+    const margin = 48;
+    if (itemTop < box.scrollTop + margin || itemTop + item.offsetHeight > box.scrollTop + box.clientHeight - margin) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      box.scrollTo({ top: Math.max(0, itemTop - box.clientHeight / 3), behavior: reduce ? "auto" : "smooth" });
+    }
+  }, [current]);
 
   const onClick = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
@@ -36,14 +46,11 @@ export function ArticleToc({ items, title, locale, readTime }: { items: TocItem[
   };
 
   return (
-    <div className={s.readingPanel}>
-      <nav className={`${s.panel} ${s.tocPanel}`} aria-label={title}>
+    <nav className={`${s.panel} ${s.tocPanel}`} aria-label={title}>
         <div className={s.panelHead}>
           <span>{title}</span>
           <span className={s.panelCount}>{pad(current + 1)}<i>/</i>{pad(items.length)}</span>
         </div>
-        <div className={s.track} role="progressbar" aria-label={copy.progress} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><span style={{ transform: `scaleX(${progress})` }} /></div>
-        <p className={s.progressLine}><span><b>{percent}%</b> {copy.read}</span><span>{progress >= 0.995 ? copy.finished : copy.minLeft(minutesLeft)}</span></p>
         <ol ref={list} className={s.toc} style={marker ? ({ "--marker-y": `${marker.y}px`, "--marker-h": `${marker.h}px` } as CSSProperties) : undefined} data-ready={marker ? "true" : undefined}>
           {items.map((item, index) => {
             const state = index === current && active >= 0 ? "active" : index < current ? "done" : "todo";
@@ -57,7 +64,6 @@ export function ArticleToc({ items, title, locale, readTime }: { items: TocItem[
             );
           })}
         </ol>
-      </nav>
-    </div>
+    </nav>
   );
 }

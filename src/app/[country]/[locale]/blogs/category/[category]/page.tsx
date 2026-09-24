@@ -320,7 +320,7 @@ export default async function BlogCategoryPage({
   const leadPost = getFeaturedPosts(posts)[0] ?? posts[0];
   const rest = posts.filter((p) => p !== leadPost);
   const restColumns = rest.length % 3 === 0 || rest.length >= 5 ? 3 : 2;
-  const [notesLead, notesAccent] = pageCopy.notesHeading(posts.length, label);
+  const [notesLead, notesAccent] = pageCopy.notesHeading(posts.length, pageCopy.topics[cat]);
 
   const totalRead = posts.reduce((sum, p) => sum + p.readTime, 0);
   const avgRead = posts.length ? Math.round(totalRead / posts.length) : 0;
@@ -390,14 +390,14 @@ export default async function BlogCategoryPage({
           figure={{ sketch: CATEGORY_SKETCH[cat], title: figure.title, legend: figure.legend }}
           stats={[
             { value: posts.length, label: pageCopy.statPosts },
-            { value: <>{totalRead}<small>{ui.minRead}</small></>, label: pageCopy.statReading },
+            { value: <>{totalRead}<small>{pageCopy.minUnit}</small></>, label: pageCopy.statReading },
             {
               value: lastTouched ? <time dateTime={lastTouched}>{formatMonth(lastTouched, locale)}</time> : "—",
               label: pageCopy.statUpdated,
             },
             searches > 0
-              ? { value: compactCount(searches), label: ui.statsMonthlySearches }
-              : { value: <>{avgRead}<small>{ui.minRead}</small></>, label: ui.statsAvgRead },
+              ? { value: compactCount(searches), label: pageCopy.statSearches }
+              : { value: <>{avgRead}<small>{pageCopy.minUnit}</small></>, label: pageCopy.statAvgRead },
           ]}
           keywords={{ label: pageCopy.pageAnswers, items: copy.keywords }}
         />

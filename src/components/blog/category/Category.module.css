@@ -23,6 +23,9 @@
 .page > button { min-height: 40px; }
 .nav a { min-height: 40px; }
 .finalCta > div > div:last-child > a { min-height: 40px; margin-block: -4px; }
+/* The closing question here is a full sentence (home's is one short line):
+   keep it to a readable measure instead of the whole 1.55fr column. */
+.finalCta > div > div:nth-child(2) > div:first-child > p:first-child { max-width: 540px; }
 
 /* ── Hero ──────────────────────────────────────────────────────────────── */
 .hero { padding-bottom: 0; }
@@ -59,6 +62,8 @@
 /* ── Posts section ─────────────────────────────────────────────────────── */
 .nav { margin-bottom: 28px; }
 .leadPost { margin-bottom: 40px; }
+/* A category with a single post: the section padding closes it, not an extra gap. */
+.leadPost:last-child { margin-bottom: 0; }
 
 /* Card thumbnails: keep the drawing clear of the "FIG. 0N" label row and off
    the cell edges (the shared card lets it fill the whole frame). */
@@ -88,11 +93,17 @@
 
 /* English excerpts and meta inside the RTL page (shared PostCard): resolve each
    line by its own first strong character, so "." and "11 min read" land on
-   the right side, while the cards keep their right alignment. The takeaway
-   aside is left alone (its hidden "Key takeaways:" prefix would decide it). */
-:global([dir="rtl"]) .posts article > div :is(h3, p) { unicode-bidi: plaintext; text-align: right; }
+   the right side, while the cards keep their right alignment. (The aside's
+   visually hidden "Key takeaways:" prefix is out of flow, so it doesn't
+   decide the direction of the takeaway line.) */
+:global([dir="rtl"]) .posts article > div :is(h3, p),
+:global([dir="rtl"]) .posts article > aside > p { unicode-bidi: plaintext; text-align: right; }
 :global([dir="rtl"]) .posts article > div p > :is(span, time),
 :global([dir="rtl"]) .posts article > aside > span { unicode-bidi: plaintext; }
+/* The meta separators are ::before content, so an LTR-resolved item would
+   carry its "·" to the left. Pin each one to the item's right edge instead. */
+:global([dir="rtl"]) .posts article > div p > * + * { position: relative; padding-right: 19px; }
+:global([dir="rtl"]) .posts article > div p > * + *::before { position: absolute; top: 0; right: 0; width: 19px; margin: 0; text-align: center; }
 
 /* ── Topic clusters (numbered rows) ────────────────────────────────────── */
 .clusters { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }

@@ -75,11 +75,25 @@
 
 /* ── Sidebar (right, sticky) ────────────────────────────────────────── */
 .aside { grid-column: 2; grid-row: 1; min-width: 0; padding-inline-start: 32px; border-inline-start: 1px solid var(--home-line); }
-.sticky { position: sticky; top: var(--article-top); max-height: calc(100dvh - var(--article-top) - 64px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 2px 4px 8px; margin-inline: -4px; }
-.sticky::-webkit-scrollbar { display: none; }
+/*
+ * The sidebar sticks under the header once its top reaches it. Inside, the
+ * reading-progress head stays pinned; everything below it (contents, share,
+ * CTA) scrolls on its own when the viewport is too short to show it all.
+ * The bottom gap keeps it clear of the fixed "Pause motion" control.
+ */
+.sticky { position: sticky; top: var(--article-top); display: flex; flex-direction: column; max-height: calc(100dvh - var(--article-top) - 64px); }
+.progressPanel { flex: none; padding: 0 0 18px; border-bottom: 1px solid var(--home-line); background: var(--home-paper); }
+.progressNote { margin: 9px 0 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.stickyScroll { position: relative; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: auto; padding: 0 6px 6px; margin-inline: -6px; scrollbar-width: thin; scrollbar-color: var(--home-line) transparent; }
+.stickyScroll::-webkit-scrollbar { width: 4px; }
+.stickyScroll::-webkit-scrollbar-thumb { background: var(--home-line); }
+.stickyScroll::-webkit-scrollbar-track { background: transparent; }
+/* Fade the edges only while there is more to scroll in that direction. */
+.stickyScroll[data-more="true"] { --fade-top: 0px; --fade-end: 36px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-end)), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-end)), transparent 100%); }
+.stickyScroll[data-more="true"][data-at-top="false"] { --fade-top: 28px; }
+.stickyScroll[data-more="true"][data-at-end="true"] { --fade-end: 0px; }
 .panel { padding: 20px 0; border-bottom: 1px solid var(--home-line); }
-.readingPanel > .panel:first-child { padding-top: 0; }
-.sticky > :last-child, .sticky > :last-child > .panel:last-child { border-bottom: 0; }
+.stickyScroll > :last-child { border-bottom: 0; }
 .panelHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-muted); }
 .panelCount { color: var(--home-muted); white-space: nowrap; }
 .panelCount b { font-weight: 400; color: var(--home-accent); }
@@ -87,8 +101,7 @@
 .track { position: relative; height: 2px; margin-top: 12px; background: var(--home-line); overflow: hidden; }
 .track > span { position: absolute; inset: 0; background: var(--home-accent); transform-origin: left; transition: transform .15s linear; }
 :global([dir="rtl"]) .track > span, :global([dir="rtl"]) .mobileBarTrack > span { transform-origin: right; }
-.progressLine { display: flex; justify-content: space-between; gap: 12px; margin: 9px 0 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
-.progressLine b { font-weight: 400; color: var(--home-accent); }
+
 
 /* Contents list with sliding marker on its rail */
 .toc { position: relative; margin: 16px 0 0; padding: 0; list-style: none; }
@@ -129,7 +142,7 @@
 .cta > strong { display: block; font: 500 17px/1.3 var(--font-display), sans-serif; letter-spacing: -.03em; color: var(--home-ink); }
 .cta > p { margin: 6px 0 14px; font-size: 11.5px; line-height: 1.65; color: var(--home-muted); }
 .cta > a { width: 100%; }
-@media (max-height: 820px) and (min-width: 1024px) { .ctaPanel { display: none; } }
+
 @media (max-height: 960px) and (min-width: 1024px) { .cta > p { display: none; } .cta > strong { margin-bottom: 14px; } .panel { padding: 16px 0; } }
 
 /* ── Mobile contents bar (hidden on desktop) ────────────────────────── */
@@ -161,9 +174,9 @@
   .grid { grid-template-columns: minmax(0, 1fr); }
   .main { grid-column: 1; grid-row: 2; }
   .aside { grid-column: 1; grid-row: 3; margin-top: 56px; padding-inline-start: 0; border-inline-start: 0; border-top: 1px solid var(--home-line); }
-  .sticky { position: static; max-height: none; overflow: visible; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; }
-  .readingPanel { display: none; }
-  .sticky > .panel:last-child { grid-column: 1 / -1; }
+  .sticky { position: static; max-height: none; display: block; }
+  .progressPanel, .tocPanel { display: none; }
+  .stickyScroll { overflow: visible; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; -webkit-mask-image: none !important; mask-image: none !important; }
   .main section { scroll-margin-top: calc(var(--article-top) + 64px); }
 
   .mobileBar { display: block; position: sticky; z-index: 40; top: var(--article-top); grid-column: 1; grid-row: 1; margin: -24px 0 36px; background: color-mix(in srgb, var(--home-paper) 97%, transparent); backdrop-filter: saturate(1.2) blur(10px); -webkit-backdrop-filter: saturate(1.2) blur(10px); border-block: 1px solid var(--home-line); }
@@ -202,7 +215,7 @@
   .fact strong { font-size: 14px; }
   .keywords { grid-template-columns: 1fr; }
   .keywords > div + div { border-inline-start: 0; border-top: 1px solid var(--home-line); }
-  .sticky { grid-template-columns: 1fr; }
+  .stickyScroll { grid-template-columns: 1fr; }
   .endRule { margin-top: 44px; }
 }
 

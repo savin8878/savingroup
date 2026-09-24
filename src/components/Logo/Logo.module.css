@@ -1,0 +1,14 @@
+/* Wordmark colours from the Savin Group logo: navy "savin", green "group".
+   Navy disappears on the dark theme, so there it follows the page ink. */
+.wordmark { font-family: var(--font-dm-sans), var(--font-display), sans-serif; font-weight: 700; letter-spacing: -.045em; line-height: 1; white-space: nowrap; }
+.savin { color: #0b1b3d; }
+.group { color: #0b9a60; }
+:global(.dark) .savin { color: var(--foreground, #efefe7); }
+:global(.dark) .group { color: #22c27e; }
+@media (prefers-color-scheme: dark) {
+  :global(:root:not(.light)) .savin { color: var(--foreground, #efefe7); }
+  :global(:root:not(.light)) .group { color: #22c27e; }
+}
+.mark { display: block; flex-shrink: 0; transition: transform .35s cubic-bezier(.2, .75, .2, 1); }
+:global(.group):hover .mark { transform: rotate(-4deg) scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .mark { transition: none; } }

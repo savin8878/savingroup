@@ -16,10 +16,17 @@ export interface CategoryPageCopy {
   statPosts: string;
   statReading: string;
   statUpdated: string;
+  /** Stats row, fourth cell (monthly searches, or average read when a category has no volume data). */
+  statSearches: string;
+  statAvgRead: string;
+  /** Unit after a minute count in the stats row ("78 min"). */
+  minUnit: string;
   pageAnswers: string;
   allPostsEyebrow: string;
-  /** Two-line section heading: [lead, accent]. */
-  notesHeading: (count: number, label: string) => [string, string];
+  /** Two-line section heading: [lead, accent]. `topic` comes from `topics`. */
+  notesHeading: (count: number, topic: string) => [string, string];
+  /** What each category's notes are about, as it reads inside notesHeading ("SEO", "operations"). */
+  topics: Record<BlogCategory, string>;
   postsIntro: string;
   /** Used instead of postsIntro when the category has exactly one post. */
   postsIntroSingle: string;
@@ -50,9 +57,13 @@ const EN: CategoryPageCopy = {
   statPosts: "Posts in this category",
   statReading: "Total reading time",
   statUpdated: "Last updated",
+  statSearches: "Monthly searches addressed",
+  statAvgRead: "Avg. read time",
+  minUnit: "min",
   pageAnswers: "This page answers",
   allPostsEyebrow: "All posts in this category",
-  notesHeading: (n, label) => [`${n} field ${n === 1 ? "note" : "notes"} on`, `${label.toLowerCase()}.`],
+  notesHeading: (n, topic) => [`${n} field ${n === 1 ? "note" : "notes"} on`, `${topic}.`],
+  topics: { growth: "growth", automation: "automation", seo: "SEO", "case-study": "real outcomes", ops: "operations" },
   postsIntro: "The lead post is the one we’d hand a founder first. The rest follow in reading order.",
   postsIntroSingle: "One field note so far — the one we’d hand a founder first.",
   leadKicker: "Start here",
@@ -95,9 +106,13 @@ const ES: Partial<CategoryPageCopy> = {
   statPosts: "Artículos en esta categoría",
   statReading: "Tiempo total de lectura",
   statUpdated: "Última actualización",
+  statSearches: "Búsquedas mensuales cubiertas",
+  statAvgRead: "Lectura media",
+  minUnit: "min",
   pageAnswers: "Esta página responde",
   allPostsEyebrow: "Todos los artículos de esta categoría",
-  notesHeading: (n, label) => [`${n} ${n === 1 ? "nota de campo" : "notas de campo"} sobre`, `${label.toLowerCase()}.`],
+  notesHeading: (n, topic) => [`${n} ${n === 1 ? "nota de campo" : "notas de campo"} sobre`, `${topic}.`],
+  topics: { growth: "crecimiento", automation: "automatización", seo: "SEO", "case-study": "resultados reales", ops: "operaciones" },
   postsIntro: "El artículo principal es el que le daríamos primero a un fundador. El resto sigue en orden de lectura.",
   postsIntroSingle: "Por ahora, una sola nota de campo: la que le daríamos primero a un fundador.",
   leadKicker: "Empieza aquí",
@@ -140,9 +155,13 @@ const FR: Partial<CategoryPageCopy> = {
   statPosts: "Articles dans cette catégorie",
   statReading: "Temps de lecture total",
   statUpdated: "Dernière mise à jour",
+  statSearches: "Recherches mensuelles couvertes",
+  statAvgRead: "Temps de lecture moyen",
+  minUnit: "min",
   pageAnswers: "Cette page répond à",
   allPostsEyebrow: "Tous les articles de cette catégorie",
-  notesHeading: (n, label) => [`${n} ${n === 1 ? "note de terrain" : "notes de terrain"} sur`, `${label.toLowerCase()}.`],
+  notesHeading: (n, topic) => [`${n} ${n === 1 ? "note de terrain" : "notes de terrain"} sur`, `${topic}.`],
+  topics: { growth: "la croissance", automation: "l’automatisation", seo: "le SEO", "case-study": "des résultats réels", ops: "les opérations" },
   postsIntro: "L’article principal est celui que nous confierions en premier à un fondateur. Les autres suivent dans l’ordre de lecture.",
   postsIntroSingle: "Une seule note de terrain pour l’instant : celle que nous confierions en premier à un fondateur.",
   leadKicker: "Commencer ici",
@@ -185,9 +204,13 @@ const DE: Partial<CategoryPageCopy> = {
   statPosts: "Beiträge in dieser Kategorie",
   statReading: "Gesamte Lesezeit",
   statUpdated: "Zuletzt aktualisiert",
+  statSearches: "Abgedeckte Suchen pro Monat",
+  statAvgRead: "Ø Lesezeit",
+  minUnit: "Min.",
   pageAnswers: "Diese Seite beantwortet",
   allPostsEyebrow: "Alle Beiträge dieser Kategorie",
-  notesHeading: (n, label) => [`${n} ${n === 1 ? "Feldnotiz" : "Feldnotizen"} zu`, `${label}.`],
+  notesHeading: (n, topic) => [`${n} ${n === 1 ? "Feldnotiz" : "Feldnotizen"} zu`, `${topic}.`],
+  topics: { growth: "Wachstum", automation: "Automatisierung", seo: "SEO", "case-study": "echten Ergebnissen", ops: "Betrieb & Systemen" },
   postsIntro: "Den Leitartikel würden wir einem Gründer zuerst geben. Die übrigen folgen in Lesereihenfolge.",
   postsIntroSingle: "Bisher eine Feldnotiz – die, die wir einem Gründer zuerst geben würden.",
   leadKicker: "Hier beginnen",
@@ -233,9 +256,13 @@ const AR: Partial<CategoryPageCopy> = {
   statPosts: "مقالات هذا التصنيف",
   statReading: "إجمالي وقت القراءة",
   statUpdated: "آخر تحديث",
+  statSearches: "عمليات البحث الشهرية المستهدفة",
+  statAvgRead: "متوسط وقت القراءة",
+  minUnit: "دقيقة",
   pageAnswers: "تجيب هذه الصفحة عن",
   allPostsEyebrow: "كل مقالات هذا التصنيف",
-  notesHeading: (n, label) => [`${arCount(n, "ملاحظة ميدانية واحدة", "ملاحظتان ميدانيتان", "ملاحظات ميدانية")} عن`, `${label}.`],
+  notesHeading: (n, topic) => [`${arCount(n, "ملاحظة ميدانية واحدة", "ملاحظتان ميدانيتان", "ملاحظات ميدانية")} عن`, `${topic}.`],
+  topics: { growth: "النمو", automation: "الأتمتة", seo: "SEO", "case-study": "نتائج حقيقية", ops: "العمليات" },
   postsIntro: "المقال الرئيسي هو الذي نعطيه لأي مؤسس قبل غيره. وتتبعه بقية المقالات بترتيب القراءة.",
   postsIntroSingle: "ملاحظة ميدانية واحدة حتى الآن، وهي التي نعطيها لأي مؤسس قبل غيرها.",
   leadKicker: "ابدأ من هنا",
@@ -245,7 +272,7 @@ const AR: Partial<CategoryPageCopy> = {
   clustersAccent: "هذه المقالات.",
   clusterLabel: "مجموعة",
   inThisCategory: "في هذا التصنيف",
-  clusterCount: (total, here) => `${total} مقالات · ${here} هنا`,
+  clusterCount: (total, here) => `${arCount(total, "مقال واحد", "مقالان", "مقالات")} · ${here} هنا`,
   otherEyebrow: "تصفح تصنيفات أخرى",
   postCount: (n) => arCount(n, "مقال واحد", "مقالان", "مقالات"),
   finalLead: "لنبنِه",
@@ -278,9 +305,13 @@ const HI: Partial<CategoryPageCopy> = {
   statPosts: "इस category में posts",
   statReading: "कुल reading time",
   statUpdated: "आख़िरी update",
+  statSearches: "मासिक searches cover",
+  statAvgRead: "औसत read time",
+  minUnit: "मिनट",
   pageAnswers: "यह page इनका जवाब देता है",
   allPostsEyebrow: "इस category की सभी posts",
-  notesHeading: (n, label) => [`${label} पर`, `${n} field ${n === 1 ? "note" : "notes"}।`],
+  notesHeading: (n, topic) => [`${topic} पर`, `${n} field ${n === 1 ? "note" : "notes"}।`],
+  topics: { growth: "Growth", automation: "Automation", seo: "SEO", "case-study": "असली नतीजों", ops: "Operations" },
   postsIntro: "Lead post वो है जो हम किसी founder को सबसे पहले देंगे। बाकी posts reading order में हैं।",
   postsIntroSingle: "अभी एक field note है — वही जो हम किसी founder को सबसे पहले देंगे।",
   leadKicker: "यहाँ से शुरू करें",
@@ -323,9 +354,13 @@ const ZH: Partial<CategoryPageCopy> = {
   statPosts: "本分类文章",
   statReading: "总阅读时长",
   statUpdated: "最近更新",
+  statSearches: "覆盖的月搜索量",
+  statAvgRead: "平均阅读时长",
+  minUnit: "分钟",
   pageAnswers: "本页回答",
   allPostsEyebrow: "本分类全部文章",
-  notesHeading: (n, label) => [`关于${label}的`, `${n} 篇实战笔记。`],
+  notesHeading: (n, topic) => [`关于${topic}的`, `${n} 篇实战笔记。`],
+  topics: { growth: "增长", automation: "自动化", seo: "SEO", "case-study": "真实成果", ops: "运营" },
   postsIntro: "主打文章是我们最想先推荐给创始人的那一篇，其余文章按阅读顺序排列。",
   postsIntroSingle: "目前只有一篇实战笔记，也是我们最想先推荐给创始人的那一篇。",
   leadKicker: "从这里开始",
@@ -368,9 +403,13 @@ const GU: Partial<CategoryPageCopy> = {
   statPosts: "આ કેટેગરીમાં લેખ",
   statReading: "કુલ વાંચન સમય",
   statUpdated: "છેલ્લે અપડેટ",
+  statSearches: "આવરી લીધેલી માસિક સર્ચ",
+  statAvgRead: "સરેરાશ વાંચન સમય",
+  minUnit: "મિનિટ",
   pageAnswers: "આ પેજ જવાબ આપે છે",
   allPostsEyebrow: "આ કેટેગરીના બધા લેખ",
-  notesHeading: (n, label) => [`${label} પર`, `${n} ફીલ્ડ નોટ્સ.`],
+  notesHeading: (n, topic) => [`${topic} પર`, `${n} ફીલ્ડ ${n === 1 ? "નોટ" : "નોટ્સ"}.`],
+  topics: { growth: "ગ્રોથ", automation: "ઓટોમેશન", seo: "SEO", "case-study": "વાસ્તવિક પરિણામો", ops: "ઓપરેશન્સ" },
   postsIntro: "મુખ્ય લેખ એ છે જે અમે કોઈ પણ ફાઉન્ડરને સૌથી પહેલા આપીએ. બાકીના લેખ વાંચનના ક્રમમાં છે.",
   postsIntroSingle: "અત્યાર સુધી એક ફીલ્ડ નોટ છે — જે અમે કોઈ પણ ફાઉન્ડરને સૌથી પહેલા આપીએ.",
   leadKicker: "અહીંથી શરૂ કરો",
@@ -411,5 +450,5 @@ const TABLE: Record<Locale, Partial<CategoryPageCopy>> = { en: EN, es: ES, fr: F
 export function getCategoryCopy(locale: string): CategoryPageCopy {
   const table = TABLE[locale as Locale];
   if (!table || table === EN) return EN;
-  return { ...EN, ...table, figures: { ...EN.figures, ...table.figures }, motion: { ...EN.motion, ...table.motion } };
+  return { ...EN, ...table, topics: { ...EN.topics, ...table.topics }, figures: { ...EN.figures, ...table.figures }, motion: { ...EN.motion, ...table.motion } };
 }

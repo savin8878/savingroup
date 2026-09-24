@@ -28,6 +28,8 @@ import {
   getCategoryLabel,
 } from "@/components/blog/BlogPrimitives";
 import { ArticleToc, type TocItem } from "@/components/blog/article/ArticleToc";
+import { ArticleProgress } from "@/components/blog/article/ArticleProgress";
+import { ArticleSidebarScroll } from "@/components/blog/article/ArticleSidebarScroll";
 import { ArticleShare } from "@/components/blog/article/ArticleShare";
 import { ArticleMobileBar } from "@/components/blog/article/ArticleMobileBar";
 import { getArticleCopy } from "@/components/blog/copy/article-copy";
@@ -440,20 +442,23 @@ export default async function BlogDetailPage({
             {/* ---------- Right sticky sidebar ---------- */}
             <aside className={s.aside} aria-label={ui.onThisPage}>
               <div className={s.sticky}>
-                <ArticleToc items={tocItems} title={ui.onThisPage} locale={locale} readTime={post.readTime} />
+                <ArticleProgress locale={locale} readTime={post.readTime} />
+                <ArticleSidebarScroll className={s.stickyScroll}>
+                  <ArticleToc items={tocItems} title={ui.onThisPage} />
 
-                <div className={s.panel}>
-                  <div className={s.panelHead}><span>{ui.share}</span></div>
-                  <ArticleShare url={canonical} title={post.title} locale={locale} label={ui.share} />
-                </div>
-
-                <div className={`${s.panel} ${s.ctaPanel}`}>
-                  <div className={s.cta}>
-                    <strong>{copy.ctaTitle}</strong>
-                    <p>{copy.ctaBody}</p>
-                    <LocalizedLink href="/contact" className={home.primaryButton}>{ui.bookAudit}<ArrowUpRight size={17} aria-hidden="true" /></LocalizedLink>
+                  <div className={s.panel}>
+                    <div className={s.panelHead}><span>{ui.share}</span></div>
+                    <ArticleShare url={canonical} title={post.title} locale={locale} label={ui.share} />
                   </div>
-                </div>
+
+                  <div className={`${s.panel} ${s.ctaPanel}`}>
+                    <div className={s.cta}>
+                      <strong>{copy.ctaTitle}</strong>
+                      <p>{copy.ctaBody}</p>
+                      <LocalizedLink href="/contact" className={home.primaryButton}>{ui.bookAudit}<ArrowUpRight size={17} aria-hidden="true" /></LocalizedLink>
+                    </div>
+                  </div>
+                </ArticleSidebarScroll>
               </div>
             </aside>
           </div>

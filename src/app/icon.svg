@@ -1,0 +1,46 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <defs>
+    <linearGradient id="sgTop" x1="10" y1="4" x2="84" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0AA2FF"/>
+      <stop offset=".45" stop-color="#0B63F0"/>
+      <stop offset="1" stop-color="#0A4FD6"/>
+    </linearGradient>
+    <linearGradient id="sgBand" x1="10" y1="40" x2="84" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A3FC4"/>
+      <stop offset=".45" stop-color="#0B74F2"/>
+      <stop offset=".75" stop-color="#08B3E6"/>
+      <stop offset="1" stop-color="#0A9E8C"/>
+    </linearGradient>
+    <linearGradient id="sgBottom" x1="80" y1="66" x2="6" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0BA878"/>
+      <stop offset=".5" stop-color="#0FB673"/>
+      <stop offset="1" stop-color="#16D06F"/>
+    </linearGradient>
+    <linearGradient id="sgArrow" x1="74" y1="68" x2="98" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A9E5E"/>
+      <stop offset="1" stop-color="#17D66E"/>
+    </linearGradient>
+    <linearGradient id="sgPeople" x1="30" y1="22" x2="70" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1A5FD0"/>
+      <stop offset="1" stop-color="#0E3E9E"/>
+    </linearGradient>
+  </defs>
+  <!-- upper bowl: from the top-right cut, over the top, round the left -->
+  <path d="M89 7 C 74 1, 42 -3, 20 9 C 3 18, -2 36, 8 48 L 13.5 35.5 C 13 24, 26 17, 44 17 C 58 17, 70 21, 78 27 Z" fill="url(#sgTop)"/>
+  <!-- the diagonal band through the middle -->
+  <path d="M13.5 35 C 18 42, 32 45, 48 47.6 C 63 50, 76 53, 84.5 60.5 L 83 72.5 C 74 67, 62 64.5, 46 61.5 C 30 58.5, 15 56, 8 48 Z" fill="url(#sgBand)"/>
+  <!-- lower bowl sweeping to the pointed bottom-left end -->
+  <path d="M84 60 C 95 68, 94 84, 82 92 C 70 100, 45 101, 25 97 C 14 95, 5 92, 1 91 L 15 69 C 22 75, 32 79, 44 79.5 C 56 80, 66 75, 71 66 Z" fill="url(#sgBottom)"/>
+  <!-- growth arrow -->
+  <path d="M82.5 69 C 85.5 61, 86.5 54, 85.8 46.5 L 92 46 C 92.3 54.5, 90.2 62.5, 86 70.5 Z" fill="url(#sgArrow)"/>
+  <path d="M97 29.5 L 72 41.5 L 99 57 Z" fill="url(#sgArrow)"/>
+  <!-- the team -->
+  <g fill="url(#sgPeople)">
+    <circle cx="48" cy="29" r="5.6"/>
+    <path d="M37.5 47.5 C 37.5 40, 42 36, 48 36 C 54 36, 58.5 40, 58.5 48.5 Z"/>
+    <circle cx="35" cy="34" r="4.1"/>
+    <path d="M28 44 C 29 41, 31.5 39.8, 35 39.8 C 36.5 39.8, 37.6 40.2, 38.4 40.8 C 37 42, 36.4 43.6, 36.2 45.6 Z"/>
+    <circle cx="61" cy="34" r="4.1"/>
+    <path d="M60 40.2 C 66 40, 70 43.5, 71.5 51 C 67.5 49.6, 64 48.8, 60.6 48.3 C 60.8 45, 60.6 42.4, 60 40.2 Z"/>
+  </g>
+</svg>
