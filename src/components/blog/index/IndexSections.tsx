@@ -120,7 +120,7 @@ export function LatestSection({ ctx, latest, mostRead }: { ctx: IndexContext; la
     <BlogSection id="latest" labelledBy="latest-title">
       <SectionHeading number={2} label={ui.latestEyebrow} lead={ui.latestTitle} accent={ui.latestTitleAccent} id="latest-title" />
       <div className={s.latestLayout}>
-        <PostGrid posts={latest} ui={ui} locale={locale} columns={2} label={ui.latestEyebrow} className={s.cardGrid} />
+        <PostGrid posts={latest} ui={ui} locale={locale} columns={2} label={ui.latestEyebrow} className={cx(s.cardGrid, s.latestGrid)} />
         <aside className={s.mostRead} aria-labelledby="most-read-title">
           <p className={s.mostReadEyebrow}><i aria-hidden="true" />{ui.mostReadEyebrow}</p>
           <h3 id="most-read-title" className={s.mostReadTitle}>{ui.mostReadTitle}</h3>
@@ -140,7 +140,7 @@ export function LatestSection({ ctx, latest, mostRead }: { ctx: IndexContext; la
           </ol>
         </aside>
       </div>
-      <div className={blog.sectionFoot}>
+      <div className={cx(blog.sectionFoot, s.foot)}>
         <span>{ui.allPostsTitle} {ui.allPostsTitleAccent}</span>
         <a href="#library">{copy.latestAll}<ArrowDown size={16} className={blog.arrow} aria-hidden="true" /></a>
       </div>
@@ -192,7 +192,7 @@ export interface IndexStat { label: string; value: ReactNode; unit?: string; acc
 export function WhyWeWriteSection({ ctx, stats }: { ctx: IndexContext; stats: IndexStat[] }) {
   const { ui, copy } = ctx;
   return (
-    <BlogSection tone="dark" id="why-we-write" labelledBy="why-title">
+    <BlogSection tone="dark" id="why-we-write" labelledBy="why-title" className={s.why}>
       <div className={s.whyGrid}>
         <div>
           <Chapter number={4}>{ui.whyWeWriteEyebrow}</Chapter>

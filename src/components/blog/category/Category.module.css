@@ -23,15 +23,27 @@
 .page > button { min-height: 40px; }
 .nav a { min-height: 40px; }
 .finalCta > div > div:last-child > a { min-height: 40px; margin-block: -4px; }
+
+/* The site-wide :focus-visible rule adds a 4px radius, which rounds the
+   square chips, buttons and rows the moment they take keyboard focus.
+   Keep the ring square like everything else on the page. */
+.page :is(a, button):focus-visible { border-radius: 0; }
 /* The closing question here is a full sentence (home's is one short line):
    keep it to a readable measure instead of the whole 1.55fr column. */
 .finalCta > div > div:nth-child(2) > div:first-child > p:first-child { max-width: 540px; }
+/* RTL: the primary button and "back to top" arrows point the reading way,
+   like the secondary link beside them (which the shared .arrow already flips).
+   The English support line hugs its check mark on the right. */
+:global([dir="rtl"]) .finalCta h2 + div > a:first-child > svg,
+:global([dir="rtl"]) .finalCta > div > div:last-child > a > svg { transform: scaleX(-1); }
+:global([dir="rtl"]) .finalCta h2 + div > a:first-child:hover > svg { transform: scaleX(-1) translate(2px, -2px); }
+:global([dir="rtl"]) .finalCta bdi { text-align: right; }
 
 /* ── Hero ──────────────────────────────────────────────────────────────── */
 .hero { padding-bottom: 0; }
 .topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 24px; padding-bottom: 12px; }
 .topbar > nav { min-width: 0; }
-.topbar ol a { min-height: 40px; margin: -6px -8px; padding-inline: 8px; }
+.topbar ol a { justify-content: center; min-width: 40px; min-height: 40px; margin: -6px -8px; padding-inline: 8px; }
 .back { display: inline-flex; align-items: center; gap: 9px; min-height: 40px; margin-block: -6px; padding-inline-start: 8px; color: var(--home-muted); font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .07em; text-transform: uppercase; transition: color .2s; }
 .back:hover { color: var(--home-accent); }
 .back svg { transition: transform .2s; }
@@ -104,6 +116,10 @@
    carry its "·" to the left. Pin each one to the item's right edge instead. */
 :global([dir="rtl"]) .posts article > div p > * + * { position: relative; padding-right: 19px; }
 :global([dir="rtl"]) .posts article > div p > * + *::before { position: absolute; top: 0; right: 0; width: 19px; margin: 0; text-align: center; }
+/* The aside's "11 min" is an English run, so it lays out left to right; the
+   unit's inline-start margin would land on its outer (right) edge and glue
+   it to the number. Put the gap between them. */
+:global([dir="rtl"]) .posts article > aside > strong > small { margin-inline: 0; margin-left: 6px; }
 
 /* ── Topic clusters (numbered rows) ────────────────────────────────────── */
 .clusters { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
@@ -213,8 +229,18 @@
 /* Mono chapter labels read uppercase, like the home chapters. */
 .head > div > div:first-child > span:last-child { text-transform: uppercase; }
 
-/* Arabic has no glyphs in the mono face and falls back to a system font whose
-   8–9px size is too small to read; tracking also pulls the joined letters
-   apart. Under RTL the page's mono labels step up and drop the tracking. */
-:global([dir="rtl"]) :is(.statLabel, .answersLabel, .clusterKicker, .clusterMeta, .here, .dirKicker, .dirFoot, .fillerKicker, .fillerMeta, .back),
-:global([dir="rtl"]) .head > div > div:first-child > span:last-child { font-size: 11px; letter-spacing: 0; }
+/* Arabic, Devanagari, Gujarati and Chinese have no glyphs in the mono face and
+   fall back to a system font whose 8–9px size is too small to read; tracking
+   also pulls joined letters and conjuncts apart. In those locales the page's
+   mono labels step up and drop the tracking — the page's own labels plus the
+   shared pieces it places (breadcrumb, eyebrow, chips, card kicker and meta). */
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) :is(.statLabel, .answersLabel, .clusterKicker, .clusterMeta, .here, .dirKicker, .dirFoot, .fillerKicker, .fillerMeta, .back, .topbar ol, .nav a),
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .head > div > div:first-child > span:last-child,
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .hero > div > div:nth-child(2),
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .posts article > div > div:first-child,
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .posts article > div > p + p,
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .posts article > div > div:last-child > p,
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .posts article > aside > span { font-size: 11px; letter-spacing: 0; }
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .hero > div > div:nth-child(2) > span:last-child { font-size: 10px; }
+/* Section intros: 12–13px suits Latin text; these scripts need 14px to read. */
+.page:is(:lang(ar), :lang(hi), :lang(gu), :lang(zh)) .head > p { font-size: 14px; line-height: 1.85; }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import LocalizedLink from "@/components/LocalizedLink";
 import home from "@/components/home/IndustrialHome.module.css";
+import blogStyles from "@/components/blog/Blog.module.css";
 import { BlogMotion } from "@/components/blog/BlogMotion";
 import {
   BlogSection,
@@ -484,7 +485,7 @@ export default async function BlogCategoryPage({
               action={
                 <LocalizedLink href="/blogs" className={home.textButton}>
                   {ui.allPostsBackLink}
-                  <ArrowUpRight size={16} aria-hidden="true" />
+                  <ArrowUpRight size={16} className={blogStyles.arrow} aria-hidden="true" />
                 </LocalizedLink>
               }
             />

@@ -390,3 +390,26 @@ a.tag:hover { color: var(--home-accent); border-color: var(--home-accent); }
   .root [data-blog-reveal] { opacity: 1 !important; transform: none !important; }
   .progressBar, .skipLink, .root .motionControl { display: none !important; }
 }
+
+/* ── Shared polish from design QA (applies to every blog page) ──────────── */
+/* Square controls stay square on keyboard focus (globals.css rounds them). */
+.root :is(a, button, summary):focus-visible { border-radius: 0; }
+/* Tap targets ≥ 40px without shifting the layout. */
+.chip { min-height: 40px; }
+.breadcrumb a { min-height: 40px; margin-block: -6px; }
+.finalFooter > a { min-height: 40px; }
+.root .motionControl { min-height: 40px; }
+/* RTL: each meta item is an isolated left-to-right run ("11 min read", not
+   "min read 11"); the "·" separator moves to the side facing the previous item. */
+.meta > * { unicode-bidi: isolate; }
+:global([dir="rtl"]) .meta > * { direction: ltr; }
+:global([dir="rtl"]) .meta > * + *::before { content: none; }
+:global([dir="rtl"]) .meta > * + *::after { content: "·"; margin-inline: 9px; color: var(--home-muted); opacity: .7; }
+.featureAside > strong { display: flex; align-items: baseline; gap: 6px; }
+.featureAside > strong > small { margin-inline-start: 0; }
+/* RTL: arrows in the closing band mirror like the rest of the page. */
+:global([dir="rtl"]) .finalActions svg, :global([dir="rtl"]) .finalFooter > a > svg { transform: scaleX(-1); }
+/* Card thumbnails: keep the drawing clear of the FIG / category labels. */
+.cardFigure > svg { inset: 30px 12px 10px; width: calc(100% - 24px); height: calc(100% - 40px); }
+/* Hindi, Gujarati, Arabic and Chinese can't be read at 8–9px mono sizes. */
+.root:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh)) :is(.meta, .breadcrumb, .chip, .eyebrow, .edition, .cardKicker, .cardFigLabel, .cardFigCode, .calloutLabel, .tocTitle, .mono, .proseNumber, .featureAside > span, .finalEyebrow, .finalFooter) { font-size: 11px; letter-spacing: .02em; }

@@ -121,3 +121,9 @@
   .svg .draw { stroke-dashoffset: 0 !important; }
   .svg .traveler { opacity: 0 !important; }
 }
+
+/* Drawings are laid out left-to-right; keep their annotations anchored in RTL pages. */
+.svg { direction: ltr; unicode-bidi: isolate; }
+:global(html:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh))) :is(.caption, .legend) { font-size: 11px; letter-spacing: .02em; }
+
+.legend > span { unicode-bidi: plaintext; }

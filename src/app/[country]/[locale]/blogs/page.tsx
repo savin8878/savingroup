@@ -303,6 +303,7 @@ export default async function BlogsIndexPage({
           <IndiaGeoFooter country={country} locale={locale} pageKey="blogs" />
         </GeoFooterFrame>
         <FinalCta
+          className={indexStyles.final}
           eyebrow={copy.finalEyebrow}
           question={copy.finalQuestion}
           lead={copy.finalLead}

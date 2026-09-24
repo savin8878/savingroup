@@ -5,9 +5,13 @@
  */
 
 /* ── Hero ──────────────────────────────────────────────────────────────── */
-.crumbs { padding-bottom: 12px; }
-.heroNote { display: flex; align-items: center; gap: 8px; margin: 26px 0 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
-.heroNote > span { width: 4px; height: 4px; border-radius: 50%; background: #64785b; flex-shrink: 0; }
+.crumbs { padding-bottom: 0; }
+/* 40px-tall hit area on the crumb link, widened without moving the "/" separators. */
+.crumbs a { position: relative; min-height: 40px; }
+.crumbs a::after { content: ""; position: absolute; inset: 0 -10px; }
+.heroNote { display: flex; align-items: flex-start; gap: 8px; margin: 26px 0 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+/* Dot sits on the first line, also when the note wraps (long locales). */
+.heroNote > span { width: 4px; height: 4px; margin-top: calc(.8em - 2px); border-radius: 50%; background: #64785b; flex-shrink: 0; }
 
 /* Category band under the hero: label + six counted links. */
 .band { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 6fr); border-top: 1px solid var(--home-line); }
@@ -22,6 +26,8 @@
 .bandLink > span { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); overflow-wrap: anywhere; }
 .bandLink > svg { position: absolute; top: 18px; inset-inline-end: 14px; opacity: .55; transition: opacity .2s; }
 .bandLink:hover > svg { opacity: 1; }
+/* The hero clips its overflow, so the ring is drawn inside the cell. */
+[data-blog-root] .band .bandLink:focus-visible { outline-offset: -2px; }
 
 /* ── 01 Featured ───────────────────────────────────────────────────────── */
 .headNote { display: flex; align-items: center; gap: 10px; margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); white-space: nowrap; }
@@ -51,6 +57,14 @@
 .mrTitle a::after { content: ""; position: absolute; inset: 0; }
 .mrItem:hover .mrTitle a { color: var(--home-accent); }
 .mrItem > svg { margin-top: 3px; }
+/* The whole row is the link (stretched ::after), so the ring goes round the row — as on cards and rows. */
+.mrItem:has(.mrTitle a:focus-visible) { outline: 2px solid var(--home-accent); outline-offset: 2px; }
+[data-blog-root] .mrItem .mrTitle a:focus-visible { outline: none; }
+/* Only stick when the whole list fits under the header. */
+@media (max-height: 720px), (max-width: 1150px) and (max-height: 840px) { .mostRead { position: static; } }
+
+/* Section foot ("all the field notes · browse every post"). */
+.foot > span { min-width: 0; }
 
 /* ── 03 Topic clusters (chapter rows) ──────────────────────────────────── */
 .clusters { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
@@ -68,6 +82,12 @@
 .clusterLinks a > svg { align-self: center; }
 
 /* ── 04 Why we write (dark band) ───────────────────────────────────────── */
+/* In the dark theme the band's #1a2420 sits within a few steps of the page
+   tones, so it gets its hairlines back and a slightly deeper ground. */
+:global(.dark) .why { background: #121815; border-block: 1px solid #2f3b33; }
+@media (prefers-color-scheme: dark) {
+  :global(:root:not(.light)) .why { background: #121815; border-block: 1px solid #2f3b33; }
+}
 .whyGrid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 80px; align-items: start; }
 .whyBody { margin-top: 28px; max-width: 590px; }
 .whyBody p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.85; color: var(--home-muted); }
@@ -80,8 +100,8 @@
 .numbers dl > div:nth-child(odd) { border-inline-end: 1px solid var(--home-line); }
 .numbers dl > div:nth-last-child(-n + 2) { border-bottom: 0; }
 .numbers dt { font: 8.5px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
-.numbers dd { margin: 0; font: 500 clamp(38px, 4.1vw, 58px)/1 var(--font-display), sans-serif; letter-spacing: -.06em; color: var(--home-ink); white-space: nowrap; }
-.numbers dd > small { margin-inline-start: 6px; font-size: 14px; letter-spacing: -.02em; color: var(--home-muted); }
+.numbers dd { display: flex; align-items: baseline; gap: 6px; margin: 0; font: 500 clamp(38px, 4.1vw, 58px)/1 var(--font-display), sans-serif; letter-spacing: -.06em; color: var(--home-ink); white-space: nowrap; }
+.numbers dd > small { font-size: 14px; letter-spacing: -.02em; color: var(--home-muted); }
 .numberAccent dd { color: var(--home-accent); }
 
 /* ── 05 Library ────────────────────────────────────────────────────────── */
@@ -90,6 +110,7 @@
 .chipsWrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; min-width: 0; }
 .controlsLabel { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-muted); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chips .chipControl { min-height: 40px; }
 .chipButton { cursor: pointer; }
 .chipButton[aria-pressed="true"] { color: var(--home-accent); border-color: var(--home-accent); background: var(--home-surface); }
 .search { position: relative; display: flex; align-items: center; flex: 0 1 300px; min-width: 220px; }
@@ -107,8 +128,13 @@
 [data-blog-root] .groupTitle { display: flex; align-items: baseline; gap: 12px; margin: 0; font-size: clamp(22px, 2vw, 27px); line-height: 1.2; letter-spacing: -.045em; }
 .groupTitle > span { font: 10px var(--font-mono), monospace; letter-spacing: .06em; color: var(--home-accent); }
 .groupCount { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
-.groupLink { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; margin-inline-start: auto; font-size: 11px; font-weight: 600; color: var(--home-ink); transition: color .2s; }
+.groupLink { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-inline-start: auto; font-size: 11px; font-weight: 600; color: var(--home-ink); transition: color .2s; }
 .groupLink:hover { color: var(--home-accent); }
+/* Rows inside a topic group: the group heading already names the category,
+   so the per-row category column is dropped and the title gets the room.
+   (Row children: index, category, main, meta, arrow.) */
+.group ol > li > article { grid-template-columns: 40px minmax(0, 1fr) auto 20px; }
+.group ol > li > article > span:nth-of-type(2) { display: none; }
 .tagCloud { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px 24px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--home-line); }
 .tagCloudLabel { display: flex; align-items: center; gap: 9px; margin: 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-accent); align-self: start; padding-top: 6px; }
 .tagCloudLabel > i { width: 5px; height: 5px; border-radius: 50%; background: var(--home-accent); flex-shrink: 0; }
@@ -157,7 +183,7 @@
 .geo article header > span { font-size: 8px; letter-spacing: .1em; color: var(--home-muted); }
 .geo article p { font-size: 12.5px; line-height: 1.8; color: var(--home-muted); }
 .geo article ul { margin-top: 12px; }
-.geo article a { padding: 9px 0; border-radius: 0; font-size: 12.5px; color: var(--home-ink); }
+.geo article a { min-height: 40px; align-items: center; padding: 9px 0; border-radius: 0; font-size: 12.5px; color: var(--home-ink); }
 .geo article a:hover { background: transparent; color: var(--home-accent); }
 .geo article a > svg { color: var(--home-accent); }
 .geo > section > div > p:last-child { max-width: 900px; margin-top: 36px; font-size: 12px; line-height: 1.85; color: var(--home-muted); }
@@ -168,7 +194,16 @@
    Text blocks take their base direction from their own content, so English
    fallback strings keep their punctuation in place inside the RTL page. */
 .page svg[data-blog-scene], .cardGrid > li > article > div:first-child > svg { direction: ltr; }
-:global([dir="rtl"]) .page :is(h1, h2, h3, h4, p, summary, dt, dd, h1 > span, h1 > em) { unicode-bidi: plaintext; text-align: right; }
+:global([dir="rtl"]) .page :is(h1, h2, h3, h4, p, summary, dt, dd, h1 > span, h1 > em, .foot > span) { unicode-bidi: plaintext; text-align: right; }
+
+/* ── Scripts other than Latin (hi, gu, ar, zh) ────────────────────────────
+   The 8–9px mono labels are tuned for Latin caps; Devanagari, Gujarati,
+   Arabic and Han glyphs need a couple more pixels to stay legible. */
+.page:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh)) :is(.heroNote, .bandLabel, .bandLink > span, .headNote, .fillerEyebrow, .mostReadEyebrow, .clusterMeta, .clusterCount, .whyByline > span, .numbersTitle, .numbers dt, .controlsLabel, .status, .groupCount, .tagCloudLabel, .newsEyebrow, .formLabel, .privacy) { font-size: 11px; letter-spacing: .02em; }
+
+/* ── Tap targets on shared pieces used by this page (≥ 40px) ──────────── */
+.page > button:last-child { min-height: 40px; }
+.final a[href="#blog-index-title"] { min-height: 40px; }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 1150px) {
@@ -192,6 +227,7 @@
   .filler[data-fill2="0"] { display: none; }
   .latestLayout { grid-template-columns: minmax(0, 1fr); gap: 44px; }
   .mostRead { position: static; }
+  .group ol > li > article { grid-template-columns: 30px minmax(0, 1fr) 20px; grid-template-areas: "index main arrow" "index meta arrow"; }
   .cluster { grid-template-columns: 44px minmax(0, 1fr); gap: 22px 18px; }
   .clusterLinks { grid-column: 2; }
   .whyGrid { grid-template-columns: minmax(0, 1fr); gap: 0; }
@@ -204,7 +240,6 @@
   .geo > section { padding-block: 54px; }
   .geo > section > div { width: calc(100% - 40px); }
   .geo article { padding: 20px 20px 14px; }
-  .crumbs { padding-bottom: 6px; }
   .heroNote { font-size: 8px; margin-top: 20px; }
   .bandList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .bandList > li:nth-child(3n + 1) { border-inline-start: 0; }
@@ -218,6 +253,8 @@
   .filler, .filler[data-fill2="0"], .filler[data-fill3="0"] { display: flex; grid-column: auto; }
   .fillerInner { min-height: 180px; padding: 24px 20px 18px; }
   .cardGrid > li > article > div:first-child { aspect-ratio: 16 / 8.5; }
+  /* Phones: the latest posts mostly repeat drawings shown in Featured just above, so these cards go text-only. */
+  .latestGrid > li > article > div:first-child { display: none; }
   .cluster { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 28px 0; }
   .clusterLinks { grid-column: auto; }
   .clusterLinks a { font-size: 13px; }
@@ -228,7 +265,8 @@
   .controls { align-items: stretch; flex-direction: column; }
   .search { flex: 1 1 auto; min-width: 0; }
   .group { margin-top: 34px; }
-  .groupLink { margin-inline-start: 0; flex-basis: 100%; min-height: 32px; }
+  .groupLink { margin-inline-start: 0; flex-basis: 100%; min-height: 40px; }
+  .foot > span { display: block; line-height: 1.65; }
   .tagCloud { margin-top: 44px; }
   .writer, .newsletter { padding: 26px 20px; }
   .formRow { flex-direction: column; gap: 10px; }

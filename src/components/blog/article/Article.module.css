@@ -222,3 +222,7 @@
 @media (prefers-reduced-motion: reduce) {
   .toc::after, .track > span, .mobileBarTrack > span, .links a, .mobileBarChevron { transition: none !important; }
 }
+
+/* Hindi, Gujarati, Arabic and Chinese can't be read at 8–9px mono sizes. */
+.page:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh)) :is(.panelHead, .progressNote, .fact dt, .blockLabel, .tocNum, .keywords h3, .keywords p, .keywords li, .mobileBarCount, .mobileBarPercent, .shareButton, .backLink, .endRule) { font-size: 11px; letter-spacing: .02em; }
+.fact dt, .fact dd, .metaGrid dd { unicode-bidi: plaintext; }

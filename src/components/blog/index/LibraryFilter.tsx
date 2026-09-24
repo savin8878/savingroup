@@ -73,11 +73,11 @@ export function LibraryFilter({ options, entries, labels, children }: {
             {options.map((option) => (
               <li key={option.key}>
                 {enhanced ? (
-                  <button type="button" className={`${blog.chip} ${s.chipButton}`} aria-pressed={active === option.key} onClick={() => setActive(option.key)}>
+                  <button type="button" className={`${blog.chip} ${s.chipControl} ${s.chipButton}`} aria-pressed={active === option.key} onClick={() => setActive(option.key)}>
                     {option.label}<small>{pad(option.count)}</small>
                   </button>
                 ) : (
-                  <a className={blog.chip} href={option.key === "all" ? "#library" : `#cat-${option.key}`}>
+                  <a className={`${blog.chip} ${s.chipControl}`} href={option.key === "all" ? "#library" : `#cat-${option.key}`}>
                     {option.label}<small>{pad(option.count)}</small>
                   </a>
                 )}
