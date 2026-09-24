@@ -5,7 +5,7 @@ import {
   INDEXABLE_COUNTRIES,
 } from "@/lib/constants";
 import { NextResponse } from "next/server";
-import { BLOG_POSTS, BLOG_CATEGORIES } from "@/lib/blogs";
+import { getAllBlogPosts, BLOG_CATEGORIES } from "@/lib/blogs";
 import { INDIA_CITIES, getCityIndexableLocales } from "@/lib/cities";
 import { CITY_BLOG_POSTS } from "@/lib/city-blog";
 import { INDUSTRY_SLUGS } from "@/lib/industry-data";
@@ -108,6 +108,18 @@ export async function GET(
   }
 
   const base = resolveBaseUrl(request);
+  let BLOG_POSTS;
+  try {
+    BLOG_POSTS = await getAllBlogPosts();
+  } catch (err) {
+    // Never publish a sitemap that silently drops every blog URL — tell
+    // crawlers to come back instead, and keep this response out of caches.
+    console.error("[sitemap] blog posts unavailable:", err instanceof Error ? err.message : err);
+    return new NextResponse("Sitemap temporarily unavailable", {
+      status: 503,
+      headers: { "Cache-Control": "no-store", "Retry-After": "600" },
+    });
+  }
 
   // Latest blog publication date — used as category-page `lastmod` so category
   // freshness actually tracks when new posts land, not when the sitemap renders.

@@ -206,7 +206,13 @@
     background-color: var(--background);
     color: var(--foreground);
     font-feature-settings: "ss01", "cv11";
+    /* `clip`, not `hidden`: with <html> already overflow-x: hidden, a hidden
+       body becomes its own (never-scrolling) scroll container and every
+       `position: sticky` on the site silently stops sticking. `clip` still
+       prevents horizontal scroll without creating a scroll container.
+       `hidden` stays first as the fallback for browsers without `clip`. */
     overflow-x: hidden;
+    overflow-x: clip;
     min-width: 0;
   }
 

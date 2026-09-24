@@ -1,0 +1,123 @@
+/*
+ * Technical line drawings for the blog. Same language as the home
+ * TechnicalVisuals / About diagrams: muted outlines, paper fills, one accent
+ * that carries the story, mono annotations. Everything reads as a complete
+ * static drawing; motion only indicates direction.
+ *
+ * Colours follow the home tokens, so the drawings re-ink themselves in dark
+ * mode and inside the dark band. The accent "machine" block keeps fixed
+ * material colours, like the home hero.
+ */
+
+/* ── Figure frame (caption row + drawing + legend) ─────────────────────── */
+.figure { min-width: 0; margin: 0; }
+.caption { display: flex; align-items: center; gap: 17px; padding: 0 2px 10px; color: var(--home-muted); font: 8px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.caption > span:first-child { color: var(--home-accent); flex-shrink: 0; }
+.caption > span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.caption > svg { margin-inline-start: auto; flex-shrink: 0; }
+.legend { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 18px; margin-top: 8px; color: var(--home-muted); font: 8px/1.5 var(--font-mono), monospace; letter-spacing: .04em; }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 5px; height: 5px; border: 1px solid var(--home-muted); }
+.legend > span:nth-child(2) i { background: var(--home-accent); border-color: var(--home-accent); }
+.legend > span:nth-child(3) i { border-radius: 50%; background: #84937c; border-color: #84937c; }
+
+/* ── Drawing primitives ─────────────────────────────────────────────────── */
+.svg { display: block; width: 100%; height: auto; overflow: visible; color: var(--home-ink); font-family: var(--font-mono), monospace; }
+.svg text { stroke: none; }
+.guide { fill: none; stroke: var(--home-line); stroke-width: 1; }
+.dashed { stroke-dasharray: 2 7; }
+.line { fill: none; stroke: var(--home-muted); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.inkLine { fill: none; stroke: var(--home-ink); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.paper { fill: var(--home-paper); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
+.surface { fill: var(--home-surface); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
+.soft { fill: var(--home-soft); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
+.fillSurface { fill: var(--home-surface); stroke: none; }
+.tint { fill: color-mix(in srgb, var(--home-accent) 13%, var(--home-surface)); stroke: var(--home-accent); stroke-width: 1.15; stroke-linejoin: round; }
+.tintFill { fill: color-mix(in srgb, var(--home-accent) 16%, var(--home-surface)); stroke: none; }
+.area { fill: color-mix(in srgb, var(--home-accent) 9%, transparent); stroke: none; }
+.accentFill { fill: var(--home-accent); stroke: none; }
+.accentLine { fill: none; stroke: var(--home-accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.accentDot { fill: var(--home-paper); stroke: var(--home-accent); stroke-width: 1.4; }
+.route { fill: none; stroke: color-mix(in srgb, var(--home-accent) 42%, var(--home-line)); stroke-width: 1.4; stroke-dasharray: 3 5; stroke-linecap: round; }
+.gridDot { fill: var(--home-muted); opacity: .2; }
+.bar { fill: none; stroke: var(--home-ink); stroke-width: 3; stroke-linecap: round; }
+.barAccent { fill: none; stroke: var(--home-accent); stroke-width: 3; stroke-linecap: round; }
+
+/* Material colours of the "machine" (fixed across themes, like the home hero). */
+.machineTop { fill: #dc7040; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
+.machineLeft { fill: #b8471f; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
+.machineRight { fill: #a13f1c; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
+.machineSlot { fill: #5e2410; stroke: none; }
+.whiteLine { fill: none; stroke: #fff3e4; stroke-width: 1.1; stroke-linecap: round; }
+.whiteText { fill: #fff8ef; font-size: 8px; letter-spacing: .14em; }
+.lamp { fill: #ffe7bc; stroke: none; }
+
+/* Type */
+.annot { fill: var(--home-muted); font-size: 8px; letter-spacing: .12em; }
+.annotAccent { fill: var(--home-accent); }
+.micro { fill: var(--home-muted); font-size: 7px; letter-spacing: .1em; }
+.microInk { fill: var(--home-ink); font-size: 7px; letter-spacing: .1em; }
+.microAccent { fill: var(--home-accent); font-size: 7px; letter-spacing: .1em; }
+.label { fill: var(--home-ink); font-family: var(--font-sans), sans-serif; font-size: 11px; font-weight: 500; letter-spacing: -.01em; }
+.boxLabel { fill: var(--home-ink); font-size: 8.5px; letter-spacing: .1em; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────── */
+.flow { fill: none; stroke: var(--home-accent); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 3 57; animation: bfFlow 12s linear infinite; }
+.flowFast { animation-duration: 7s; }
+.flowReverse { animation-direction: reverse; }
+.pulse { transform-box: fill-box; transform-origin: center; animation: bfPulse 2.8s ease-out infinite; }
+.blink { animation: bfBlink 1.4s ease-in-out infinite; }
+.bob { animation: bfBob 4.5s ease-in-out infinite; }
+.spin { transform-box: fill-box; transform-origin: center; animation: bfSpin 6s linear infinite; }
+.spinFrom { transform-box: view-box; animation: bfSpin 5s linear infinite; }
+.scanX { animation: bfScanX 7s ease-in-out infinite alternate; }
+.drop { animation: bfDrop 2.4s cubic-bezier(.5,0,.8,.6) infinite; }
+.grow { transform-box: fill-box; transform-origin: bottom; animation: bfGrow 5s ease-in-out infinite; }
+.cycle { animation: bfAppear 7s ease-out infinite both; }
+.layerTop { animation: bfLayer 8s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 1.6s); }
+.rowScan { animation: bfRows 9s step-end infinite; }
+.envelope { animation: bfEnvelope 9s ease-in-out infinite; }
+.truck { animation: bfTruck 9s cubic-bezier(.35,.05,.35,1) infinite; }
+.traveler { offset-rotate: 0deg; offset-distance: 0%; animation: bfTravel 6.5s ease-in-out infinite; opacity: 0; }
+.draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+
+@keyframes bfFlow { to { stroke-dashoffset: -240; } }
+@keyframes bfPulse { 0% { transform: scale(1); opacity: .55; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes bfBlink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@keyframes bfBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes bfSpin { to { transform: rotate(360deg); } }
+@keyframes bfScanX { 0%, 8% { transform: translateX(0); } 92%, 100% { transform: translateX(var(--scan, 330px)); } }
+@keyframes bfDrop { 0% { transform: translateY(0); opacity: 0; } 12% { opacity: 1; } 100% { transform: translateY(var(--fall, 34px)); opacity: 0; } }
+@keyframes bfGrow { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.55); } }
+@keyframes bfAppear { 0% { opacity: 0; transform: translateY(4px); } 7%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+@keyframes bfLayer { 0%, 22%, 100% { fill: var(--home-paper); } 9% { fill: color-mix(in srgb, var(--home-accent) 20%, var(--home-paper)); } }
+@keyframes bfRows { 0% { transform: translateY(0); } 16.66% { transform: translateY(30px); } 33.33% { transform: translateY(60px); } 50% { transform: translateY(90px); } 66.66% { transform: translateY(120px); } 83.33% { transform: translateY(150px); } }
+@keyframes bfEnvelope { 0%, 6% { transform: translateX(0); opacity: 0; } 12% { opacity: 1; } 84% { transform: translateX(384px); opacity: 1; } 92%, 100% { transform: translateX(384px); opacity: 0; } }
+@keyframes bfTruck { 0%, 10% { transform: translateX(0); opacity: 0; } 16% { opacity: 1; } 82% { transform: translateX(-196px); opacity: 1; } 90%, 100% { transform: translateX(-196px); opacity: 0; } }
+@keyframes bfTravel { 0% { offset-distance: 0%; opacity: 0; } 10% { opacity: 1; } 88% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+@keyframes bfDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+/* Draw-on happens once, when the figure first scrolls into view. Figures
+   already on screen at load (data-seen="static") are left as rendered. */
+:global([data-js]) .svg:not(.compact):not([data-seen]) .draw { stroke-dashoffset: 1; }
+:global([data-js]) .svg:not(.compact)[data-seen="true"] .draw { animation: bfDraw 1.9s cubic-bezier(.3,.1,.2,1) both; }
+
+/* Pausing: page control, hidden tab, or off-screen. Appear-style cycles and
+   draw-ons fall back to their complete static state rather than freezing. */
+:global([data-motion="paused"]) .svg *, .svg[data-in-view="false"] * { animation-play-state: paused !important; }
+:global([data-motion="paused"]) .svg :is(.cycle, .draw, .traveler, .envelope, .truck) { animation: none !important; }
+:global([data-motion="paused"]) .svg .draw { stroke-dashoffset: 0 !important; }
+:global([data-motion="paused"]) .svg :is(.traveler) { opacity: 0 !important; }
+
+/* Thumbnails: tighter crop, no text, still until the card is hovered. */
+.compact text, .compact .frame { display: none; }
+.compact * { animation-play-state: paused; }
+.compact :is(.cycle, .draw, .traveler) { animation: none; }
+.compact .traveler { opacity: 0; }
+:global(:is([data-figure-hover], a):is(:hover, :focus-within)) .compact * { animation-play-state: running; }
+
+@media (prefers-reduced-motion: reduce) {
+  .svg, .svg * { animation: none !important; }
+  .svg .draw { stroke-dashoffset: 0 !important; }
+  .svg .traveler { opacity: 0 !important; }
+}

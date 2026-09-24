@@ -1,5 +1,5 @@
 import { BASE_URL, COUNTRIES } from "@/lib/constants";
-import { BLOG_POSTS } from "@/lib/blogs";
+import { getAllBlogPosts } from "@/lib/blogs";
 import {
   STATIC_PAGE_LASTMOD,
   CITY_LASTMOD,
@@ -39,6 +39,18 @@ function resolveBaseUrl(request: Request): string {
 
 export async function GET(request: Request) {
   const base = resolveBaseUrl(request);
+  let BLOG_POSTS;
+  try {
+    BLOG_POSTS = await getAllBlogPosts();
+  } catch (err) {
+    // Never publish a sitemap that silently drops every blog URL — tell
+    // crawlers to come back instead, and keep this response out of caches.
+    console.error("[sitemap] blog posts unavailable:", err instanceof Error ? err.message : err);
+    return new NextResponse("Sitemap temporarily unavailable", {
+      status: 503,
+      headers: { "Cache-Control": "no-store", "Retry-After": "600" },
+    });
+  }
 
   // Real freshness signal, taken across EVERY content type the child sitemap
   // emits — not just blog posts. It previously used only the newest

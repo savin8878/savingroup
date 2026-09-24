@@ -1,33 +1,44 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  ChevronRight,
-  Clock,
-  Sparkles,
-  Tag,
-} from "lucide-react";
-import { PageHero } from "@/components/sections/PageHero";
-import { Section, SectionHeader } from "@/components/primitives/section";
+import { ArrowUpRight } from "lucide-react";
 import LocalizedLink from "@/components/LocalizedLink";
-import { Cta } from "@/components/sections/Cta";
+import home from "@/components/home/IndustrialHome.module.css";
+import { BlogMotion } from "@/components/blog/BlogMotion";
+import {
+  BlogSection,
+  CategoryNav,
+  FinalCta,
+  PostCard,
+  SectionHeading,
+  getCategoryLabel,
+} from "@/components/blog/BlogPrimitives";
+import {
+  CATEGORY_SKETCH,
+  CategoryDirectory,
+  CategoryPostGrid,
+  CategoryHero,
+  ClusterRows,
+} from "@/components/blog/category/CategorySections";
+import categoryStyles from "@/components/blog/category/Category.module.css";
+import { getCategoryCopy } from "@/components/blog/copy/category-copy";
+import { IndiaGeoFooter } from "@/components/sections/IndiaGeoFooter";
 import { getTranslation, type Locale } from "@/lib/i18n";
 import {
   BASE_URL,
   isIndexable,
 } from "@/lib/constants";
 import { buildAlternates } from "@/lib/seo";
+import { AUDIT, CTA_LABEL } from "@/lib/offer";
 import {
   BLOG_CATEGORIES,
-  BLOG_POSTS,
+  getAllBlogPosts,
+  getFeaturedPosts,
   getPostsByCategory,
   localizePost,
   TOPIC_CLUSTERS,
   type BlogCategory,
 } from "@/lib/blogs";
 import { getBlogUi } from "@/lib/blog-i18n";
-import { BlogSketch } from "@/components/illustrations";
 
 // ---------------------------------------------------------------------------
 // Static params + per-category copy
@@ -139,6 +150,9 @@ const CATEGORY_COPY: Record<BlogCategory, CategoryCopy> = {
   },
 };
 
+// Posts come from Supabase; re-render at most every 5 minutes so edits show up.
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   return VALID_CATEGORIES.map((c) => ({ category: c }));
 }
@@ -202,16 +216,27 @@ export async function generateMetadata({
   };
 }
 
-function formatDate(iso: string, locale: string) {
-  return new Date(iso).toLocaleDateString(locale === "hi" ? "hi-IN" : "en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
+/** English label from BLOG_CATEGORIES — the JSON-LD breadcrumb keeps using it. */
 function categoryLabel(key: BlogCategory) {
   return BLOG_CATEGORIES.find((c) => c.key === key)?.label ?? key;
+}
+
+/** "38K"-style count for the stats row. */
+function compactCount(n: number) {
+  if (n >= 10000) return `${Math.round(n / 1000)}K`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K`;
+  return String(n);
+}
+
+/** Month + year ("Sep 2026"), pinned to UTC like formatPostDate. */
+function formatMonth(iso: string, locale: string) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString(locale === "hi" ? "hi-IN" : "en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 export default async function BlogCategoryPage({
@@ -226,12 +251,14 @@ export default async function BlogCategoryPage({
   const loc = locale as Locale;
   const t = getTranslation(loc);
   const ui = getBlogUi(loc);
+  const pageCopy = getCategoryCopy(loc);
   const copy = CATEGORY_COPY[cat];
   const prefix = `/${country.toLowerCase()}/${locale.toLowerCase()}`;
   const canonical = `${BASE_URL}${prefix}/blogs/category/${cat}`;
 
-  const posts = getPostsByCategory(cat).map((p) => localizePost(p, loc));
-  const otherCategories = VALID_CATEGORIES.filter((c) => c !== cat && getPostsByCategory(c).length > 0);
+  const BLOG_POSTS = await getAllBlogPosts();
+  const posts = getPostsByCategory(BLOG_POSTS, cat).map((p) => localizePost(p, loc));
+  const otherCategories = VALID_CATEGORIES.filter((c) => c !== cat && getPostsByCategory(BLOG_POSTS, c).length > 0);
 
   // ---- JSON-LD ----
   const collectionLd = {
@@ -286,6 +313,52 @@ export default async function BlogCategoryPage({
     )
   );
 
+  // ---- Display data ----
+  const label = getCategoryLabel(ui, cat);
+  const figure = pageCopy.figures[cat];
+  // Lead post: the category's featured post, else the first in editorial order.
+  const leadPost = getFeaturedPosts(posts)[0] ?? posts[0];
+  const rest = posts.filter((p) => p !== leadPost);
+  const restColumns = rest.length % 3 === 0 || rest.length >= 5 ? 3 : 2;
+  const [notesLead, notesAccent] = pageCopy.notesHeading(posts.length, label);
+
+  const totalRead = posts.reduce((sum, p) => sum + p.readTime, 0);
+  const avgRead = posts.length ? Math.round(totalRead / posts.length) : 0;
+  const searches = posts.reduce((sum, p) => sum + (p.keywords.searchVolume || 0), 0);
+  const lastTouched = posts.reduce<string | undefined>((latest, p) => {
+    const iso = p.updatedAt ?? p.publishedAt;
+    return !latest || new Date(iso).getTime() > new Date(latest).getTime() ? iso : latest;
+  }, undefined);
+
+  const counts: Partial<Record<BlogCategory | "all", number>> = { all: BLOG_POSTS.length };
+  for (const c of VALID_CATEGORIES) counts[c] = getPostsByCategory(BLOG_POSTS, c).length;
+
+  const clusterRows = relevantClusters.map((cluster) => ({
+    key: cluster.key,
+    title: cluster.title,
+    description: cluster.description,
+    primaryKeyword: cluster.primaryKeyword,
+    posts: cluster.slugs.flatMap((slug) => {
+      const post = BLOG_POSTS.find((p) => p.slug === slug);
+      return post ? [{ slug, title: localizePost(post, loc).title, inCategory: post.category === cat }] : [];
+    }),
+  }));
+
+  const directory = otherCategories.map((oc) => {
+    const count = counts[oc] ?? 0;
+    return {
+      key: oc,
+      label: getCategoryLabel(ui, oc),
+      headline: CATEGORY_COPY[oc].headline,
+      accent: CATEGORY_COPY[oc].accent,
+      count,
+      countLabel: pageCopy.postCount(count),
+    };
+  });
+
+  const clustersChapter = 2;
+  const otherChapter = clusterRows.length > 0 ? 3 : 2;
+
   return (
     <>
       <script
@@ -297,229 +370,148 @@ export default async function BlogCategoryPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
-      <PageHero
-        eyebrow={`Blog · ${categoryLabel(cat)}`}
-        title={
-          <>
-            {copy.headline}{" "}
-            <span className="text-accent">{copy.accent}</span>
-          </>
-        }
-        subtitle={copy.description}
-        breadcrumb={categoryLabel(cat)}
-      />
-
-      {/* ============================================================= */}
-      {/* Meta strip — count + back link                                 */}
-      {/* ============================================================= */}
-      <Section className="pt-6 pb-0">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-y border-border py-5">
-          <div className="flex flex-wrap items-center gap-5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-            <span className="flex items-center gap-1.5 text-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              {posts.length} {posts.length === 1 ? "post" : "posts"} in {categoryLabel(cat)}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Tag size={11} className="text-accent" />
-              {copy.keywords.slice(0, 3).join(" · ")}
-            </span>
-          </div>
-          <LocalizedLink
-            href="/blogs"
-            className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition hover:text-foreground"
-          >
-            <ArrowLeft size={11} />
-            {ui.allPostsBackLink}
-          </LocalizedLink>
-        </div>
-      </Section>
-
-      {/* ============================================================= */}
-      {/* Keyword strip — showcases what this page targets for SEO       */}
-      {/* ============================================================= */}
-      <Section className="pt-8 pb-0">
-        <div className="rounded-2xl border border-border bg-surface/40 p-5 sm:p-6">
-          <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-            <Sparkles size={11} />
-            This page answers
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {copy.keywords.map((kw) => (
-              <span
-                key={kw}
-                className="rounded-full border border-border bg-background/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
-              >
-                {kw}
-              </span>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ============================================================= */}
-      {/* Posts grid                                                     */}
-      {/* ============================================================= */}
-      <Section className="pt-10">
-        <SectionHeader
-          eyebrow="All posts in this category"
-          title={
-            <>
-              {posts.length} field {posts.length === 1 ? "note" : "notes"} on{" "}
-              <span className="text-accent">{categoryLabel(cat).toLowerCase()}.</span>
-            </>
-          }
-          align="left"
+      <BlogMotion labels={pageCopy.motion} className={categoryStyles.page}>
+        <CategoryHero
+          id="category-hero"
+          titleId="category-title"
+          breadcrumbs={[
+            { label: pageCopy.home, href: "/" },
+            { label: ui.breadcrumb, href: "/blogs" },
+            { label },
+          ]}
+          breadcrumbLabel={pageCopy.breadcrumbAria}
+          back={{ label: ui.allPostsBackLink, href: "/blogs" }}
+          eyebrow={`${ui.breadcrumb} · ${label}`}
+          edition={pageCopy.postsIn(posts.length, label)}
+          headline={copy.headline}
+          accent={copy.accent}
+          description={copy.description}
+          readLead={{ label: pageCopy.readLead, href: "#category-posts" }}
+          figure={{ sketch: CATEGORY_SKETCH[cat], title: figure.title, legend: figure.legend }}
+          stats={[
+            { value: posts.length, label: pageCopy.statPosts },
+            { value: <>{totalRead}<small>{ui.minRead}</small></>, label: pageCopy.statReading },
+            {
+              value: lastTouched ? <time dateTime={lastTouched}>{formatMonth(lastTouched, locale)}</time> : "—",
+              label: pageCopy.statUpdated,
+            },
+            searches > 0
+              ? { value: compactCount(searches), label: ui.statsMonthlySearches }
+              : { value: <>{avgRead}<small>{ui.minRead}</small></>, label: ui.statsAvgRead },
+          ]}
+          keywords={{ label: pageCopy.pageAnswers, items: copy.keywords }}
         />
-        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {posts.map((post) => (
-            <LocalizedLink
-              key={post.slug}
-              href={`/blogs/${post.slug}`}
-              className="group flex h-full flex-col rounded-2xl border border-border bg-surface/40 p-5 transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface"
-            >
-              <div className="mb-5 overflow-hidden rounded-xl border border-border bg-background/60 p-3">
-                <BlogSketch sketchKey={post.heroSketch} className="h-auto w-full" />
-              </div>
-              <div className="flex flex-wrap items-center gap-2 font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-                <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-accent">
-                  {categoryLabel(post.category)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock size={9} />
-                  {post.readTime} {ui.minRead}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-xl font-semibold leading-tight tracking-tight text-foreground">
-                {post.title}
-              </h3>
-              <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
-                {post.excerpt}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {post.tags.slice(0, 3).map((tag) => (
-                  <span
-                    key={tag}
-                    className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                <time
-                  dateTime={post.publishedAt}
-                  className="font-mono uppercase tracking-[0.18em]"
-                >
-                  {formatDate(post.publishedAt, locale)}
-                </time>
-                <span className="inline-flex items-center gap-1 text-accent">
-                  read
-                  <ArrowUpRight
-                    size={12}
-                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  />
-                </span>
-              </div>
-            </LocalizedLink>
-          ))}
-        </div>
-      </Section>
 
-      {/* ============================================================= */}
-      {/* Related topic clusters                                         */}
-      {/* ============================================================= */}
-      {relevantClusters.length > 0 && (
-        <Section className="pt-4">
-          <div className="rounded-2xl border border-border bg-surface/40 p-6 sm:p-8">
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-              <Sparkles size={11} />
-              {ui.topicClustersEyebrow}
-            </div>
-            <h2 className="mt-3 font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
-              How these posts {" "}
-              <span className="text-accent">connect.</span>
-            </h2>
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {relevantClusters.map((cluster) => (
-                <div
-                  key={cluster.key}
-                  className="rounded-xl border border-border bg-background/60 p-5"
-                >
-                  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-                    Cluster · {cluster.primaryKeyword}
-                  </div>
-                  <h3 className="mt-2 font-display text-base font-semibold text-foreground">
-                    {cluster.title}
-                  </h3>
-                  <ul className="mt-4 space-y-2">
-                    {cluster.slugs.map((slug) => {
-                      const post = BLOG_POSTS.find((p) => p.slug === slug);
-                      if (!post) return null;
-                      return (
-                        <li key={slug}>
-                          <LocalizedLink
-                            href={`/blogs/${slug}`}
-                            className="group flex items-start gap-2 text-xs leading-snug text-muted-foreground transition hover:text-foreground"
-                          >
-                            <ChevronRight
-                              size={10}
-                              className="mt-1 flex-shrink-0 text-accent transition-transform group-hover:translate-x-0.5"
-                            />
-                            <span>{localizePost(post, loc).title}</span>
-                          </LocalizedLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
+        {/* 01 — every post in the category: the lead post, then the rest */}
+        <BlogSection id="category-posts" labelledBy="category-posts-title">
+          <SectionHeading
+            className={categoryStyles.head}
+            number={1}
+            label={pageCopy.allPostsEyebrow}
+            lead={notesLead}
+            accent={notesAccent}
+            id="category-posts-title"
+            intro={posts.length === 1 ? pageCopy.postsIntroSingle : pageCopy.postsIntro}
+          />
+          <CategoryNav ui={ui} active={cat} counts={counts} className={categoryStyles.nav} />
+          {leadPost ? (
+            <>
+              <div className={categoryStyles.leadPost}>
+                <PostCard post={leadPost} ui={ui} locale={locale} variant="feature" index={1} kicker={pageCopy.leadKicker} />
+              </div>
+              {/* One remaining post reads better full width than as a lone half-width card. */}
+              {rest.length === 1 && (
+                <div data-blog-reveal="">
+                  <PostCard post={rest[0]} ui={ui} locale={locale} variant="feature" index={2} />
                 </div>
-              ))}
-            </div>
-          </div>
-        </Section>
-      )}
+              )}
+              {rest.length > 1 && (
+                <CategoryPostGrid
+                  posts={rest}
+                  ui={ui}
+                  locale={locale}
+                  columns={restColumns}
+                  startIndex={2}
+                  label={pageCopy.moreLabel}
+                  filler={{
+                    kicker: ui.allPostsEyebrow,
+                    lead: ui.allPostsTitle,
+                    accent: ui.allPostsTitleAccent,
+                    meta: pageCopy.postCount(BLOG_POSTS.length),
+                    href: "/blogs",
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <p className={categoryStyles.empty}>{pageCopy.empty}</p>
+          )}
+        </BlogSection>
 
-      {/* ============================================================= */}
-      {/* Other categories — internal linking hub                       */}
-      {/* ============================================================= */}
-      <Section className="pt-4">
-        <div className="mb-6 flex items-center gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-            Browse other categories
-          </span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {otherCategories.map((oc) => {
-            const ocCopy = CATEGORY_COPY[oc];
-            const ocCount = getPostsByCategory(oc).length;
-            return (
-              <LocalizedLink
-                key={oc}
-                href={`/blogs/category/${oc}`}
-                className="group flex h-full flex-col rounded-2xl border border-border bg-surface/40 p-5 transition hover:-translate-y-0.5 hover:border-accent/40 hover:bg-surface"
-              >
-                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-strong">
-                  {categoryLabel(oc)}
-                </div>
-                <h3 className="mt-3 font-display text-base font-semibold leading-tight tracking-tight text-foreground">
-                  {ocCopy.headline} <span className="text-accent">{ocCopy.accent}</span>
-                </h3>
-                <div className="mt-auto flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                  <span className="font-mono uppercase tracking-[0.18em]">
-                    {ocCount} posts
-                  </span>
-                  <ArrowUpRight
-                    size={12}
-                    className="text-accent transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  />
-                </div>
-              </LocalizedLink>
-            );
-          })}
-        </div>
-      </Section>
+        {/* 02 — topic clusters that include this category */}
+        {clusterRows.length > 0 && (
+          <BlogSection tone="dark" id="category-clusters" labelledBy="category-clusters-title" scene>
+            <SectionHeading
+              className={categoryStyles.head}
+              number={clustersChapter}
+              label={ui.topicClustersEyebrow}
+              lead={pageCopy.clustersLead}
+              accent={pageCopy.clustersAccent}
+              id="category-clusters-title"
+              intro={<bdi>{ui.topicClustersSubtitle}</bdi>}
+            />
+            <ClusterRows
+              clusters={clusterRows}
+              clusterLabel={pageCopy.clusterLabel}
+              inThisCategory={pageCopy.inThisCategory}
+              count={pageCopy.clusterCount}
+            />
+          </BlogSection>
+        )}
 
-      <Cta t={t} />
+        {/* 03 — the other categories (internal linking hub) */}
+        {directory.length > 0 && (
+          <BlogSection tone="surface" id="category-other" labelledBy="category-other-title">
+            <SectionHeading
+              className={categoryStyles.head}
+              number={otherChapter}
+              label={pageCopy.otherEyebrow}
+              lead={<bdi>{ui.byCategoryTitle}</bdi>}
+              accent={<bdi>{ui.byCategoryAccent}</bdi>}
+              id="category-other-title"
+              action={
+                <LocalizedLink href="/blogs" className={home.textButton}>
+                  {ui.allPostsBackLink}
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </LocalizedLink>
+              }
+            />
+            <CategoryDirectory items={directory} label={pageCopy.otherEyebrow} />
+          </BlogSection>
+        )}
+
+        <div className={categoryStyles.geo}>
+          <IndiaGeoFooter country={country} locale={locale} pageKey="blogs" variant="compact" />
+        </div>
+
+        <FinalCta
+          id="category-final-title"
+          eyebrow={t.cta.eyebrow}
+          question={t.cta.subtitle}
+          lead={pageCopy.finalLead}
+          accent={pageCopy.finalAccent}
+          ctaLabel={CTA_LABEL}
+          ctaHref="/contact"
+          note={<bdi>{AUDIT.supportLine}</bdi>}
+          secondary={{ label: t.cta.secondary, href: "/case-studies" }}
+          circuitLabel={pageCopy.circuitLabel}
+          footer={{
+            left: "Savin Group",
+            center: pageCopy.footerCenter,
+            backToTop: { label: pageCopy.backToTop, href: "#category-hero" },
+          }}
+        />
+      </BlogMotion>
     </>
   );
 }

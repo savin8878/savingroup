@@ -1,0 +1,237 @@
+/*
+ * Blog index (/blogs). Layered on IndustrialHome.module.css + Blog.module.css
+ * (the <BlogMotion> root carries both). Headings are prefixed with
+ * [data-blog-root] so they beat home's `.root h2 / h3` element rules.
+ */
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+.crumbs { padding-bottom: 12px; }
+.heroNote { display: flex; align-items: center; gap: 8px; margin: 26px 0 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.heroNote > span { width: 4px; height: 4px; border-radius: 50%; background: #64785b; flex-shrink: 0; }
+
+/* Category band under the hero: label + six counted links. */
+.band { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 6fr); border-top: 1px solid var(--home-line); }
+.bandLabel { margin: 0; align-self: center; padding: 20px 20px 20px 0; font: 9px/1.8 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.bandLabel strong { color: var(--home-ink); font-weight: 400; }
+.bandList { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.bandList > li { min-width: 0; border-inline-start: 1px solid var(--home-line); }
+.bandLink { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; height: 100%; min-height: 104px; padding: 20px 18px 18px; color: var(--home-ink); transition: background .2s; }
+.bandLink:hover { background: var(--home-surface); }
+.bandLink > strong { font: 500 30px/1 var(--font-display), sans-serif; letter-spacing: -.05em; transition: color .2s; }
+.bandLink:hover > strong { color: var(--home-accent); }
+.bandLink > span { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); overflow-wrap: anywhere; }
+.bandLink > svg { position: absolute; top: 18px; inset-inline-end: 14px; opacity: .55; transition: opacity .2s; }
+.bandLink:hover > svg { opacity: 1; }
+
+/* ── 01 Featured ───────────────────────────────────────────────────────── */
+.headNote { display: flex; align-items: center; gap: 10px; margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); white-space: nowrap; }
+.headNote > i { width: 4px; height: 4px; border-radius: 50%; background: var(--home-accent); }
+.featureWrap { margin-bottom: 28px; }
+
+/* Hairline grid whose empty trailing cells become one "browse the library" cell. */
+.filler { grid-column: span var(--fill3, 1); }
+.filler[data-fill3="0"] { display: none; }
+.fillerInner { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 14px; width: 100%; min-height: 220px; padding: 28px 28px 22px; background-color: var(--home-paper); background-image: radial-gradient(var(--home-grid) .8px, transparent .8px); background-size: 17px 17px; }
+.fillerEyebrow { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-accent); }
+[data-blog-root] .fillerTitle { margin: 0; max-width: 380px; font: 500 clamp(22px, 2vw, 27px)/1.22 var(--font-display), sans-serif; letter-spacing: -.045em; color: var(--home-ink); }
+
+/* ── 02 Latest + most read ─────────────────────────────────────────────── */
+.latestLayout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 48px; align-items: start; }
+.mostRead { position: sticky; top: var(--blog-sticky-top, 100px); padding-top: 18px; border-top: 2px solid var(--home-accent); }
+.mostReadEyebrow { display: flex; align-items: center; gap: 9px; margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-accent); }
+.mostReadEyebrow > i { width: 5px; height: 5px; border-radius: 50%; background: var(--home-accent); }
+[data-blog-root] .mostReadTitle { margin: 12px 0 0; font-size: 21px; line-height: 1.3; letter-spacing: -.035em; }
+.mostReadList { margin: 22px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
+.mrItem { position: relative; display: grid; grid-template-columns: 38px minmax(0, 1fr) 16px; gap: 10px; align-items: start; padding: 17px 0; border-bottom: 1px solid var(--home-line); transition: background .2s; }
+.mrItem:hover { background: color-mix(in srgb, var(--home-accent) 4%, transparent); }
+.rank { font: 500 22px/1 var(--font-display), sans-serif; letter-spacing: -.04em; color: var(--home-accent); }
+.mrMain { min-width: 0; }
+[data-blog-root] .mrTitle { margin: 7px 0 0; font: 500 14.5px/1.45 var(--font-display), sans-serif; letter-spacing: -.02em; }
+.mrTitle a { color: var(--home-ink); transition: color .2s; }
+.mrTitle a::after { content: ""; position: absolute; inset: 0; }
+.mrItem:hover .mrTitle a { color: var(--home-accent); }
+.mrItem > svg { margin-top: 3px; }
+
+/* ── 03 Topic clusters (chapter rows) ──────────────────────────────────── */
+.clusters { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
+.cluster { display: grid; grid-template-columns: 56px minmax(0, .95fr) minmax(0, 1.05fr); gap: 36px; padding: 36px 0; border-bottom: 1px solid var(--home-line); }
+.clusterIndex { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid var(--home-line); font: 10px var(--font-mono), monospace; color: var(--home-accent); }
+.clusterCopy { min-width: 0; }
+.clusterMeta { margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
+[data-blog-root] .clusterTitle { margin: 14px 0 0; font-size: clamp(22px, 2.1vw, 29px); line-height: 1.18; letter-spacing: -.045em; }
+.clusterDesc { margin: 14px 0 0; max-width: 460px; font-size: 13px; line-height: 1.85; color: var(--home-muted); }
+.clusterCount { display: block; margin-top: 18px; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.clusterLinks { align-self: start; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
+.clusterLinks a { display: grid; grid-template-columns: 30px minmax(0, 1fr) 16px; gap: 10px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--home-line); font-size: 13.5px; line-height: 1.5; color: var(--home-ink); transition: color .2s, background .2s; }
+.clusterLinks a > span:first-child { font: 9px var(--font-mono), monospace; color: var(--home-muted); }
+.clusterLinks a:hover { color: var(--home-accent); background: color-mix(in srgb, var(--home-accent) 4%, transparent); }
+.clusterLinks a > svg { align-self: center; }
+
+/* ── 04 Why we write (dark band) ───────────────────────────────────────── */
+.whyGrid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); gap: 80px; align-items: start; }
+.whyBody { margin-top: 28px; max-width: 590px; }
+.whyBody p { margin: 0 0 16px; font-size: 14.5px; line-height: 1.85; color: var(--home-muted); }
+.whyByline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 26px; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--home-line); max-width: 590px; }
+.whyByline > span { font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-ink); }
+.numbers { margin-top: 50px; border: 1px solid var(--home-line); }
+.numbersTitle { display: flex; align-items: center; gap: 11px; margin: 0; padding: 16px 22px; border-bottom: 1px solid var(--home-line); font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-muted); }
+.numbers dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+.numbers dl > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 12px; min-width: 0; padding: 28px 22px 26px; border-bottom: 1px solid var(--home-line); }
+.numbers dl > div:nth-child(odd) { border-inline-end: 1px solid var(--home-line); }
+.numbers dl > div:nth-last-child(-n + 2) { border-bottom: 0; }
+.numbers dt { font: 8.5px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
+.numbers dd { margin: 0; font: 500 clamp(38px, 4.1vw, 58px)/1 var(--font-display), sans-serif; letter-spacing: -.06em; color: var(--home-ink); white-space: nowrap; }
+.numbers dd > small { margin-inline-start: 6px; font-size: 14px; letter-spacing: -.02em; color: var(--home-muted); }
+.numberAccent dd { color: var(--home-accent); }
+
+/* ── 05 Library ────────────────────────────────────────────────────────── */
+.library { min-width: 0; }
+.controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; min-height: 76px; padding: 18px 0; border-block: 1px solid var(--home-line); }
+.chipsWrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; min-width: 0; }
+.controlsLabel { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.chipButton { cursor: pointer; }
+.chipButton[aria-pressed="true"] { color: var(--home-accent); border-color: var(--home-accent); background: var(--home-surface); }
+.search { position: relative; display: flex; align-items: center; flex: 0 1 300px; min-width: 220px; }
+.search > svg { position: absolute; inset-inline-start: 13px; color: var(--home-muted); pointer-events: none; }
+.searchInput { width: 100%; min-height: 40px; padding-block: 8px; padding-inline: 36px 12px; border: 1px solid var(--home-line); border-radius: 0; background: var(--home-surface); color: var(--home-ink); font: 12px/1.4 var(--font-sans), sans-serif; transition: border-color .2s; }
+.searchInput::placeholder { color: var(--home-muted); opacity: 1; }
+.searchInput:hover { border-color: var(--home-muted); }
+[data-blog-root] .searchInput:focus-visible { outline: 2px solid var(--home-accent); outline-offset: -1px; border-color: var(--home-accent); }
+.status { min-height: 16px; margin: 12px 0 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
+.empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; margin-top: 28px; padding: 26px 0; border-block: 1px solid var(--home-line); }
+.empty > p { margin: 0; font-size: 14px; color: var(--home-muted); }
+.group { margin-top: 40px; scroll-margin-top: calc(var(--header-h, 72px) + 24px); }
+.group[hidden], .group [data-library-item][hidden] { display: none !important; }
+.groupHead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; padding-bottom: 14px; }
+[data-blog-root] .groupTitle { display: flex; align-items: baseline; gap: 12px; margin: 0; font-size: clamp(22px, 2vw, 27px); line-height: 1.2; letter-spacing: -.045em; }
+.groupTitle > span { font: 10px var(--font-mono), monospace; letter-spacing: .06em; color: var(--home-accent); }
+.groupCount { font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
+.groupLink { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; margin-inline-start: auto; font-size: 11px; font-weight: 600; color: var(--home-ink); transition: color .2s; }
+.groupLink:hover { color: var(--home-accent); }
+.tagCloud { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px 24px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--home-line); }
+.tagCloudLabel { display: flex; align-items: center; gap: 9px; margin: 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-accent); align-self: start; padding-top: 6px; }
+.tagCloudLabel > i { width: 5px; height: 5px; border-radius: 50%; background: var(--home-accent); flex-shrink: 0; }
+
+/* ── 06 Writer + newsletter (quiet hairline panel) ─────────────────────── */
+.writerGrid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); border: 1px solid var(--home-line); background: var(--home-paper); }
+.writer { min-width: 0; padding: 36px 38px; border-inline-end: 1px solid var(--home-line); }
+.author { margin-top: 26px; padding-bottom: 0; border-bottom: 0; }
+.writerLinks { display: flex; flex-direction: column; align-items: flex-start; margin-top: 14px; }
+.newsletter { min-width: 0; padding: 36px 40px; }
+.newsEyebrow { display: flex; align-items: center; gap: 10px; margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--home-muted); }
+[data-blog-root] .newsTitle { margin: 18px 0 0; font-size: clamp(27px, 2.6vw, 37px); line-height: 1.12; letter-spacing: -.05em; }
+[data-blog-root] .newsTitle em { color: var(--home-accent); }
+.newsBody { margin: 16px 0 0; max-width: 520px; font-size: 13px; line-height: 1.85; color: var(--home-muted); }
+.form { margin-top: 26px; }
+.formLabel { display: block; margin-bottom: 10px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); }
+.formRow { display: flex; align-items: stretch; }
+.input { flex: 1; min-width: 0; min-height: 49px; padding: 12px 16px; border: 1px solid var(--home-line); border-inline-end: 0; border-radius: 0; background: var(--home-surface); color: var(--home-ink); font: 13px/1.4 var(--font-sans), sans-serif; }
+.input::placeholder { color: var(--home-muted); opacity: 1; }
+[data-blog-root] .input:focus-visible { outline: 2px solid var(--home-accent); outline-offset: -1px; }
+.submit { flex-shrink: 0; cursor: pointer; }
+.privacy { margin: 12px 0 0; font: 8.5px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+
+/* ── 07 FAQ (home faqList, a touch larger for reading) ─────────────────── */
+[data-blog-root] .faqList summary { font-size: 14px; line-height: 1.5; }
+[data-blog-root] .faqList details > p { font-size: 12.5px; line-height: 1.85; }
+
+/* ── Card thumbnails on this page: a caption strip above the art ─────────
+   (the FIG / category labels sit in it instead of on top of the drawing). */
+.cardGrid > li > article > div:first-child > svg { top: 30px; height: calc(100% - 34px); overflow: hidden; }
+
+/* ── Shared India geo footer (Tailwind), re-dressed as a hairline grid ─── */
+.geo { border-top: 1px solid var(--home-line); background: var(--home-surface); color: var(--home-ink); }
+.geo:empty { display: none; }
+.geo > section { padding-block: 88px; background: transparent; border-top: 0; }
+.geo > section > div { width: calc(100% - 112px); max-width: 1184px; padding-inline: 0; }
+.geo > section > div > div:first-of-type > div:first-child { display: flex; gap: 11px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .09em; color: var(--home-ink); }
+.geo > section > div > div:first-of-type > div:first-child > svg { color: var(--home-accent); }
+[data-blog-root] .geo h2 { max-width: 780px; color: var(--home-ink); }
+.geo > section > div > div:first-of-type > p { max-width: 640px; margin-top: 22px; font-size: 14px; line-height: 1.85; color: var(--home-muted); }
+.geo > section > div > div:nth-of-type(2) { gap: 0; margin-top: 44px; border-top: 1px solid var(--home-line); border-inline-start: 1px solid var(--home-line); }
+.geo article { min-width: 0; padding: 24px 26px 18px; border: 0; border-inline-end: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); border-radius: 0; background: var(--home-paper); transition: background .2s; }
+.geo article:hover { background: var(--home-surface); border-color: var(--home-line); }
+.geo article header { border-color: var(--home-line); }
+[data-blog-root] .geo article h3 { font-size: 16px; font-weight: 500; letter-spacing: -.025em; color: var(--home-ink); }
+.geo article header > span { font-size: 8px; letter-spacing: .1em; color: var(--home-muted); }
+.geo article p { font-size: 12.5px; line-height: 1.8; color: var(--home-muted); }
+.geo article ul { margin-top: 12px; }
+.geo article a { padding: 9px 0; border-radius: 0; font-size: 12.5px; color: var(--home-ink); }
+.geo article a:hover { background: transparent; color: var(--home-accent); }
+.geo article a > svg { color: var(--home-accent); }
+.geo > section > div > p:last-child { max-width: 900px; margin-top: 36px; font-size: 12px; line-height: 1.85; color: var(--home-muted); }
+.geo > section > div > p:last-child > span { color: var(--home-ink); font-weight: 500; }
+
+/* ── Right-to-left (ar) ──────────────────────────────────────────────────
+   Drawings are technical plates: keep their annotations left-to-right.
+   Text blocks take their base direction from their own content, so English
+   fallback strings keep their punctuation in place inside the RTL page. */
+.page svg[data-blog-scene], .cardGrid > li > article > div:first-child > svg { direction: ltr; }
+:global([dir="rtl"]) .page :is(h1, h2, h3, h4, p, summary, dt, dd, h1 > span, h1 > em) { unicode-bidi: plaintext; text-align: right; }
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 1150px) {
+  .geo > section > div { width: calc(100% - 72px); }
+  .band { grid-template-columns: 1fr; }
+  .bandLabel { padding: 18px 0 4px; }
+  .bandLabel br { display: none; }
+  .bandLabel strong { margin-inline-start: 6px; }
+  .bandList > li:first-child { border-inline-start: 0; }
+  .bandList > li:first-child .bandLink { padding-inline-start: 0; }
+  .latestLayout { grid-template-columns: minmax(0, 1fr) 280px; gap: 32px; }
+  .cluster { grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr); gap: 26px; }
+  .whyGrid { gap: 48px; }
+  .writer { padding: 32px 30px; }
+  .newsletter { padding: 32px 30px; }
+}
+@media (max-width: 900px) {
+  .geo > section { padding-block: 66px; }
+  .filler { grid-column: span var(--fill2, 1); }
+  .filler[data-fill3="0"] { display: flex; }
+  .filler[data-fill2="0"] { display: none; }
+  .latestLayout { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+  .mostRead { position: static; }
+  .cluster { grid-template-columns: 44px minmax(0, 1fr); gap: 22px 18px; }
+  .clusterLinks { grid-column: 2; }
+  .whyGrid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .numbers { margin-top: 40px; }
+  .tagCloud { grid-template-columns: minmax(0, 1fr); }
+  .writerGrid { grid-template-columns: minmax(0, 1fr); }
+  .writer { border-inline-end: 0; border-bottom: 1px solid var(--home-line); }
+}
+@media (max-width: 640px) {
+  .geo > section { padding-block: 54px; }
+  .geo > section > div { width: calc(100% - 40px); }
+  .geo article { padding: 20px 20px 14px; }
+  .crumbs { padding-bottom: 6px; }
+  .heroNote { font-size: 8px; margin-top: 20px; }
+  .bandList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bandList > li:nth-child(3n + 1) { border-inline-start: 0; }
+  .bandList > li:nth-child(3n + 1) .bandLink { padding-inline-start: 0; }
+  .bandList > li:nth-child(n + 4) { border-top: 1px solid var(--home-line); }
+  .bandLink { min-height: 84px; padding: 16px 10px 14px 12px; gap: 10px; }
+  .bandLink > strong { font-size: 25px; }
+  .bandLink > span { font-size: 8px; letter-spacing: .05em; }
+  .bandLink > svg { display: none; }
+  .headNote { white-space: normal; flex-wrap: wrap; }
+  .filler, .filler[data-fill2="0"], .filler[data-fill3="0"] { display: flex; grid-column: auto; }
+  .fillerInner { min-height: 180px; padding: 24px 20px 18px; }
+  .cardGrid > li > article > div:first-child { aspect-ratio: 16 / 8.5; }
+  .cluster { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 28px 0; }
+  .clusterLinks { grid-column: auto; }
+  .clusterLinks a { font-size: 13px; }
+  .whyBody p { font-size: 13.5px; }
+  .numbers dl > div { padding: 22px 16px 20px; }
+  .numbers dd { font-size: clamp(30px, 9vw, 40px); }
+  .numbersTitle { padding: 14px 16px; }
+  .controls { align-items: stretch; flex-direction: column; }
+  .search { flex: 1 1 auto; min-width: 0; }
+  .group { margin-top: 34px; }
+  .groupLink { margin-inline-start: 0; flex-basis: 100%; min-height: 32px; }
+  .tagCloud { margin-top: 44px; }
+  .writer, .newsletter { padding: 26px 20px; }
+  .formRow { flex-direction: column; gap: 10px; }
+  .input { border-inline-end: 1px solid var(--home-line); }
+  .submit { justify-content: space-between; }
+}
