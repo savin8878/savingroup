@@ -1,30 +1,16 @@
 // src/components/common/LocalizedLink.tsx
 'use client';
 
-import Link, { LinkProps } from 'next/link';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import {
-  CSSProperties,
-  FocusEventHandler,
-  KeyboardEventHandler,
-  ReactNode,
-} from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 
-interface LocalizedLinkProps extends Omit<LinkProps, 'href'> {
+// Accept every prop Next's <Link> accepts (all anchor attributes, pointer
+// events, aria-*), with href narrowed to a string we can localize.
+type LocalizedLinkProps = Omit<ComponentProps<typeof Link>, 'href' | 'children'> & {
   href: string;
   children: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-  title?: string;
-  role?: string;
-  tabIndex?: number;
-  'aria-label'?: string;
-  'aria-haspopup'?: boolean | 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
-  'aria-expanded'?: boolean;
-  onFocus?: FocusEventHandler<HTMLAnchorElement>;
-  onBlur?: FocusEventHandler<HTMLAnchorElement>;
-  onKeyDown?: KeyboardEventHandler<HTMLAnchorElement>;
-}
+};
 
 export default function LocalizedLink({
   href,
