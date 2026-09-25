@@ -1,0 +1,68 @@
+/* Sketch animation for the About drawings. Colour, size and layout stay in About.module.css.
+   Each stroke owns its place in the sequence through --t (start, seconds after the drawing is seen) and --d (duration).
+   Scroll-linked drawings ([data-about-scrub]) get --scroll-progress from AboutMotion and scrub the same keyframes
+   through --st/--sd (fractions of the scroll travel). Reduced motion, or no JavaScript, shows the finished drawing. */
+
+/* Not-yet-drawn states. Selectors carry the diagram attribute so they beat colour rules that set dasharray. */
+[data-about-diagram] .draw, [data-about-diagram] .shape { stroke-dasharray: 1; stroke-dashoffset: 1; }
+[data-about-diagram] .shape { fill-opacity: 0; }
+[data-about-diagram] .fade { opacity: 0; }
+[data-about-diagram] .pop { transform: scale(0); transform-box: fill-box; transform-origin: center; }
+[data-about-diagram] .sweep { clip-path: inset(-8px calc(100% + 8px) -8px -8px); }
+[data-about-diagram] .sweepDown { clip-path: inset(-8px -8px calc(100% + 8px) -8px); }
+
+/* Draw-on, once, when the drawing is first seen. */
+[data-seen="true"] .draw { animation: sketchDraw var(--d, .5s) cubic-bezier(.42, 0, .32, 1) var(--t, 0s) both; }
+[data-seen="true"] .shape { animation: sketchDraw var(--d, .5s) cubic-bezier(.42, 0, .32, 1) var(--t, 0s) both, sketchFill .45s ease-out calc(var(--t, 0s) + var(--d, .5s) * .6) both; }
+[data-seen="true"] .fade { animation: sketchFade var(--d, .5s) ease-out var(--t, 0s) both; }
+[data-seen="true"] .pop { animation: sketchPop var(--d, .35s) cubic-bezier(.3, 1.65, .5, 1) var(--t, 0s) both; }
+[data-seen="true"] .sweep { animation: sketchSweep var(--d, .6s) cubic-bezier(.42, 0, .32, 1) var(--t, 0s) both; }
+[data-seen="true"] .sweepDown { animation: sketchSweepDown var(--d, .6s) cubic-bezier(.42, 0, .32, 1) var(--t, 0s) both; }
+
+/* Live details after the draw-on: paused off-screen and by the page's Pause-motion control (rules in IndustrialHome.module.css). */
+.packets { fill: none; stroke: var(--home-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .03 .97; stroke-dashoffset: 1; opacity: 0; }
+.pulse { fill: var(--home-accent); stroke: none; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.halo { fill: none; stroke: var(--home-accent); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.breathe { transform-box: fill-box; transform-origin: center; }
+.live { pointer-events: none; }
+[data-seen="true"] .packets { animation: sketchPackets var(--loop, 10s) linear calc(var(--loop-start, 3s) + var(--stagger, 0s)) infinite; }
+[data-seen="true"] .pulse { animation: sketchPulse 8s ease-in-out var(--loop-start, 3s) infinite; }
+[data-seen="true"] .halo { animation: sketchHalo 7s ease-out var(--loop-start, 3s) infinite; }
+[data-seen="true"] .breathe { animation: sketchBreathe 7s ease-in-out var(--loop-start, 3s) infinite; }
+[data-seen="true"] .dashFlow { animation: sketchDashFlow 16s linear var(--loop-start, 3s) infinite; }
+
+/* Per-drawing timing: when the draw-on hands over to the loops. */
+.arch { --loop-start: 3.4s; }
+.team { --loop-start: 3s; }
+.clarity { --loop-start: 1.8s; }
+.tx { --loop-start: 2.7s; }
+
+/* Scroll-linked drawings: the scrubbed strokes follow --scroll-progress (0..1 over the scroll travel) instead of the clock;
+   their loops wait until the scrub completes. AboutMotion sets data-scrub="time" instead when the page cannot scroll that far. */
+[data-scrub="scroll"] .scrub { animation-play-state: paused; animation-duration: calc(var(--sd, 1) * 1s), calc(var(--sd, 1) * .45s); animation-delay: calc(var(--st, 0) * 1s - var(--scroll-progress, 0) * 1s), calc((var(--st, 0) + var(--sd, 1) * .55) * 1s - var(--scroll-progress, 0) * 1s); }
+[data-scrub="scroll"] .scrub:not(.pop) { animation-timing-function: linear; }
+[data-scrub="scroll"] :is(.packets, .pulse, .halo, .breathe, .dashFlow) { animation-play-state: paused; }
+[data-scrub="scroll"][data-scrub-done="true"] :is(.packets, .pulse, .halo, .breathe, .dashFlow) { animation-play-state: running; animation-delay: calc(.6s + var(--stagger, 0s)); }
+
+@keyframes sketchDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes sketchFill { from { fill-opacity: 0; } to { fill-opacity: 1; } }
+@keyframes sketchFade { from { opacity: 0; } to { opacity: var(--fade-to, 1); } }
+@keyframes sketchPop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes sketchSweep { from { clip-path: inset(-8px calc(100% + 8px) -8px -8px); } to { clip-path: inset(-8px -8px -8px -8px); } }
+@keyframes sketchSweepDown { from { clip-path: inset(-8px -8px calc(100% + 8px) -8px); } to { clip-path: inset(-8px -8px -8px -8px); } }
+@keyframes sketchPackets { 0% { stroke-dashoffset: 1; opacity: 0; } 7% { opacity: .95; } 93% { opacity: .95; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes sketchPulse { 0%, 100% { opacity: 0; transform: scale(.97); } 50% { opacity: .42; transform: scale(1.03); } }
+@keyframes sketchHalo { 0% { opacity: .55; transform: scale(1); } 65%, 100% { opacity: 0; transform: scale(1.5); } }
+@keyframes sketchBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes sketchDashFlow { to { stroke-dashoffset: var(--flow-to, -100); } }
+
+/* Reduced motion, or no JavaScript: the finished drawing, nothing moving, no live overlays. */
+@media (prefers-reduced-motion: reduce), (scripting: none) {
+  [data-about-diagram] :is(.draw, .shape) { stroke-dashoffset: 0 !important; animation: none !important; }
+  [data-about-diagram] .shape { fill-opacity: 1 !important; }
+  [data-about-diagram] .fade { opacity: var(--fade-to, 1) !important; animation: none !important; }
+  [data-about-diagram] .pop { transform: none !important; animation: none !important; }
+  [data-about-diagram] :is(.sweep, .sweepDown) { clip-path: none !important; animation: none !important; }
+  [data-about-diagram] :is(.breathe, .dashFlow) { animation: none !important; transform: none !important; }
+  [data-about-diagram] :is(.packets, .pulse, .halo) { display: none !important; }
+}

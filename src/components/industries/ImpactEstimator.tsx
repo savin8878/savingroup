@@ -221,7 +221,7 @@ export function ImpactEstimator({ industry, locale, className = "", id }: Impact
                       />
                       <div className={s.scale} aria-hidden="true">
                         <span>{formatBound(input, input.min)}</span>
-                        <span className={s.scaleTypical}>{copy.typical} · {formatBound(input, input.default)}</span>
+                        <span className={s.scaleTypical}>{copy.typical} · <span dir="ltr">{formatBound(input, input.default)}</span></span>
                         <span>{formatBound(input, input.max)}</span>
                       </div>
                       <span id={hintId} className={s.srOnly}>{copy.range(spokenValue(input, input.min), spokenValue(input, input.max))}. {copy.typical}: {spokenValue(input, input.default)}.</span>
