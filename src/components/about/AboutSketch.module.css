@@ -24,7 +24,6 @@
 .pulse { fill: var(--home-accent); stroke: none; opacity: 0; transform-box: fill-box; transform-origin: center; }
 .halo { fill: none; stroke: var(--home-accent); stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; }
 .breathe { transform-box: fill-box; transform-origin: center; }
-.live { pointer-events: none; }
 [data-seen="true"] .packets { animation: sketchPackets var(--loop, 10s) linear calc(var(--loop-start, 3s) + var(--stagger, 0s)) infinite; }
 [data-seen="true"] .pulse { animation: sketchPulse 8s ease-in-out var(--loop-start, 3s) infinite; }
 [data-seen="true"] .halo { animation: sketchHalo 7s ease-out var(--loop-start, 3s) infinite; }

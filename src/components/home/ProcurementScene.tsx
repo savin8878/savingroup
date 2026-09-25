@@ -10,23 +10,23 @@ function Envelope() {
   return <g className={styles.envelope}><rect x="-13" y="-9" width="26" height="18" rx="2" /><path d="m-12-8 12 9 12-9" /></g>;
 }
 
-function Warehouse({ x, y, name = "WAREHOUSE" }: { x: number; y: number; name?: string }) {
+export function Warehouse({ x, y, name = "WAREHOUSE" }: { x: number; y: number; name?: string }) {
   return <g transform={`translate(${x} ${y})`} className={styles.warehouse}><path d="M0 30 75 0l75 30v104H0Z" /><path d="M-8 30 75-4l83 34M13 41h124M24 66h74v68H24m0-54h74m-74 12h74m-74 12h74m-74 12h74m14-50h20v27h-20Z" /><path d="M26 68h70v65H26Z" className={styles.door} /><path d="M28 77h66m-66 10h66m-66 10h66m-66 10h66m-66 10h66" /><text x="75" y="54" textAnchor="middle">{name}</text></g>;
 }
 
-function Pallet({ x = 0, y = 0 }: { x?: number; y?: number }) {
+export function Pallet({ x = 0, y = 0 }: { x?: number; y?: number }) {
   return <g transform={`translate(${x} ${y})`} className={styles.pallet}><path d="M-22-30h44v30h-44Zm0 0 8-6h44l-8 6m0 0 8-6v30L22 0M0-30V0m-22-15h44" /><path d="M-26 2h54v5h-54Zm5 5v5m19-5v5m19-5v5" /></g>;
 }
 
-function Truck() {
+export function Truck() {
   return <g className={styles.truck}><path d="M-125-85H25v75h-150Z" className={styles.cargoBox} /><path d="M25-61h47l29 32v25H25Zm9 8v28h56L68-53Z" /><path d="M-132-9H105v9h-237Zm167-9h13m-160-62v65m13-65v65m13-65v65m13-65v65m13-65v65m13-65v65m13-65v65m13-65v65m13-65v65m13-65v65" /><path d="M89-15h11m-229 0h8" className={styles.vehicleLights} />{[-91,-61,70].map(x=><g key={x} transform={`translate(${x} 0)`}><circle r="14" className={styles.tyre} /><g className={styles.wheel}><circle r="7" /><path d="M-7 0H7M0-7V7" /></g></g>)}<text x="-49" y="-39" textAnchor="middle">SG / LOGISTICS</text></g>;
 }
 
-function Ship() {
+export function Ship() {
   return <g className={styles.ship}><path d="M-152-12h321l-38 48h-226l-41-21Z" className={styles.hull} /><path d="M-118-12v-52h41v52m-32-52v-22h18v22m-24 14h31m-31 12h31m-23-48v-16m-6 0h15" /><path d="M-125 9h259m-248 12H121" />{[-65,-8,49].map((x,i)=><g key={x}><rect x={x} y="-49" width="52" height="36" className={i===1?styles.containerAccent:styles.containerBox} /><path d={`M${x+9}-44v26m9-26v26m9-26v26m9-26v26m9-26v26`} />{i<2&&<><rect x={x} y="-85" width="52" height="36" className={styles.containerBox}/><path d={`M${x+9}-80v26m9-26v26m9-26v26m9-26v26m9-26v26`} /></>}</g>)}<path d="M-92 30h26m168-57v-69m-8 7h16" /><text x="28" y="6" textAnchor="middle">SAVIN / CARGO</text></g>;
 }
 
-function Aircraft() {
+export function Aircraft() {
   return <g className={styles.aircraft}><path d="M-137-7-164-57h19l51 47 105-6L-15-92H5l68 73 54 4c36 3 58 12 58 18 0 9-38 15-62 16l-57 1-69 65h-20l29-68-106-6-43 22h-18l23-32Z" /><path d="m131-12 12 14 31 1m-48-13-5 14M-87-1H116m-60 18-8 39h18l20-40m-58-34L9-54h20l24 36" /><path d="M-75-4h110" strokeDasharray="4 7" /><circle cx="-148" cy="-49" r="3" className={styles.vehicleLights} /><text x="-30" y="11" textAnchor="middle">SG AIR CARGO</text></g>;
 }
 

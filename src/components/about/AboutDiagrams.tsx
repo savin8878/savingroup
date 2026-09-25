@@ -19,6 +19,7 @@ function SketchFilter({ id }: { id: string }) {
 const CIRCUIT = "m160 257 82-47 55 31 52-30 78 45-133 76-54-31-52 30";
 const LOWER_SIGNAL = "m134 365 30 17 41-24 30 17 51-29m-117 51 44 25 60-34 33 18 91-52";
 const PROCESSOR_TOP = "m247 239 43-25 44 25-43 25Z";
+const PROCESSOR_SIDE = "M247 239v29l44 25 43-25v-29l-43 25Z";
 const TEAM_LINKS = "M240 41v114m99 57-99-57m-99 57 99-57";
 const CLARITY_BRANCHES = ["M484 90h210c65 0 65-60 135-60h251", "M484 90h596", "M484 90h210c65 0 65 60 135 60h251"];
 
@@ -41,15 +42,18 @@ export function ArchitectureDrawing() {
       <path d="m342 385 23 13 17-10v-44l-23-13-17 10ZM365 398v-44l17-10m-40-3 23 13" pathLength="1" className={s.shape} style={at(1, .35)} />
       <path d="m387 360 23 13 17-10v-61l-23-13-17 10Z" className={cx(styles.orangeFill, s.shape)} pathLength="1" style={at(1.1, .35)} /><path d="M410 373v-61l17-10m-40-3 23 13" stroke="var(--home-paper)" pathLength="1" className={s.shape} style={at(1.3, .25)} />
     </g>
+    <path d={LOWER_SIGNAL} pathLength="1" className={s.packets} style={{ "--loop": "11s", "--stagger": "4s" } as CSSProperties} />
     <g className={cx(styles.verticalLinks, s.sweepDown)} strokeDasharray="4 6" style={at(1.15, .45)}><path d="M119 148v210M462 148v210M290 246v185M290 51v190" className={s.dashFlow} style={{ "--flow-to": "-100" } as CSSProperties} /></g>
     <g className={styles.middlePlane} filter="url(#about-sketch-a)">
       <path d="m76 252 213-121 215 123-213 122Z" pathLength="1" className={s.shape} style={at(1.05, .55)} />
       <path d="M76 252v13l215 123 213-122v-12M291 376v12" pathLength="1" className={s.shape} style={at(1.4, .3)} />
       <path d={CIRCUIT} className={cx(styles.middleCircuit, s.draw)} pathLength="1" style={at(1.95, .6)} />
       {[{x:145,y:232},{x:269,y:160},{x:396,y:234},{x:270,y:306}].map(({x,y},i)=><g key={x+"-"+y} transform={`translate(${x} ${y})`}><path d="m0 0 20-12L40 0 20 12Z" pathLength="1" className={s.shape} style={at(1.35 + i * .08, .3)} /><path d="M0 0v14l20 12 20-12V0M20 12v14" pathLength="1" className={s.shape} style={at(1.5 + i * .08, .25)} /></g>)}
-      <path d={PROCESSOR_TOP} className={cx(styles.processorTop, s.shape)} pathLength="1" style={at(1.6, .35)} /><path d="M247 239v29l44 25 43-25v-29l-43 25Z" className={cx(styles.processorSide, s.shape)} pathLength="1" style={at(1.7, .35)} /><path d="M291 264v29m-33-42 21 12m-21-4 21 12m24-8 20-12m-20 20 20-12" stroke="#f5ddd0" pathLength="1" className={s.shape} style={at(1.9, .3)} />
+      <path d={PROCESSOR_TOP} className={cx(styles.processorTop, s.shape)} pathLength="1" style={at(1.6, .35)} /><path d={PROCESSOR_SIDE} className={cx(styles.processorSide, s.shape)} pathLength="1" style={at(1.7, .35)} /><path d="M291 264v29m-33-42 21 12m-21-4 21 12m24-8 20-12m-20 20 20-12" stroke="#f5ddd0" pathLength="1" className={s.shape} style={at(1.9, .3)} />
       <path d="m272 239 18-10 19 10-18 11Z" stroke="#fff0e5" pathLength="1" className={s.shape} style={at(1.95, .25)} />
     </g>
+    <path d={CIRCUIT} pathLength="1" className={s.packets} style={{ "--loop": "9s" } as CSSProperties} />
+    <path d={PROCESSOR_SIDE} className={s.pulse} />
     <g className={styles.upperPlane} filter="url(#about-sketch-a)">
       <path d="m76 143 213-122 215 124-213 122Z" pathLength="1" className={s.shape} style={at(1.55, .55)} />
       <path d="M76 143v12l215 123 213-122v-11M291 267v11" pathLength="1" className={s.shape} style={at(1.9, .3)} />
@@ -61,11 +65,6 @@ export function ArchitectureDrawing() {
     </g>
     <g className={styles.drawingMeasures}><path d="M59 143v220m-5-220h10m-10 110h10m-10 110h10M522 145v217m-5-217h10m-10 110h10m-10 107h10" pathLength="1" className={s.draw} style={at(2.5, .5)} /></g>
     <g className={styles.drawingMarkers}>{[143, 253, 363].map((y, i) => <circle key={y} cx="59" cy={y} r="3" className={s.pop} style={at(2.85 + i * .1, .3)} />)}</g>
-    <g className={s.live}>
-      <path d={PROCESSOR_TOP} className={s.pulse} />
-      <path d={CIRCUIT} pathLength="1" className={s.packets} style={{ "--loop": "9s" } as CSSProperties} />
-      <path d={LOWER_SIGNAL} pathLength="1" className={s.packets} style={{ "--loop": "11s", "--stagger": "4s" } as CSSProperties} />
-    </g>
   </svg>;
 }
 
@@ -77,11 +76,14 @@ export function TeamDrawing() {
     <g filter="url(#about-sketch-t)">
       <path d="m240 41 99 171H141Z" className={cx(styles.teamTriangle, s.draw)} pathLength="1" style={at(.5, .8)} />
       <path d={TEAM_LINKS} className={cx(styles.teamConnections, s.draw)} pathLength="1" style={at(1.55, .6)} />
+    </g>
+    <path d={TEAM_LINKS} pathLength="1" className={s.packets} style={{ "--loop": "12s" } as CSSProperties} />
+    <g filter="url(#about-sketch-t)">
       {[{x:240,y:41},{x:339,y:212},{x:141,y:212}].map(({x,y},i)=><g key={i}><rect x={x-20} y={y-20} width="40" height="40" rx="1" pathLength="1" className={cx(styles.teamNode, s.shape)} style={at(1.05 + i * .12, .4)} /><path d={`M${x-7} ${y}h14m-7-7v14`} pathLength="1" className={s.draw} style={at(1.4 + i * .12, .25)} /></g>)}
     </g>
     <g className={s.breathe}><circle cx="240" cy="155" r="34" className={cx(styles.teamCore, s.shape)} pathLength="1" style={at(1.9, .5)} /><circle cx="240" cy="148" r="7" pathLength="1" className={s.draw} style={at(2.25, .3)} /><path d="M225 168v-3c0-15 30-15 30 0v3m-9-33 4 4m-20-4-4 4" pathLength="1" className={s.draw} style={at(2.35, .35)} /></g>
     <path d="M96 284h288m-278-5-10 5 10 5m268-10 10 5-10 5" className={cx(styles.drawingGuides, s.draw)} pathLength="1" style={at(2.4, .5)} />
-    <g className={s.live}><circle cx="240" cy="155" r="34" className={s.halo} /><path d={TEAM_LINKS} pathLength="1" className={s.packets} style={{ "--loop": "12s" } as CSSProperties} /></g>
+    <circle cx="240" cy="155" r="34" className={s.halo} />
   </svg>;
 }
 
@@ -93,7 +95,7 @@ export function ClarityDrawing() {
     <g filter="url(#about-sketch-c)">{CLARITY_BRANCHES.map((d, i) => <path key={d} d={d} className={cx(styles.clarityPaths, s.draw, s.scrub)} pathLength="1" style={at(.25 + i * .1, .85, i * .06, .78)} />)}</g>
     <g className={s.pop} style={at(.15, .4)}><circle cx="520" cy="90" r="11" fill="#1a2420" stroke="#f39c70" /><circle cx="520" cy="90" r="4" fill="#f39c70" /></g>
     <g fill="#1a2420" stroke="#f39c70">{[30, 90, 150].map((y, i) => <circle key={y} cx="1050" cy={y} r="4" className={cx(s.pop, s.scrub)} style={at(1.15 + i * .1, .3, .84 + i * .05, .14)} />)}</g>
-    <g className={s.live}>{CLARITY_BRANCHES.map((d, i) => <path key={d} d={d} pathLength="1" className={s.packets} style={{ "--loop": `${12 + i}s`, "--stagger": `${i * 3}s` } as CSSProperties} />)}</g>
+    {CLARITY_BRANCHES.map((d, i) => <path key={d} d={d} pathLength="1" className={s.packets} style={{ "--loop": `${12 + i}s`, "--stagger": `${i * 3}s` } as CSSProperties} />)}
   </svg>;
 }
 
@@ -104,6 +106,9 @@ export function TransformationDrawing({ connected = false }: { connected?: boole
     <defs><SketchFilter id={filterId} /></defs>
     <g filter={`url(#${filterId})`}>
       <path d={connected ? "M65 97h350" : "M65 97h49v-31h32m18 0h28v67h36m19 0h37V85h30m18 0h34v12h49"} className={cx(connected ? styles.connectedPath : styles.manualPath, s.draw, s.scrub)} pathLength="1" style={at(1, .8, .04, .7)} />
+    </g>
+    {connected && <path d="M65 97h350" pathLength="1" className={s.packets} style={{ "--loop": "8s" } as CSSProperties} />}
+    <g filter={`url(#${filterId})`}>
       {[65,240,415].map((x,i)=><g key={x} className={styles.transformNode}>
         <rect x={x-29} y="68" width="58" height="58" rx="1" pathLength="1" className={s.shape} style={at(i * .15, .45)} />
         {i===0?<><path d={`M${x-10} 83h15l6 6v23h-21Zm15 0v7h6m-16 6h11m-11 6h11`} pathLength="1" className={s.draw} style={at(.4 + i * .15, .35)} /></>:i===1?<><path d={`M${x-12} 88h9v9h-9Zm15 12h9v9h-9Zm-6-7h10v7`} pathLength="1" className={s.draw} style={at(.4 + i * .15, .35)} /></>:<><path d={`M${x-12} 106V86m0 20h26m-20-5v-6m7 6V85m7 16V91`} pathLength="1" className={s.draw} style={at(.4 + i * .15, .35)} /></>}
@@ -111,6 +116,5 @@ export function TransformationDrawing({ connected = false }: { connected?: boole
       </g>)}
     </g>
     {connected && <g className={cx(s.sweep, s.scrub)} style={at(2, .5, .9, .1)}><path d="M65 48V30h350v18" className={cx(styles.feedbackPath, s.dashFlow)} style={{ "--flow-to": "-80" } as CSSProperties} /></g>}
-    {connected && <g className={s.live}><path d="M65 97h350" pathLength="1" className={s.packets} style={{ "--loop": "8s" } as CSSProperties} /></g>}
   </svg>;
 }

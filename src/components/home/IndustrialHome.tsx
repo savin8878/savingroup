@@ -10,6 +10,8 @@ import { INDIA_CITIES } from "@/lib/cities";
 import { HomeMotion } from "./HomeMotion";
 import { OperationsScene, IndustrialScene } from "./TechnicalVisuals";
 import { ConnectedJourney, CapabilityExplorer, AgentWorkflow, TransformationToggle } from "./SystemExperiences";
+import { TransitStory } from "./TransitStory";
+import transitStyles from "./TransitStory.module.css";
 import styles from "./IndustrialHome.module.css";
 
 type FaqItem = { q: string; a: string };
@@ -109,10 +111,20 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
         </div>
       </section>
 
+      <section id="in-transit" className={transitStyles.transitSection} aria-labelledby="transit-title" data-home-scene>
+        <div className={styles.container}>
+          <div className={styles.sectionHeading}>
+            <div><Chapter number="03">THE MOVEMENT</Chapter><h2 id="transit-title">One order.<br /><em>Moving through the system.</em></h2></div>
+            <p>Follow PO-0089 from the supplier’s dock to your receiving gate. Every checkpoint updates the same record — no one has to call.</p>
+          </div>
+          <TransitStory />
+        </div>
+      </section>
+
       <section id="capabilities" className={styles.ecosystemSection} aria-labelledby="capabilities-title" data-home-scene>
         <div className={styles.container}>
           <div className={styles.sectionHeading}>
-            <div><Chapter number="03">THE SYSTEM</Chapter><h2 id="capabilities-title">Different capabilities.<br /><em>One working system.</em></h2></div>
+            <div><Chapter number="04">THE SYSTEM</Chapter><h2 id="capabilities-title">Different capabilities.<br /><em>One working system.</em></h2></div>
             <p>Custom software, connected equipment and intelligent workflows, designed around the way your business actually runs.</p>
           </div>
           <CapabilityExplorer />
@@ -123,7 +135,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
       <section className={styles.agentSection} aria-labelledby="agent-title" data-home-scene>
         <div className={styles.container}>
           <div className={styles.sectionHeading}>
-            <div><Chapter number="04">INTELLIGENCE THAT ACTS</Chapter><h2 id="agent-title">Beyond answers.<br /><em>Into action.</em></h2></div>
+            <div><Chapter number="05">INTELLIGENCE THAT ACTS</Chapter><h2 id="agent-title">Beyond answers.<br /><em>Into action.</em></h2></div>
             <p>AI agents that read business data, use tools and move work forward—with defined permissions and people in control.</p>
           </div>
           <AgentWorkflow />
@@ -134,7 +146,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
       <section className={styles.industrialSection} aria-labelledby="industrial-title" data-home-scene>
         <div className={styles.container}>
           <div className={styles.industrialGrid}>
-            <div className={styles.industrialCopy}><Chapter number="05">THE PHYSICAL WORLD, CONNECTED</Chapter><h2 id="industrial-title">Your machines<br />have a story.<br /><em>Put it to work.</em></h2>
+            <div className={styles.industrialCopy}><Chapter number="06">THE PHYSICAL WORLD, CONNECTED</Chapter><h2 id="industrial-title">Your machines<br />have a story.<br /><em>Put it to work.</em></h2>
               <p className={styles.lead}>Turn equipment signals into useful decisions.</p>
               <p className={styles.bodyCopy}>Connect sensors and industrial systems to inventory, analytics and workflows. Give your team a clearer view of what’s happening—and what needs attention.</p>
               <div className={styles.industrialNote}><Radar size={18} aria-hidden="true" /><span>Industrial automation · IoT · Manufacturing technology</span></div>
@@ -151,7 +163,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
 
       <section className={styles.transformationSection} aria-labelledby="transformation-title" data-home-scene>
         <div className={styles.container}>
-          <div className={styles.sectionHeading}><div><Chapter number="06">THE DIFFERENCE YOU FEEL</Chapter><h2 id="transformation-title">Same business.<br /><em>New operating rhythm.</em></h2></div><p>Less chasing. Less re-keying. More time for the work that moves your business forward.</p></div>
+          <div className={styles.sectionHeading}><div><Chapter number="07">THE DIFFERENCE YOU FEEL</Chapter><h2 id="transformation-title">Same business.<br /><em>New operating rhythm.</em></h2></div><p>Less chasing. Less re-keying. More time for the work that moves your business forward.</p></div>
           <TransformationToggle />
         </div>
       </section>
@@ -159,7 +171,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
       <section className={styles.engineeringSection} aria-labelledby="engineering-title">
         <div className={styles.container}>
           <div className={styles.engineeringGrid}>
-            <div><Chapter number="07">UNDER THE SURFACE</Chapter><h2 id="engineering-title">Deep engineering.<br /><em>Clear purpose.</em></h2><p className={styles.bodyCopy}>The right technology for the job. Built to integrate with your operation, grow with demand and remain maintainable.</p></div>
+            <div><Chapter number="08">UNDER THE SURFACE</Chapter><h2 id="engineering-title">Deep engineering.<br /><em>Clear purpose.</em></h2><p className={styles.bodyCopy}>The right technology for the job. Built to integrate with your operation, grow with demand and remain maintainable.</p></div>
             <div className={styles.engineeringLayers}>
               <div><span>01</span><Code2 size={21} aria-hidden="true" /><div><strong>Intelligence & orchestration</strong><p>AI agents · MCP · APIs · Computer automation</p></div><span>ACT</span></div>
               <div><span>02</span><Layers3 size={21} aria-hidden="true" /><div><strong>Business & application systems</strong><p>Custom software · ERP · Workflow automation</p></div><span>OPERATE</span></div>
@@ -172,7 +184,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
 
       <section id="selected-work" className={styles.proofSection} aria-labelledby="proof-title">
         <div className={styles.container}>
-          <div className={styles.sectionHeading}><div><Chapter number="08">SYSTEMS IN PRACTICE</Chapter><h2 id="proof-title">The work is technical.<br /><em>The impact is human.</em></h2></div><Link href={`${base}/case-studies`} className={styles.textButton}>View case studies<ArrowUpRight size={17} aria-hidden="true" /></Link></div>
+          <div className={styles.sectionHeading}><div><Chapter number="09">SYSTEMS IN PRACTICE</Chapter><h2 id="proof-title">The work is technical.<br /><em>The impact is human.</em></h2></div><Link href={`${base}/case-studies`} className={styles.textButton}>View case studies<ArrowUpRight size={17} aria-hidden="true" /></Link></div>
           {manufacturing && <Link href={`${base}/case-studies#${manufacturing.id}`} className={styles.featuredCase}>
             <div className={styles.caseDiagram} aria-hidden="true"><div className={styles.sheetStack}><FileSpreadsheet /><FileSpreadsheet /><FileSpreadsheet /></div><div className={styles.caseConnection}><span /><ArrowRight size={20} /></div><div className={styles.erpBlock}><Layers3 size={36} strokeWidth={1.2} /><strong>ONE ERP</strong><span>Inventory / Orders / Finance</span></div></div>
             <div className={styles.caseBody}><div className={styles.caseMeta}>{manufacturing.industry} <span> / </span> {manufacturing.location}</div><h3>From five spreadsheets<br />to one source of truth.</h3><p>{manufacturing.summary}</p><span className={styles.caseLink}>Explore the project<ArrowUpRight size={17} aria-hidden="true" /></span></div>
@@ -185,7 +197,7 @@ export function IndustrialHome({ t, country, faqItems }: { t: Messages; country:
 
       <section className={styles.faqSection} aria-labelledby="home-faq-title">
         <div className={styles.container}>
-          <div className={styles.faqGrid}><div><Chapter number="09">A CLEAR START</Chapter><h2 id="home-faq-title">Good questions.<br /><em>Straight answers.</em></h2><p className={styles.bodyCopy}>Start with a conversation about your process. Leave with a clearer view of what comes next.</p><Link href={`${base}/contact`} className={styles.textButton}>Talk through your process<ArrowUpRight size={17} aria-hidden="true" /></Link></div><div className={styles.faqList}>{faqItems.map((item) => <details key={item.q}><summary>{item.q}<Plus size={18} aria-hidden="true" /></summary><p>{item.a}</p></details>)}</div></div>
+          <div className={styles.faqGrid}><div><Chapter number="10">A CLEAR START</Chapter><h2 id="home-faq-title">Good questions.<br /><em>Straight answers.</em></h2><p className={styles.bodyCopy}>Start with a conversation about your process. Leave with a clearer view of what comes next.</p><Link href={`${base}/contact`} className={styles.textButton}>Talk through your process<ArrowUpRight size={17} aria-hidden="true" /></Link></div><div className={styles.faqList}>{faqItems.map((item) => <details key={item.q}><summary>{item.q}<Plus size={18} aria-hidden="true" /></summary><p>{item.a}</p></details>)}</div></div>
           {country === "in" && <details className={styles.locations}><summary>Engineering systems for businesses across India<Plus size={15} aria-hidden="true" /></summary><div>{INDIA_CITIES.map((city) => <Link key={city.slug} href={`${base}/cities/${city.slug}`}>{city.name}<ArrowUpRight size={12} aria-hidden="true" /></Link>)}</div></details>}
         </div>
       </section>
