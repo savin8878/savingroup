@@ -12,6 +12,7 @@ interface LanguageSwitcherProps {
   locale: Locale;
   country: string;
   variant?: "compact" | "full";
+  placement?: "above" | "below";
 }
 
 const labels: Record<Locale, { change: string; language: string; region: string }> = {
@@ -25,7 +26,7 @@ const labels: Record<Locale, { change: string; language: string; region: string 
   zh: { change: "更改语言或地区", language: "语言", region: "地区" },
 };
 
-export default function LanguageSwitcher({ locale, country, variant = "compact" }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({ locale, country, variant = "compact", placement = "below" }: LanguageSwitcherProps) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -83,7 +84,7 @@ export default function LanguageSwitcher({ locale, country, variant = "compact" 
         <ChevronDown size={11} className={open ? styles.rotated : ""} aria-hidden="true" />
       </button>
       {/* Keep every region/locale URL in server HTML for crawlable navigation. */}
-      <div className={styles.panel} id={panelId} ref={panel} hidden={!open}>
+      <div className={`${styles.panel} ${placement === "above" ? styles.above : ""}`} id={panelId} ref={panel} hidden={!open}>
         <nav aria-label={copy.language}>
           <h2>{copy.language}<span>{LOCALE_CODES.length.toString().padStart(2, "0")}</span></h2>
           <ul>{LOCALE_CODES.map((code) => {

@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark" | "system";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string } = {}) {
   const [theme, setTheme] = useState<Theme>("system");
   // Keep the first client render identical to the server render. Resolve the
   // system preference after hydration, and follow subsequent OS changes.
@@ -54,7 +54,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground"
+      className={className ?? "flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-muted-foreground transition-colors hover:bg-surface-2 hover:text-foreground"}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDark ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}

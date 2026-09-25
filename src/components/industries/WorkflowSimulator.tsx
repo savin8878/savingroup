@@ -116,7 +116,6 @@ export function WorkflowSimulator({ industry, figure, locale, autoplay = true, c
     return out;
   }, [stages]);
   const currentChip = trail.findIndex((entry) => entry.code === stage.record.code);
-  const sampleCode = workflow.sample.split(" · ")[0];
 
   useEffect(() => { setMounted(true); setPlaying(autoplay); }, [autoplay]);
 
@@ -316,18 +315,14 @@ export function WorkflowSimulator({ industry, figure, locale, autoplay = true, c
           <div className={s.workspace}>
             <div className={s.scene}>
               <div className={s.sceneBar}>
-                <span><i aria-hidden="true" data-live={running} />{copy.liveView} · {pad(step + 1)} {stage.label}</span>
-                <span>{sampleCode}</span>
+                <span className={s.liveLabel}><i aria-hidden="true" data-live={running} />{copy.liveView} · {pad(step + 1)} {stage.label}</span>
+                <span className={s.handoff}><span>{copy.handoff}</span><strong>{stage.owner}</strong></span>
               </div>
               <div className={s.art} data-active-stage={stage.id} data-stage-state={ticked ? "done" : "working"} onClick={onArtClick}>
                 <IndustryArt industry={industry} />
               </div>
               <div className={s.sceneFoot}>
-                <div className={s.handoff}>
-                  <span>{copy.handoff}</span>
-                  <strong>{stage.owner}</strong>
-                </div>
-                <div className={s.trail} aria-label={copy.trail} role="group">
+                <div className={s.trail}>
                   <span className={s.trailLabel}>{copy.trail}</span>
                   <ol>
                     {trail.map((entry, index) => {
@@ -349,7 +344,7 @@ export function WorkflowSimulator({ industry, figure, locale, autoplay = true, c
                     <div className={s.docHead}>
                       <FileText size={16} strokeWidth={1.4} aria-hidden="true" />
                       <span>{item.record.doc}</span>
-                      <code>{item.record.code}</code>
+                      <span className={s.code}>{item.record.code}</span>
                     </div>
                     <div className={s.status}>
                       <span className={s.pill} data-state={phase}>

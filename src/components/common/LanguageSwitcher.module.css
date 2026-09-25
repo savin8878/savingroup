@@ -8,6 +8,7 @@
 .full { min-height:44px; }
 .panel { position:absolute; inset-inline-end:0; top:calc(100% + 12px); z-index:120; display:grid; grid-template-columns:.9fr 1.1fr; width:min(420px,calc(100vw - 40px)); max-height:min(520px,65dvh); overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--switch-line); background:var(--switch-panel); box-shadow:0 15px 35px #15221614; padding:8px; }
 .panel[hidden] { display:none; }
+.above { top:auto; bottom:calc(100% + 12px); }
 .panel nav { min-width:0; padding:0 4px; }
 .panel nav+nav { border-inline-start:1px solid var(--switch-line); }
 .panel h2 { display:flex; justify-content:space-between; gap:10px; padding:14px 10px; margin:0; font:9px/1.5 var(--font-mono),monospace; text-transform:uppercase; letter-spacing:.06em; color:var(--switch-muted); }
