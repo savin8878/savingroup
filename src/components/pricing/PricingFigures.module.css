@@ -1,0 +1,24 @@
+/*
+ * Additions to the shared BlogFigures primitives for the pricing drawings.
+ * Everything else (plate, guides, fills, flow / pulse, pausing, reduced
+ * motion, RTL isolation) comes from BlogFigures.module.css.
+ */
+
+/* Enterprise: scoped separately, so drawn in outline only. */
+.dashedFace { stroke-dasharray: 3 4; fill: color-mix(in srgb, var(--home-surface) 55%, transparent); }
+
+/* The engagement rail spans the six-column step grid beneath it. */
+.rail { width: 100%; height: auto; }
+
+/* One-shot settle-in for a group of shapes, staggered by --d. Only plays the
+   first time a figure scrolls into view (data-seen="true"); figures already on
+   screen at load (data-seen="static"), no-JS, paused and reduced motion all
+   show the complete drawing. Slabs inside a settled stack land one by one. */
+:global([data-js]) svg[data-seen="true"] .settle { animation: pfSettle 1s cubic-bezier(.2,.7,.2,1) both; animation-delay: var(--d, 0s); }
+:global([data-js]) svg[data-seen="true"] .slab { animation: pfSettle .9s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--d, 0s) + .25s + var(--i, 0) * .2s); }
+:global([data-motion="paused"]) :is(.settle, .slab) { animation: none !important; }
+@keyframes pfSettle { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .settle, .slab { animation: none !important; }
+}

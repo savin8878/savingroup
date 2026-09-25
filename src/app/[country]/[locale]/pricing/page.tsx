@@ -1,13 +1,26 @@
 import type { Metadata } from "next";
 import { getTranslation, type Locale } from "@/lib/i18n";
 import { buildPageMetadata, buildPageBreadcrumbJsonLd } from "@/lib/seo";
-import { BASE_URL } from "@/lib/constants";
-import { PageHero } from "@/components/sections/PageHero";
-import { Pricing } from "@/components/sections/Pricing";
-import { TierSystemMap } from "@/components/sections/TierSystemMap";
-import { Faq } from "@/components/sections/Faq";
+import { BASE_URL, isResolvableCountry } from "@/lib/constants";
+import { getCountryContent } from "@/lib/country-content";
+import { CTA_LABEL } from "@/lib/offer";
 import { IndiaGeoFooter } from "@/components/sections/IndiaGeoFooter";
-import { Cta } from "@/components/sections/Cta";
+import { BlogMotion } from "@/components/blog/BlogMotion";
+import { FinalCta } from "@/components/blog/BlogPrimitives";
+import { GeoFooterFrame } from "@/components/blog/index/IndexSections";
+import { getPricingCopy } from "@/components/pricing/copy/pricing-copy";
+import { getPricingContent, splitHeadline } from "@/components/pricing/pricing-data";
+import {
+  AdvantagesSection,
+  PickerSection,
+  PlansSection,
+  PricingFaqSection,
+  PricingHero,
+  QuoteSection,
+  SystemSection,
+  type PricingContext,
+} from "@/components/pricing/PricingSections";
+import styles from "@/components/pricing/Pricing.module.css";
 
 export async function generateMetadata({
   params,
@@ -53,6 +66,17 @@ export default async function PricingPage({
     })),
   };
 
+  const copy = getPricingCopy(locale);
+  const ctx: PricingContext = { t, p: getPricingContent(t), copy, country, locale };
+
+  // Exactly the list the shared <Faq> rendered here: the global questions,
+  // then the country-specific additions (appended, not prepended).
+  const faqItems = isResolvableCountry(country)
+    ? [...t.faq.items, ...getCountryContent(country).faqAdditions]
+    : t.faq.items;
+
+  const [finalLead, finalAccent] = splitHeadline(t.cta.title);
+
   return (
     <>
       <script
@@ -64,29 +88,37 @@ export default async function PricingPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(offerCatalogLd) }}
       />
 
-      <PageHero
-        eyebrow={t.pricing.eyebrow}
-        title={
-          <>
-            More system.{" "}
-            <span className="font-editorial text-accent">Same budget.</span>
-          </>
-        }
-        subtitle={t.pricing.subtitle}
-        breadcrumb={t.nav.pricing}
-      />
-
-      {/* Price list first — it is what the visitor came for. The two location
-          blocks that used to sit between the header and the tiers pushed the
-          actual prices below the fold on a laptop. */}
-      <Pricing t={t} downloadHref={`/${country}/${locale}/pricing/download`} />
-
-      {/* …then the answer to "but the FAQ said ₹60,000". */}
-      <TierSystemMap t={t} />
-
-      <Faq t={t} country={country} />
-      <IndiaGeoFooter country={country} locale={locale} pageKey="services" />
-      <Cta t={t} country={country} />
+      <BlogMotion labels={copy.motion} className={styles.page}>
+        {/* Price list first — it is what the visitor came for. */}
+        <PricingHero ctx={ctx} downloadHref={`/${country}/${locale}/pricing/download`} />
+        <PlansSection ctx={ctx} />
+        <PickerSection ctx={ctx} />
+        <QuoteSection ctx={ctx} />
+        <AdvantagesSection ctx={ctx} />
+        {/* …then the answer to "but the FAQ said ₹60,000". */}
+        <SystemSection ctx={ctx} />
+        <PricingFaqSection ctx={ctx} items={faqItems} />
+        <GeoFooterFrame>
+          <IndiaGeoFooter country={country} locale={locale} pageKey="services" />
+        </GeoFooterFrame>
+        <FinalCta
+          className={styles.final}
+          id="pricing-final-title"
+          eyebrow={t.cta.eyebrow}
+          question={t.cta.subtitle}
+          lead={finalLead}
+          accent={finalAccent}
+          ctaLabel={CTA_LABEL}
+          note={t.cta.trustNote}
+          secondary={{ label: t.cta.secondary, href: "/case-studies" }}
+          circuitLabel={copy.circuitLabel}
+          footer={{
+            left: t.brand.name,
+            center: copy.footerCenter,
+            backToTop: { label: copy.backToTop, href: "#pricing-title" },
+          }}
+        />
+      </BlogMotion>
     </>
   );
 }

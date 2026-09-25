@@ -55,6 +55,10 @@
 .nodeTop { display: flex; align-items: center; justify-content: space-between; width: 100%; }
 .nodeNumber { color: var(--muted); }
 .nodeIndicator { width: 5px; height: 5px; border: 1px solid #9ca59c; border-radius: 50%; }
+.nodeArrow { margin-left: 8px; color: var(--muted); font-size: 13px; line-height: 1; transition: color .2s, transform .2s; }
+.nodeOpen { margin-top: auto; padding-top: 8px; color: var(--accent); font-family: var(--font-jetbrains-mono, "Courier New"), monospace; font-size: 8px; font-weight: 500; letter-spacing: .075em; line-height: 1.4; text-transform: uppercase; opacity: 0; transform: translateY(3px); transition: opacity .2s, transform .2s; }
+.journeyNode:hover .nodeArrow, .journeyNode:focus-visible .nodeArrow, .nodeSelected .nodeArrow { color: var(--accent); transform: translate(1px, -1px); }
+.journeyNode:hover .nodeOpen, .journeyNode:focus-visible .nodeOpen, .nodeSelected .nodeOpen { opacity: 1; transform: none; }
 .journeyIcon { width: 27px; height: 27px; margin-top: 10px; margin-bottom: 9px; }
 .nodeTitle { font-size: 18px; line-height: 1.2; font-weight: 550; letter-spacing: -.035em; }
 .nodeLabel { margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.4; }
@@ -88,7 +92,8 @@
 .capabilityNode:hover { border-color: #8e988d; background: #fff; }
 .capabilityNodeArrow { position: absolute; top: 7px; right: 8px; font-size: 12px; opacity: 0; }
 .capabilitySelected { border-color: #c65325; color: #b94b23; background: #fff; }
-.capabilitySelected .capabilityNodeArrow { opacity: 1; }
+.capabilityNode[aria-haspopup="dialog"] .capabilityNodeArrow { opacity: .55; color: var(--muted); }
+.capabilityNode[aria-haspopup="dialog"]:hover .capabilityNodeArrow, .capabilityNode[aria-haspopup="dialog"]:focus-visible .capabilityNodeArrow, .capabilitySelected .capabilityNodeArrow { opacity: 1; color: inherit; }
 .ecosystemHint { margin: 9px 0 0; text-align: center; color: #616b65; font-size: 9px; letter-spacing: .02em; }
 .capabilityPanel { min-width: 0; padding: 36px; border-left: 1px solid var(--line); background: #fff; }
 .capabilityPanelTop { display: flex; justify-content: space-between; gap: 20px; }
@@ -238,6 +243,8 @@
   .nodeConnected::after { background: var(--accent); }
   .nodeTop { grid-column: 3; grid-row: 1 / 3; width: auto; gap: 10px; }
   .nodeIndicator { display: none; }
+  .nodeArrow { margin-left: 0; color: var(--accent); }
+  .nodeOpen { display: none; }
   .journeyIcon { grid-row: 1 / 3; grid-column: 1; width: 25px; height: 25px; margin: 0; }
   .nodeTitle { grid-column: 2; grid-row: 1; font-size: 15px; }
   .nodeLabel { grid-column: 2; grid-row: 2; margin: 0; font-size: 10px; }

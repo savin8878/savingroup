@@ -1,0 +1,112 @@
+/* Drawing vocabulary shared by the seven node scenes, in the hand of ProcurementScene:
+   780×410 paper, mono annotations, muted line work, accent for the live path.
+   Base styles are the FINAL state of every element; keyframes only describe where
+   it comes from, so reduced motion (animation: none) still shows a complete scene. */
+.svg { display: block; width: 100%; height: auto; max-height: 320px; color: var(--ink); stroke-linejoin: round; stroke-linecap: round; }
+.svg text { fill: var(--muted); stroke: none; font-family: var(--font-mono), monospace; }
+.gridLine { stroke: var(--line); stroke-width: .6; opacity: .45; fill: none; }
+.gridDot { fill: var(--muted); opacity: .22; }
+.svg .note { font-size: 8px; letter-spacing: .6px; }
+.svg .tiny { font-size: 7px; }
+.svg .small { font-size: 8px; fill: var(--ink); }
+.svg .label { font-size: 9px; fill: var(--ink); }
+.svg .value { font-size: 11px; fill: var(--ink); }
+.svg .big { font-family: var(--font-display), sans-serif; font-size: 20px; fill: var(--ink); letter-spacing: -.04em; }
+.svg .accentText { fill: var(--accent); }
+.svg .mutedText { fill: var(--muted); }
+.svg .strike { text-decoration: line-through; opacity: .6; }
+.box { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.boxPaper { fill: var(--paper); stroke: var(--line); stroke-width: 1; }
+.boxSoft { fill: var(--soft); stroke: var(--line); stroke-width: 1; }
+.boxAccent { fill: var(--surface); stroke: var(--accent); stroke-width: 1.2; }
+.boxTint { fill: var(--tint); stroke: var(--accent); stroke-width: 1; }
+.glass { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.line { stroke: var(--line); stroke-width: 1.2; fill: none; }
+.muted { stroke: var(--muted); stroke-width: 1.15; fill: none; }
+.ink { stroke: var(--ink); stroke-width: 1.3; fill: none; }
+.accent { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.accentBand { stroke: var(--accent); stroke-width: 6; fill: none; opacity: .35; }
+.accentFill { fill: var(--accent); stroke: none; }
+.mutedFill { fill: var(--muted); stroke: none; }
+.paperFill { fill: var(--paper); stroke: none; }
+.dash { stroke-dasharray: 4 5; }
+.dim { opacity: .35; }
+.track { fill: var(--line); stroke: none; }
+.tickCircle { fill: var(--paper); stroke: var(--accent); stroke-width: 1.2; }
+.doc, .docAccent { stroke: var(--muted); stroke-width: 1.2; fill: var(--paper); }
+.docAccent { stroke: var(--accent); }
+.docAccent text { fill: var(--accent); }
+.lamp { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
+.lampOn { fill: var(--accent); stroke: var(--accent); stroke-width: 1; }
+.stampBox { fill: var(--tint); stroke: var(--accent); stroke-width: 1.4; }
+
+/* Motion vocabulary. --d delays, --dur overrides the duration. */
+.fade { animation: fade .6s ease var(--d, 0s) both; }
+.rise { animation: rise .6s cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+.draw { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw var(--dur, 1.2s) ease var(--d, 0s) both; }
+.drawMuted { stroke: var(--muted); stroke-width: 1.1; fill: none; stroke-dasharray: 1; stroke-dashoffset: 0; animation: draw var(--dur, 1.2s) ease var(--d, 0s) both; }
+.stamp { transform-box: fill-box; transform-origin: center; animation: stamp .55s cubic-bezier(.2, .9, .3, 1.25) var(--d, 0s) both; }
+.pulse { transform-box: fill-box; transform-origin: center; animation: pulse 1.8s ease-out var(--d, 0s) infinite; }
+.blink { animation: blink 1s steps(2, start) infinite; }
+.spin { transform-box: fill-box; transform-origin: center; animation: spin var(--dur, 1.4s) linear infinite; }
+.shake { animation: shake .18s linear infinite; }
+.growX { transform-box: fill-box; transform-origin: left center; animation: growX var(--dur, 1.2s) cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+.growY { transform-box: fill-box; transform-origin: center bottom; animation: growY var(--dur, 1.2s) cubic-bezier(.2, .7, .2, 1) var(--d, 0s) both; }
+.travelX { animation: travelX var(--dur, 2.4s) cubic-bezier(.4, 0, .3, 1) var(--d, 0s) both; }
+.loopX { animation: loopX var(--dur, 2.4s) ease-in-out var(--d, 0s) infinite; }
+.loopY { animation: loopY var(--dur, 2.4s) ease-in-out var(--d, 0s) infinite; }
+.chip { animation: chip .7s ease-out var(--d, 0s) infinite; }
+.needle { transform: rotate(var(--to, 0deg)); transform-box: fill-box; transform-origin: center; animation: needle 1.6s cubic-bezier(.3, .9, .3, 1) .2s both; }
+.needlePath { stroke: var(--accent); stroke-width: 2; fill: none; }
+.trend { stroke: var(--accent); stroke-width: 1.4; fill: none; stroke-dasharray: 1; stroke-dashoffset: var(--offset, 0); animation: trend 1.8s ease .2s both; }
+.barShift { animation: barShift 1.2s ease .8s both; transform-box: fill-box; transform-origin: left center; }
+.typing { animation: typing .9s steps(24, end) var(--d, 0s) both; clip-path: inset(0 0 0 0); }
+.ecg { stroke: var(--accent); stroke-width: 1.4; fill: none; stroke-dasharray: .35 1; animation: ecg 2.2s linear infinite; }
+.ring { stroke: var(--accent); stroke-width: 3; fill: none; stroke-dasharray: 1; stroke-dashoffset: var(--offset, 0); animation: trend 2.4s ease .3s both; transform: rotate(-90deg); transform-box: fill-box; transform-origin: center; }
+
+.tintFill { fill: var(--tint); stroke: none; }
+.softFill { fill: var(--soft); stroke: none; }
+.surfaceFill { fill: var(--surface); stroke: none; }
+.inkFill { fill: var(--ink); stroke: none; }
+.dropIn { animation: dropIn .8s cubic-bezier(.2, .8, .2, 1) var(--d, 0s) both; }
+.slideIn { animation: slideIn .7s cubic-bezier(.2, .8, .2, 1) var(--d, 0s) both; }
+.fadeOut { opacity: 0; animation: fadeOut .6s ease var(--d, 0s) both; }
+.drain { transform: scaleY(var(--to-scale, .06)); transform-box: fill-box; transform-origin: center bottom; animation: drain 2.6s ease var(--d, .6s) both; }
+.merge { opacity: 0; transform: translateX(var(--tx, -36px)); animation: merge 1.6s ease var(--d, 0s) both; }
+.dropRow { transform: translate(var(--tx, 0), var(--ty, 0)); animation: dropRow 1.8s cubic-bezier(.4, 0, .6, 1) var(--d, 0s) both; }
+.wave { animation: wave 1.8s ease-out var(--d, 0s) infinite; }
+.sweep { animation: sweep var(--dur, 2.4s) linear var(--d, 0s) infinite; }
+.pop { transform-box: fill-box; transform-origin: center; animation: pop .5s cubic-bezier(.2, .9, .3, 1.4) var(--d, 0s) both; }
+.crossLine { stroke: var(--accent); stroke-width: 1.4; fill: none; }
+/* A dot that follows an orthogonal route. The path is set inline (offset-path), relative to the wrapping translate. */
+.motion { offset-rotate: 0deg; offset-distance: 0%; animation: motion var(--dur, 2.2s) ease-in-out var(--d, 0s) infinite; }
+@keyframes motion { 0% { offset-distance: 0%; opacity: 0; } 10% { opacity: 1; } 90% { offset-distance: 100%; opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-40px); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } }
+@keyframes fadeOut { from { opacity: 1; } }
+@keyframes drain { from { transform: scaleY(1); } }
+@keyframes merge { 0% { transform: translateX(0); opacity: 1; } 70% { transform: translateX(var(--tx, -36px)); opacity: 1; } 100% { transform: translateX(var(--tx, -36px)); opacity: 0; } }
+@keyframes dropRow { from { transform: translate(0, 0); } }
+@keyframes wave { 0% { opacity: .1; } 30% { opacity: 1; } 100% { opacity: .1; } }
+@keyframes sweep { from { transform: translateX(0); } to { transform: translateX(var(--tx, 100px)); } }
+@keyframes pop { from { opacity: 0; transform: scale(.4); } }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes draw { from { stroke-dashoffset: 1; } }
+@keyframes stamp { from { opacity: 0; transform: scale(1.5) rotate(-8deg); } }
+@keyframes pulse { 0% { transform: scale(.4); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
+@keyframes blink { to { opacity: .15; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(var(--amp, 1px), .3px); } 75% { transform: translate(calc(var(--amp, 1px) * -1), -.3px); } }
+@keyframes growX { from { transform: scaleX(0); } }
+@keyframes growY { from { transform: scaleY(0); } }
+@keyframes travelX { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 100% { transform: translateX(var(--tx, 100px)); opacity: 1; } }
+@keyframes loopX { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 1; } 88% { transform: translate(var(--tx, 100px), var(--ty, 0)); opacity: 1; } 100% { transform: translate(var(--tx, 100px), var(--ty, 0)); opacity: 0; } }
+@keyframes loopY { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 1; } 88% { transform: translate(var(--tx, 0), var(--ty, 100px)); opacity: 1; } 100% { transform: translate(var(--tx, 0), var(--ty, 100px)); opacity: 0; } }
+@keyframes chip { from { transform: translate(0, 0); opacity: 1; } to { transform: translate(16px, 9px); opacity: 0; } }
+@keyframes needle { from { transform: rotate(var(--from, -135deg)); } }
+@keyframes trend { from { stroke-dashoffset: var(--offset-from, 1); } }
+@keyframes barShift { from { transform: scaleX(1.007); } }
+@keyframes typing { from { clip-path: inset(0 100% 0 0); } }
+@keyframes ecg { to { stroke-dashoffset: -1.35; } }
