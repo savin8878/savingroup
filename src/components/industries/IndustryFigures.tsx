@@ -1,6 +1,7 @@
 import { useId, type CSSProperties, type ReactNode } from "react";
 import { Plus } from "lucide-react";
 import type { IndustryKey } from "@/lib/country-content";
+import { INDUSTRY_WORKFLOWS } from "./workflows";
 import s from "./IndustryFigures.module.css";
 
 /**
@@ -87,7 +88,7 @@ function box(P: Projector, x: number, y: number, z: number, w: number, d: number
   };
 }
 
-type Tone = "paper" | "tint" | "machine" | "slot" | "pad";
+type Tone = "paper" | "tint" | "machine" | "slot" | "pad" | "surface" | "glass";
 const TONES: Record<Tone, [string, string, string]> = {
   // [top, front-left, front-right]
   paper: [s.paper, s.surface, s.soft],
@@ -95,6 +96,8 @@ const TONES: Record<Tone, [string, string, string]> = {
   machine: [s.machineTop, s.machineLeft, s.machineRight],
   slot: [s.machineSlot, s.machineSlot, s.machineSlot],
   pad: [s.soft, s.soft, s.soft],
+  surface: [s.surface, s.surface, s.soft],
+  glass: [s.glass, s.glass, s.glass],
 };
 
 function Block({ P, x, y, z = 0, w, d, h, tone = "paper", top = true }: { P: Projector; x: number; y: number; z?: number; w: number; d: number; h: number; tone?: Tone; top?: boolean }) {
@@ -375,176 +378,296 @@ export function HubArt({ compact, className, label }: ArtProps) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   MANUFACTURING — shop floor → ERP → dashboard + GST
+   Scene kit — isometric plates, faces and the stage-highlight contract
+   ══════════════════════════════════════════════════════════════════════ */
+/** Quad on the plane x = const (faces front-right). */
+const qR = (P: Projector, x: number, y0: number, y1: number, z0: number, z1: number) => poly([P(x, y0, z0), P(x, y1, z0), P(x, y1, z1), P(x, y0, z1)]);
+/** Quad on the plane y = const (faces front-left). */
+const qL = (P: Projector, y: number, x0: number, x1: number, z0: number, z1: number) => poly([P(x0, y, z0), P(x1, y, z0), P(x1, y, z1), P(x0, y, z1)]);
+/** Quad on a horizontal plane. */
+const qT = (P: Projector, z: number, x0: number, y0: number, x1: number, y1: number) => poly([P(x0, y0, z), P(x1, y0, z), P(x1, y1, z), P(x0, y1, z)]);
+/** A circle lying on a plane, as a smooth polygon. */
+function ring(P: Projector, plane: "x" | "y" | "z", [a, b, c]: [number, number, number], r: number, n = 28) {
+  const pts: Pt[] = [];
+  for (let k = 0; k < n; k++) {
+    const t = (k / n) * Math.PI * 2;
+    const u = r * Math.cos(t);
+    const v = r * Math.sin(t);
+    pts.push(plane === "z" ? P(a + u, b + v, c) : plane === "x" ? P(a, b + u, c + v) : P(a + u, b, c + v));
+  }
+  return poly(pts);
+}
+/** SVG transform that lays text on a face: "l" (y = const), "r" (x = const) or "t" (the floor, along x). */
+function faceMatrix(face: "l" | "r" | "t", [x, y]: Pt) {
+  const m = face === "l" ? "0.866 0.5 0 1" : face === "r" ? "0.866 -0.5 0 1" : "0.866 0.5 -0.866 0.5";
+  return `matrix(${m} ${r1(x)} ${r1(y)})`;
+}
+
+/** The floor plate every industry scene stands on. */
+function Plate3D({ P, w, d, t = 10, step = 40 }: { P: Projector; w: number; d: number; t?: number; step?: number }) {
+  const floor = box(P, 0, 0, -t, w, d, t);
+  const xs = Array.from({ length: Math.floor((w - 1) / step) }, (_, k) => (k + 1) * step);
+  const ys = Array.from({ length: Math.floor((d - 1) / step) }, (_, k) => (k + 1) * step);
+  return <g>
+    <path className={s.soft} d={floor.left} />
+    <path className={s.soft} d={floor.right} />
+    <path className={s.paper} d={floor.top} />
+    <path className={s.guide} d={[...xs.map((x) => polyline([P(x, 0), P(x, d)])), ...ys.map((y) => polyline([P(0, y), P(w, y)]))].join("")} />
+    <path className={cx(s.guide, s.dashed)} d={poly([P(8, 8), P(w - 8, 8), P(w - 8, d - 8), P(8, d - 8)])} />
+  </g>;
+}
+
+/** Walls + a gable roof whose ridge runs along x. */
+function GableX({ P, x, y, w, d, h, rh, tone = "paper" }: { P: Projector; x: number; y: number; w: number; d: number; h: number; rh: number; tone?: "paper" | "tint" }) {
+  const m = y + d / 2;
+  return <g>
+    <path className={s.soft} d={poly([P(x, y, h), P(x + w, y, h), P(x + w, m, h + rh), P(x, m, h + rh)])} />
+    <path className={s.surface} d={qL(P, y + d, x, x + w, 0, h)} />
+    <path className={s.soft} d={poly([P(x + w, y, 0), P(x + w, y + d, 0), P(x + w, y + d, h), P(x + w, m, h + rh), P(x + w, y, h)])} />
+    <path className={tone === "tint" ? s.tintMuted : s.paper} d={poly([P(x, m, h + rh), P(x + w, m, h + rh), P(x + w, y + d, h), P(x, y + d, h)])} />
+  </g>;
+}
+
+/** A vertical cylinder standing at (x, y). */
+function Cyl({ P, x, y, z = 0, r, h, className }: { P: Projector; x: number; y: number; z?: number; r: number; h: number; className?: string }) {
+  const [cxb, cyb] = P(x, y, z);
+  const [, cyt] = P(x, y, z + h);
+  const rx = r * 1.2247;
+  const ry = r * 0.7071;
+  return <g>
+    <path className={className ?? s.surface} d={`M${r1(cxb - rx)} ${r1(cyt)}V${r1(cyb)}A${r1(rx)} ${r1(ry)} 0 0 0 ${r1(cxb + rx)} ${r1(cyb)}V${r1(cyt)}Z`} />
+    <ellipse className={s.paper} cx={r1(cxb)} cy={r1(cyt)} rx={r1(rx)} ry={r1(ry)} />
+  </g>;
+}
+
+/**
+ * Stage-highlight contract (see workflows.ts). Every stage id of an industry is
+ * one or more <g data-stage> regions. An ancestor with data-active-stage="<id>"
+ * lights its region (accent outlines, halo, animated connector) and dims the
+ * rest; the CSS enumerates every id.
+ */
+function Stage({ id, children, className }: { id: string; children: ReactNode; className?: string }) {
+  return <g className={cx(s.stage, className)} data-stage={id}>{children}</g>;
+}
+/** Floor halo under a stage's footprint; invisible until the stage is active. */
+function Halo({ d }: { d: string }) {
+  return <g className={s.halo} aria-hidden="true"><path className={s.haloFill} d={d} /><path className={s.haloPulse} d={d} /></g>;
+}
+const footprint = (P: Projector, x: number, y: number, w: number, d: number, pad = 7) => qT(P, 0.5, x - pad, y - pad, x + w + pad, y + d + pad);
+const rectPath = (x: number, y: number, w: number, h: number, pad = 5) => `M${x - pad} ${y - pad}H${x + w + pad}V${y + h + pad}H${x - pad}Z`;
+/** A stage's incoming connector: a dashed route, a slow ambient flow and a fast flow shown while active. */
+function Link({ d, ambient = true, delaySec = 0, fast = false }: { d: string; ambient?: boolean; delaySec?: number; fast?: boolean }) {
+  return <g>
+    <path className={s.route} d={d} />
+    {ambient && <path className={cx(s.flow, s.ambient, fast && s.flowFast)} d={d} style={delay(delaySec)} />}
+    <path className={s.link} d={d} />
+  </g>;
+}
+
+/** Numbered stage tag: a badge, an optional leader and a name. */
+function Tag({ n, name, x, y, anchor = "start", leader, className }: { n: string; name: string; x: number; y: number; anchor?: "start" | "end" | "middle"; leader?: string; className?: string }) {
+  const tx = anchor === "start" ? x + 12 : anchor === "end" ? x - 12 : x;
+  const ty = anchor === "middle" ? y + 19 : y + 3;
+  return <g className={cx(s.tag, className)}>
+    {leader && <path className={s.leader} d={leader} />}
+    <g className={s.badge}>
+      <circle className={s.badgeDisc} cx={x} cy={y} r="7.5" />
+      <text className={s.badgeNum} x={x} y={r1(y + 2.5)} textAnchor="middle">{n}</text>
+    </g>
+    <text className={cx(s.key, s.tagName)} x={tx} y={r1(ty)} textAnchor={anchor}>{name}</text>
+  </g>;
+}
+
+/** A flat software panel floating over the scene. */
+function Panel({ x, y, w, h, n, title, code, children }: { x: number; y: number; w: number; h: number; n: string; title: string; code?: string; children?: ReactNode }) {
+  return <g>
+    <Halo d={rectPath(x, y, w, h)} />
+    <rect className={s.panel} x={x} y={y} width={w} height={h} />
+    <rect className={s.panelHead} x={x} y={y} width={w} height="18" />
+    <g className={s.badge}>
+      <circle className={s.badgeDisc} cx={x + 11} cy={y + 9} r="6" />
+      <text className={s.badgeNum} x={x + 11} y={y + 11.4} textAnchor="middle" style={{ fontSize: "6.5px" }}>{n}</text>
+    </g>
+    <text className={cx(s.key, s.panelTitle)} x={x + 22} y={y + 12}>{title}</text>
+    {code && <text className={s.micro} x={x + w - 7} y={y + 12} textAnchor="end">{code}</text>}
+    {children}
+  </g>;
+}
+
+/** Stage numbers come from INDUSTRY_WORKFLOWS so the figure and the simulator always agree. */
+function stageNumbers(industry: IndustryKey) {
+  const out: Record<string, string> = {};
+  INDUSTRY_WORKFLOWS[industry].stages.forEach((stage, k) => { out[stage.id] = String(k + 1).padStart(2, "0"); });
+  return out;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MANUFACTURING — order → plan → material → production → QC → dispatch
+   → e-invoice → daily P&L
    ══════════════════════════════════════════════════════════════════════ */
 const QR = [1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1];
 
 export function ManufacturingArt({ compact, className, label }: ArtProps) {
   const id = useFigureId("ifm");
-  const chart = [124, 121, 123, 117, 118, 112, 114, 106, 104, 99, 94];
-  const chartPath = chart.map((y, k) => `${k ? "L" : "M"}${462 + k * 12} ${y}`).join("");
+  const n = stageNumbers("manufacturing");
+  const P = projector(251, 158);
+  const at = (x: number, y: number, z = 0) => P(x, y, z);
+  const chart = [36, 33, 35, 29, 30, 24, 26, 18, 16, 11, 6];
+  const chartPath = chart.map((v, k) => `${k ? "L" : "M"}${462 + k * 11.8} ${108 + v}`).join("");
+  const belt = (x0: number, x1: number) => polyline([P(x0, 60, 12.5), P(x1, 60, 12.5)]);
+  const [m1x, m1y] = at(89, 60, 34);
+  const [m2x, m2y] = at(149, 60, 52);
+  const [qcx, qcy] = at(187, 60, 36);
+  const [tkx, tky] = at(300, 60, 26);
+
   return (
-    <Plate compact={compact} className={className} label={label}>
-      <DotGrid id={id} />
-      <Frame top="MANUFACTURING / SHOP FLOOR → ERP" tag="LIVE WIP" bottom="FROM THE MACHINE TO THE LEDGER." />
+    <Plate compact={compact} className={className} label={label} viewBox="0 0 640 480" compactViewBox="60 52 520 325">
+      <DotGrid id={id} x={36} y={52} width={568} height={372} />
+      <Frame top="MANUFACTURING / ORDER TO DISPATCH" tag="LIVE WIP" bottom="FROM THE SALES DESK TO THE LEDGER." height={480} tagX={506} />
+      <Plate3D P={P} w={330} d={170} />
 
-      {/* ERP: one ledger with four modules. */}
-      <rect className={s.surface} x="56" y="64" width="364" height="60" />
-      <rect className={s.soft} x="56" y="64" width="364" height="16" />
-      <text className={s.key} x="66" y="75.5">ERP · ONE LEDGER</text>
-      <text className={s.micro} x="400" y="75" textAnchor="end">SYNCED</text>
-      <circle className={s.accentFill} cx="409" cy="72.5" r="2.2" />
-      <circle className={cx(s.accentLine, s.pulse)} cx="409" cy="72.5" r="2.2" />
-      <path className={s.guide} d="M147 80V124M238 80V124M329 80V124" />
-      {["01 STOCK", "02 PRODUCTION", "03 WIP", "04 GST"].map((name, k) => <text key={name} className={s.microInk} x={66 + k * 91} y="93">{name}</text>)}
-      {/* STOCK */}
-      <path className={s.bar} d="M66 103H126M66 110H108" />
-      <path className={s.barAccent} d="M66 117H82" />
-      <path className={s.barSoft} d="M88 117H126M114 110H126" />
-      {/* PRODUCTION — a small gantt */}
-      <path className={s.bar} d="M157 103H193M163 117H189" />
-      <path className={s.barAccent} d="M170 110H214" />
-      <path className={s.barSoft} d="M199 103H226M195 117H222" />
-      {/* WIP */}
-      <text className={s.micro} x="248" y="105.5">M1</text>
-      <text className={s.micro} x="248" y="119">M2</text>
-      <path className={s.bar} d="M264 103H306" />
-      <path className={s.barAccent} d="M264 116.5H284" />
-      <text className={s.microInk} x="319" y="105.5" textAnchor="end">42</text>
-      <text className={s.microInk} x="319" y="119" textAnchor="end">18</text>
-      {/* GST */}
-      <text className={s.micro} x="339" y="105.5">IRN</text>
-      <text className={s.micro} x="339" y="119">EWB</text>
-      <path className={s.guide} d="M362 103H392M362 116.5H392" />
-      <Check x={405} y={103} r={4} />
-      <Check x={405} y={116.5} r={4} />
+      {/* 03 — raw-material godown, with greige rolls waiting at its door. */}
+      <Stage id="material">
+        <Halo d={footprint(P, 6, 32, 52, 88)} />
+        <GableX P={P} x={8} y={34} w={48} d={50} h={30} rh={14} />
+        <path className={s.soft} d={qR(P, 56, 52, 68, 0, 20)} />
+        <path className={s.line} d={[5, 10, 15].map((z) => polyline([P(56, 52, z), P(56, 68, z)])).join("")} />
+        {[[16, 26], [30, 40], [44, 54]].map(([x0, x1]) => <path key={x0} className={s.glass} d={qL(P, 84, x0, x1, 18, 24)} />)}
+        <path className={s.soft} d={qL(P, 84, 20, 34, 0, 13)} />
+        {[[16, 100], [30, 100], [44, 100], [23, 112], [37, 112]].map(([x, y], k) => <Cyl key={k} P={P} x={x} y={y} r={5.5} h={k < 3 ? 13 : 11} className={k === 1 ? s.tintMuted : s.surface} />)}
+        <Tap x={r1(at(32, 59, 44)[0])} y={r1(at(32, 59, 44)[1] - 9)} mast={6} />
+      </Stage>
 
-      {/* Founder dashboard. */}
-      <rect className={s.surface} x="452" y="64" width="140" height="102" />
-      <rect className={s.soft} x="452" y="64" width="140" height="16" />
-      <text className={s.key} x="462" y="75.5">DASHBOARD</text>
-      <text className={s.micro} x="582" y="75" textAnchor="end">P&amp;L · TODAY</text>
-      <path className={cx(s.guide, s.dashed)} d="M462 99H582M462 110H582M462 121H582" />
-      <path className={s.guide} d="M462 132H582" />
-      <path className={s.area} d={`${chartPath}L582 132H462Z`} />
-      <path className={cx(s.accentLine, s.draw)} d={chartPath} pathLength={1} style={{ strokeWidth: 1.8 }} />
-      <circle className={s.accentDot} cx="582" cy="94" r="3" />
-      <circle className={cx(s.accentLine, s.pulse)} cx="582" cy="94" r="3" />
-      <g className={s.minor}>
-        {[["SALES", 462, 26], ["MARGIN", 504, 18], ["CASH", 546, 22]].map(([name, x, w], k) => <g key={name}>
-          <text className={s.micro} x={x} y="148">{name}</text>
-          <path className={k === 1 ? s.barAccent : s.bar} style={{ strokeWidth: 2.4 }} d={`M${x} 156h${w}`} />
-          <path className={s.barSoft} style={{ strokeWidth: 2.4 }} d={`M${Number(x) + Number(w) + 5} 156H${Number(x) + 34}`} />
-        </g>)}
+      {/* Conveyor through the line; goods ride it. */}
+      <g>
+        <Block P={P} x={56} y={52} z={6} w={162} d={16} h={6} />
+        <path className={s.line} d={[70, 124, 176, 214].map((x) => `${polyline([P(x, 68, 0), P(x, 68, 6)])}`).join("")} />
+        <path className={s.guide} d={Array.from({ length: 15 }, (_, k) => polyline([P(62 + k * 10.5, 53, 12), P(62 + k * 10.5, 67, 12)])).join("")} />
       </g>
 
-      {/* GST e-invoice + e-way bill, generated from the ledger. */}
-      <path className={s.surface} d="M452 184H492L504 196V246H452Z" />
-      <path className={s.line} d="M492 184V196H504" />
-      <text className={s.microAccent} x="460" y="198">GST</text>
-      {QR.map((on, k) => on ? <rect key={k} className={s.fillSoft} style={{ fill: "var(--home-ink)" }} x={460 + (k % 4) * 5} y={206 + Math.floor(k / 4) * 5} width="4" height="4" /> : null)}
-      <path className={s.guide} d="M485 208H497M485 214H497M485 220H492" />
-      <path className={s.accentLine} d="M460 236H478" />
-      <Check x={492} y={236} r={4.5} />
-      <text className={s.key} x="512" y="206">E-INVOICE</text>
-      <text className={s.micro} x="512" y="218">IRN · E-WAY BILL</text>
+      {/* 04 — production: M1 (CNC) and M2 (press), WIP between them. */}
+      <Stage id="production">
+        <Halo d={footprint(P, 70, 40, 100, 40)} />
+        <Link d={belt(58, 132)} delaySec={-1} />
+        <path className={cx(s.goods, s.ambient)} d={belt(58, 218)} />
+        {/* M1 */}
+        <Block P={P} x={74} y={44} w={30} d={32} h={34} />
+        <path className={s.glass} d={qL(P, 76, 78, 96, 10, 28)} />
+        <path className={s.inkLine} d={polyline([P(87, 76, 28), P(87, 76, 19)])} />
+        <path className={s.accentLine} d={polyline([P(87, 76, 18), P(87, 76, 15)])} />
+        <path className={s.machineSlot} d={qR(P, 104, 50, 62, 18, 28)} />
+        <path className={s.whiteLine} d={polyline([P(104, 52, 25), P(104, 58, 25)])} />
+        <circle className={cx(s.accentFill, s.blink)} cx={r1(at(104, 68, 24)[0])} cy={r1(at(104, 68, 24)[1])} r="1.8" />
+        {/* WIP crates */}
+        {[[110, 12], [110, 19], [120, 12]].map(([x, z], k) => <Block key={k} P={P} x={x} y={54} z={z} w={8} d={10} h={7} tone={k === 1 ? "tint" : "paper"} />)}
+        {/* M2 — press frame, crown and the cycling ram */}
+        <Block P={P} x={132} y={42} w={34} d={36} h={10} />
+        <Block P={P} x={134} y={44} z={10} w={6} d={6} h={34} />
+        <Block P={P} x={158} y={44} z={10} w={6} d={6} h={34} />
+        <Block P={P} x={132} y={42} z={44} w={34} d={12} h={10} />
+        <g className={s.press} style={cssVars({ "--stroke": "9px" })}>
+          <Block P={P} x={140} y={52} z={30} w={18} d={16} h={8} tone="tint" />
+        </g>
+        <Block P={P} x={134} y={68} z={10} w={6} d={6} h={34} />
+        <Block P={P} x={158} y={68} z={10} w={6} d={6} h={34} />
+        <Block P={P} x={132} y={66} z={44} w={34} d={12} h={10} />
+        <Tap x={r1(m1x)} y={r1(m1y - 12)} mast={9} />
+        <Tap x={r1(m2x)} y={r1(m2y - 10)} mast={7} />
+      </Stage>
 
-      {/* Data: machine and stock taps rise into one bus, into the ERP. */}
-      <path className={s.route} d="M92 196V160H424V214M176 206V160M264 200V160M238 160V124" />
-      <path className={cx(s.flow, s.flowFast)} d="M92 196V160H236" />
-      <path className={cx(s.flow, s.flowFast)} d="M424 214V160H240" style={delay(-2)} />
-      <path className={cx(s.flow, s.flowFast)} d="M176 206V162" style={delay(-4)} />
-      <path className={cx(s.flow, s.flowFast)} d="M264 200V162" style={delay(-1)} />
-      <path className={s.flow} d="M238 160V124" style={delay(-3)} />
-      <circle className={s.accentDot} cx="238" cy="124" r="3" />
-      <path className={s.route} d="M420 94H452M420 112H442V214H452" />
-      <path className={s.flow} d="M420 94H452" style={delay(-5)} />
-      <path className={s.flow} d="M420 112H442V214H452" style={delay(-7)} />
+      {/* 05 — quality gate: a light curtain over the belt. */}
+      <Stage id="qc">
+        <Halo d={footprint(P, 180, 44, 16, 32)} />
+        <Link d={belt(166, 186)} delaySec={-3} fast />
+        {[46, 68].map((y) => <Block key={y} P={P} x={183} y={y} w={7} d={6} h={32} />)}
+        <path className={cx(s.tintFill, s.blink)} d={qR(P, 186.5, 52, 68, 13, 30)} />
+        <path className={s.accentLine} strokeDasharray="1.5 3" d={[16, 21, 26].map((z) => polyline([P(186.5, 52, z), P(186.5, 68, z)])).join("")} />
+        <Block P={P} x={181} y={44} z={32} w={11} d={32} h={5} />
+        <circle className={s.accentFill} cx={r1(qcx)} cy={r1(qcy - 2)} r="2.2" />
+        <circle className={cx(s.accentLine, s.pulse)} cx={r1(qcx)} cy={r1(qcy - 2)} r="2.2" />
+        {[[198, 12], [206, 12]].map(([x, z], k) => <Block key={k} P={P} x={x} y={54} z={z} w={7} d={10} h={7} />)}
+      </Stage>
 
-      {/* Shop floor. */}
-      <path className={s.line} d="M48 318H592" />
+      {/* 06 — finished-goods godown and the truck at its dock. */}
+      <Stage id="dispatch">
+        <Halo d={footprint(P, 220, 32, 104, 56)} />
+        <Link d={`${belt(190, 222)}${polyline([P(270, 60, 2), P(278, 60, 2)])}`} delaySec={-5} />
+        <GableX P={P} x={222} y={34} w={48} d={50} h={28} rh={12} tone="tint" />
+        <path className={s.soft} d={qR(P, 270, 50, 70, 0, 20)} />
+        <path className={s.line} d={[5, 10, 15].map((z) => polyline([P(270, 50, z), P(270, 70, z)])).join("")} />
+        {[[230, 240], [252, 262]].map(([x0, x1]) => <path key={x0} className={s.glass} d={qL(P, 84, x0, x1, 16, 22)} />)}
+        <path className={s.soft} d={qL(P, 84, 242, 252, 0, 12)} />
+        <g className={s.drive} style={cssVars({ "--drive": "0px" })}>
+          <Block P={P} x={276} y={48} z={4} w={32} d={24} h={22} />
+          <path className={s.accentLine} d={polyline([P(282, 72, 16), P(300, 72, 16)])} />
+          <path className={s.line} d={polyline([P(282, 72, 11), P(294, 72, 11)])} />
+          <Block P={P} x={308} y={50} z={4} w={14} d={22} h={17} />
+          <path className={s.glass} d={qR(P, 322, 53, 69, 11, 18)} />
+          <path className={s.glass} d={qL(P, 72, 311, 319, 11, 18)} />
+          {[[284, 72], [300, 72], [316, 72]].map(([x, y]) => <path key={x} className={s.wheel} d={ring(P, "y", [x, y + 0.5, 4.5], 4.5, 20)} />)}
+        </g>
+      </Stage>
 
-      {/* Raw-material godown with its stock levels. */}
-      <path className={s.paper} d="M50 230 92 204 134 230Z" />
-      <rect className={s.paper} x="56" y="230" width="72" height="88" />
-      <rect className={s.soft} x="64" y="242" width="56" height="76" />
-      <path className={s.line} d="M68 244V318M116 244V318M66 268H118M66 294H118" />
-      {[[71, 254], [86, 254], [101, 254], [71, 280], [86, 280]].map(([x, y]) => <rect key={`${x}-${y}`} className={s.paper} x={x} y={y} width="12" height="14" />)}
-      <rect className={cx(s.guide, s.dashed)} x="101" y="280" width="12" height="14" />
-      <rect className={cx(s.guide, s.dashed)} x="86" y="304" width="12" height="14" />
-      <rect className={cx(s.guide, s.dashed)} x="101" y="304" width="12" height="14" />
-      <rect className={s.tint} x="71" y="304" width="12" height="14" />
-      <Tap x={92} y={196} mast={8} />
+      {/* 01 — the sales order. */}
+      <Stage id="order">
+        <Panel x={48} y={60} w={124} h={64} n={n.order} title="SALES ORDER" code="SO-1042">
+          <text className={s.micro} x="56" y="92">QTY</text>
+          <text className={s.microInk} x="164" y="92" textAnchor="end">1,200 M</text>
+          <path className={s.guide} d="M56 98H164" />
+          <text className={s.micro} x="56" y="108">IN STOCK 400</text>
+          <text className={s.microAccent} x="164" y="108" textAnchor="end">MAKE 800</text>
+          <path className={s.bar} style={{ strokeWidth: 3.4, strokeLinecap: "butt" }} d="M56 116H90" />
+          <path className={s.barAccent} style={{ strokeWidth: 3.4, strokeLinecap: "butt" }} d="M92 116H164" />
+        </Panel>
+      </Stage>
 
-      {/* Conveyor: goods ride it through the machines. */}
-      <rect className={s.soft} x="140" y="292" width="244" height="8" />
-      <path className={s.guide} d={Array.from({ length: 15 }, (_, k) => `M${148 + k * 16} 294v4`).join("")} />
-      <path className={s.line} d="M150 300V318M262 300V318M374 300V318" />
-      <path className={s.goods} d="M128 288H392" />
+      {/* 02 — production plan: the work order lands on Thursday, line 2. */}
+      <Stage id="plan">
+        <Link d="M110 124V134" ambient={false} />
+        <Panel x={48} y={134} w={124} h={64} n={n.plan} title="PLAN" code="WO-0318">
+          {["M", "T", "W", "T", "F", "S"].map((d, k) => <text key={k} className={k === 3 ? s.microAccent : s.micro} x={r1(63 + k * 18.5)} y="163" textAnchor="middle">{d}</text>)}
+          <path className={cx(s.guide, s.dashed)} d="M56 169H164M56 179H164M56 189H164" />
+          <path className={s.barSoft} style={{ strokeWidth: 5, strokeLinecap: "butt" }} d="M56 169H92M100 179H124M56 189H80M130 189H158" />
+          <path className={s.barAccent} style={{ strokeWidth: 5, strokeLinecap: "butt" }} d="M112 179H150" />
+          <path className={s.bar} style={{ strokeWidth: 5, strokeLinecap: "butt" }} d="M96 169H120" />
+        </Panel>
+        {/* The plan issues material from the godown. */}
+        <Link d={`M172 150H${r1(at(32, 59, 44)[0])}V${r1(at(32, 59, 44)[1] - 12)}`} delaySec={-2} fast />
+      </Stage>
 
-      {/* M1 — CNC. */}
-      <rect className={s.paper} x="150" y="220" width="52" height="72" />
-      <rect className={s.soft} x="150" y="220" width="52" height="8" />
-      <rect className={s.glass} x="157" y="234" width="26" height="36" />
-      <path className={s.inkLine} d="M170 234V251" />
-      <path className={s.accentLine} d="M170 252V256" />
-      <rect className={s.soft} x="164" y="262" width="12" height="8" />
-      <rect className={s.soft} x="188" y="234" width="9" height="22" />
-      <path className={s.guide} d="M190.5 240H194.5M190.5 245H194.5M190.5 250H193" />
-      <circle className={cx(s.accentFill, s.blink)} cx="196" cy="224" r="1.8" />
-      <Tap x={176} y={206} mast={14} />
-      <text className={s.micro} x="156" y="287">M1</text>
+      {/* 07 — e-invoice + e-way bill, generated from the dispatch data. */}
+      <Stage id="invoice">
+        <Link d={`M${r1(tkx)} ${r1(tky - 2)}V232`} delaySec={-4} fast />
+        <Panel x={452} y={168} w={140} h={64} n={n.invoice} title="E-INVOICE" code="GST">
+          {QR.map((on, k) => on ? <rect key={k} className={s.qr} x={460 + (k % 4) * 6} y={194 + Math.floor(k / 4) * 6} width="5" height="5" /> : null)}
+          <text className={s.micro} x="494" y="201">IRN</text>
+          <text className={s.micro} x="494" y="215">E-WAY BILL</text>
+          <Check x={580} y={198} r={4} />
+          <Check x={580} y={212} r={4} />
+          <path className={s.guide} d="M494 205H572M494 219H572" />
+        </Panel>
+      </Stage>
 
-      {/* WIP between stations. */}
-      <rect className={s.paper} x="210" y="282" width="18" height="10" />
-      <rect className={s.paper} x="210" y="272" width="18" height="10" />
-      <rect className={s.paper} x="212" y="262" width="14" height="10" />
-      <text className={s.microAccent} x="219" y="256" textAnchor="middle">WIP 42</text>
+      {/* 08 — the founder's daily P&L. */}
+      <Stage id="dashboard">
+        <Link d="M522 168V156" ambient={false} />
+        <Panel x={452} y={60} w={140} h={96} n={n.dashboard} title={"P&L · TODAY"} code="LIVE">
+          <text className={s.figureNum} x="460" y="99">18.4%</text>
+          <text className={s.micro} x="584" y="97" textAnchor="end">MARGIN</text>
+          <path className={cx(s.guide, s.dashed)} d="M460 116H584M460 130H584" />
+          <path className={s.guide} d="M460 144H584" />
+          <path className={s.area} d={`${chartPath}L580 144H462Z`} />
+          <path className={cx(s.accentLine, s.draw)} d={chartPath} pathLength={1} style={{ strokeWidth: 1.6 }} />
+          <circle className={s.accentDot} cx="580" cy="114" r="2.8" />
+          <circle className={cx(s.accentLine, s.pulse)} cx="580" cy="114" r="2.8" />
+        </Panel>
+      </Stage>
 
-      {/* M2 — press, the ram cycles. */}
-      <rect className={s.paper} x="236" y="214" width="54" height="18" />
-      <rect className={s.surface} x="274" y="232" width="16" height="50" />
-      <rect className={s.soft} x="236" y="282" width="54" height="10" />
-      <rect className={s.soft} x="248" y="276" width="22" height="6" />
-      <g className={s.press} style={cssVars({ "--stroke": "18px" })}>
-        <path className={s.line} d="M259 232V238" />
-        <rect className={s.tintMuted} x="250" y="238" width="18" height="12" />
-      </g>
-      <Tap x={264} y={200} mast={14} />
-      <text className={s.micro} x="241" y="227">M2</text>
-
-      <rect className={s.paper} x="300" y="282" width="18" height="10" />
-      <rect className={s.paper} x="302" y="272" width="14" height="10" />
-      <text className={s.microAccent} x="309" y="266" textAnchor="middle">WIP 18</text>
-
-      {/* Quality gate. */}
-      <rect className={s.surface} x="332" y="250" width="5" height="42" />
-      <rect className={s.surface} x="363" y="250" width="5" height="42" />
-      <rect className={s.paper} x="328" y="244" width="44" height="8" />
-      <path className={cx(s.accentLine, s.blink)} strokeDasharray="2 3" d="M350 255V289" />
-
-      {/* Finished-goods godown. */}
-      <path className={s.paper} d="M388 246 424 222 460 246Z" />
-      <rect className={s.paper} x="392" y="246" width="64" height="72" />
-      <rect className={s.soft} x="400" y="256" width="48" height="62" />
-      <path className={s.line} d="M404 258V318M444 258V318M402 287H446" />
-      {[408, 421, 434].map((x) => <g key={x}><rect className={s.paper} x={x - 1} y="273" width="11" height="14" /><rect className={s.paper} x={x - 1} y="304" width="11" height="14" /></g>)}
-      <Tap x={424} y={214} mast={8} />
-
-      {/* Dispatch: the e-way bill travels with the truck. */}
-      <path className={s.route} d="M456 304H470" />
-      <path className={cx(s.guide, s.dashed)} d="M493 246V272" />
-      <rect className={s.paper} x="474" y="262" width="76" height="42" />
-      <rect className={s.surface} x="484" y="272" width="18" height="22" />
-      <path className={s.guide} d="M488 279H498M488 284H496" />
-      <circle className={s.accentFill} cx="497" cy="289.5" r="2" />
-      <path className={s.surface} d="M550 274H572L586 290V304H550Z" />
-      <path className={s.glass} d="M556 280H570L578 290H556Z" />
-      <path className={s.inkLine} style={{ strokeWidth: 1.1 }} d="M470 306H590" />
-      {[494, 568].map((x) => <g key={x}><circle className={s.surface} style={{ stroke: "var(--home-ink)" }} cx={x} cy="309" r="7" /><circle className={s.line} cx={x} cy="309" r="2" /></g>)}
-
-      {/* Floor labels. */}
-      {[["RM GODOWN", 92], ["MACHINES", 220], ["QC", 350], ["FG GODOWN", 424], ["DISPATCH", 530]].map(([name, x]) => <text key={name} className={s.key} x={x} y="338" textAnchor="middle">{name}</text>)}
+      {/* Stage tags for the floor, on a rail in front of the line. */}
+      <Stage id="material"><Tag n={n.material} name="MATERIAL" x={r1(at(30, 150)[0])} y={r1(at(30, 150)[1])} anchor="end" leader={polyline([at(30, 120), at(30, 144)])} /></Stage>
+      <Stage id="production"><Tag n={n.production} name="PRODUCTION" x={r1(at(118, 150)[0])} y={r1(at(118, 150)[1])} leader={polyline([at(118, 80), at(118, 144)])} /></Stage>
+      <Stage id="qc"><Tag n={n.qc} name="QC" x={r1(at(187, 150)[0])} y={r1(at(187, 150)[1])} leader={polyline([at(187, 78), at(187, 144)])} /></Stage>
+      <Stage id="dispatch"><Tag n={n.dispatch} name="DISPATCH" x={r1(at(292, 150)[0])} y={r1(at(292, 150)[1])} leader={polyline([at(292, 78), at(292, 144)])} /></Stage>
     </Plate>
   );
 }
@@ -580,11 +703,11 @@ export function RealEstateArt({ compact, className, label }: ArtProps) {
         <path d="M280 318V238H320V318M328 318V272H362V318M370 318V256H420V318M428 318V282H470V318" />
         <path d="M288 250h24M288 262h24M288 274h24M288 286h24M288 298h24M378 268h34M378 282h34M378 296h34M436 294h26M436 306h26" strokeDasharray="2 3" />
         {/* Crane. */}
-        <path d="M196 318V198M192 318V198M192 206h4M192 222h4M192 238h4M192 254h4M192 270h4M192 286h4M192 302h4M172 198H266M178 198l16-10 16 10M172 198v8h10v-8" />
+        <path d="M196 318V216M192 318V216M192 224l4 8M196 232l-4 8M192 240l4 8M196 248l-4 8M192 256l4 8M196 264l-4 8M192 272l4 8M196 280l-4 8M192 288l4 8M196 296l-4 8M192 304l4 8M172 216H266M178 216l16-10 16 10M172 216v8h10v-8" />
       </g>
       <g className={s.bob}>
-        <path className={s.line} d="M252 198V228" />
-        <rect className={s.tint} x="247" y="228" width="10" height="7" />
+        <path className={s.line} d="M252 216V240" />
+        <rect className={s.tint} x="247" y="240" width="10" height="7" />
       </g>
       <path className={s.line} d="M48 318H592" />
 
@@ -593,9 +716,11 @@ export function RealEstateArt({ compact, className, label }: ArtProps) {
         const y = 76 + i * 42;
         return <g key={name}>
           <rect className={s.surface} x="56" y={y} width="100" height="30" />
-          <rect className={s.soft} x="62" y={y + 6} width="18" height="18" />
-          <path className={s.line} style={{ strokeWidth: 1.1 }} d={SOURCE_GLYPHS[i]} transform={`translate(71 ${y + 15})`} />
-          <text className={s.key} x="88" y={y + 18}>{name}</text>
+          <g className={s.minor}>
+            <rect className={s.soft} x="62" y={y + 6} width="18" height="18" />
+            <path className={s.line} style={{ strokeWidth: 1.1 }} d={SOURCE_GLYPHS[i]} transform={`translate(71 ${y + 15})`} />
+          </g>
+          <text className={cx(s.key, s.pullSmall)} style={cssVars({ "--pull": "-22px" })} x="88" y={y + 19}>{name}</text>
           <circle className={s.accentFill} cx="156" cy={y + 15} r="2.2" />
           <circle className={cx(s.accentLine, s.pulse)} cx="156" cy={y + 15} r="2.2" style={delay(i * 0.9)} />
         </g>;
@@ -647,6 +772,8 @@ export function RealEstateArt({ compact, className, label }: ArtProps) {
       <text className={s.key} x="492" y="72">ALLOTMENT</text>
       <rect className={s.soft} x="488" y="78" width="96" height="6" />
       <rect className={s.paper} x="492" y="84" width="88" height="234" />
+      <rect className={s.soft} x="580" y="84" width="6" height="234" />
+      <path className={s.guide} d="M496 88H576" />
       {units.map((floor, row) => floor.split("").map((state, col) => {
         const x = 500 + col * 18;
         const y = 94 + row * 20;
@@ -742,6 +869,10 @@ export function HealthcareArt({ compact, className, label }: ArtProps) {
           <text className={k === 0 ? s.microAccent : s.microInk} x="400" y={y + 2.5}>{token}</text>
           {k === 0 ? <rect className={s.accentFill} x="428" y={y - 6} width="46" height="12" /> : null}
           <text className={k === 0 ? s.whiteText : k === 1 ? cx(s.microAccent, s.blink) : s.micro} x="470" y={y + 2.5} textAnchor="end">{state}</text>
+          <g className={s.smallOnly}>
+            <path className={k < 2 ? s.barAccent : s.bar} d={`M400 ${y}H418`} />
+            {k > 0 && <path className={k === 1 ? s.barAccent : s.barSoft} d={`M${474 - k * 9} ${y}H470`} />}
+          </g>
         </g>;
       })}
       <rect className={s.paper} x="410" y="244" width="52" height="74" />
@@ -876,8 +1007,16 @@ export function EcommerceArt({ compact, className, label }: ArtProps) {
       <path className={s.paper} d={parcel.top} />
       <path className={s.accentLine} style={{ strokeWidth: 1.2 }} d={polyline([P(14, 0, 20), P(14, 22, 20), P(14, 22, 12)])} />
       <path className={s.tintMuted} d={poly([P(4, 22, 5), P(11, 22, 5), P(11, 22, 12), P(4, 22, 12)])} />
-      <text className={s.micro} x="486" y="160">AWB 41·2208</text>
-      <path className={s.guide} d="M492 164 488 190" />
+      {/* Tracking, pushed to the customer at every step. */}
+      <path className={s.line} d="M476 148H584" />
+      <path className={s.accentLine} d="M476 148H530" />
+      {[476, 530, 584].map((x, k) => <g key={x}>
+        {k < 2 ? <circle className={s.accentFill} cx={x} cy="148" r="4" /> : <circle className={s.accentDot} cx={x} cy="148" r="4" />}
+        {k === 2 && <circle className={cx(s.accentLine, s.pulse)} cx={x} cy="148" r="4" />}
+        <text className={k === 2 ? s.microAccent : s.micro} x={x} y="164" textAnchor={k === 0 ? "start" : k === 2 ? "end" : "middle"} dx={k === 0 ? -4 : k === 2 ? 4 : 0}>{["PACKED", "SHIPPED", "OUT"][k]}</text>
+      </g>)}
+      <text className={s.micro} x="470" y="190">AWB 41·2208</text>
+      <path className={s.guide} d="M478 194 486 208" />
       <g className={s.drive} style={cssVars({ "--drive": "10px" })}>
         <path className={s.paper} d="M530 204H566V234H530Z" />
         <path className={s.surface} d="M566 212H580L588 222V234H566Z" />
@@ -984,11 +1123,11 @@ export function EdtechArt({ compact, className, label }: ArtProps) {
       <text className={s.micro} x="470" y="166">24 / 30 SEATS</text>
 
       {/* 04 Attendance: a register, one absence flagged. */}
-      {Array.from({ length: 35 }, (_, i) => {
+      {Array.from({ length: 28 }, (_, i) => {
         const col = i % 7;
         const row = Math.floor(i / 7);
         const x = 468 + col * 15;
-        const y = 248 + row * 11;
+        const y = 248 + row * 12;
         const absent = row === 2 && col === 4;
         return <g key={i}>
           <rect className={absent ? s.tint : s.surface} x={x} y={y} width="12" height="9" />
@@ -997,7 +1136,7 @@ export function EdtechArt({ compact, className, label }: ArtProps) {
             : <path className={s.line} style={{ strokeWidth: 1 }} d={`m${x + 3.5} ${y + 4.5} 1.8 2 3.4-3.6`} />}
         </g>;
       })}
-      <text className={s.microAccent} x="468" y="308">SMS SENT TO PARENT</text>
+      <text className={s.microAccent} x="468" y="304">SMS SENT TO PARENT</text>
 
       {/* 05 Fees: instalments on a line. */}
       <path className={s.line} d="M274 268H366" />

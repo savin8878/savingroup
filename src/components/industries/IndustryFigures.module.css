@@ -8,11 +8,16 @@
  * dark mode and inside a dark band. The warm "machine" block (the operating
  * system core on the hub) keeps fixed material colours, like the home hero.
  *
- * Two text tiers:
- *   .key / .keyAccent  — the few labels that tell the story. Always shown; they
- *                        grow when the drawing is small (thumbnail / narrow).
- *   everything else    — annotations (.annot, .micro*, .whiteText, .minor). Shown
- *                        at full size only; hidden when the drawing is small.
+ * Text tiers:
+ *   .key / .keyAccent / .figureNum — the few labels that tell the story.
+ *   badges (.badge)                — stage numbers; they grow when small.
+ *   everything else                — annotations (.annot, .micro*, .whiteText,
+ *                                    .minor, .tagName). Full size only.
+ *
+ * Stage contract (see workflows.ts): every stage is a <g class="stage"
+ * data-stage="<id>">. Inside, shapes read their outline from --st, halos and
+ * connectors from --on. An ancestor's data-active-stage flips those variables
+ * for the matching region and dims the others — CSS only, no JavaScript.
  */
 
 /* ── Figure frame (caption row + drawing + legend) ─────────────────────── */
@@ -33,23 +38,24 @@
 /* Drawings are laid out left-to-right; keep annotations anchored in RTL pages. */
 .svg { display: block; width: 100%; height: auto; overflow: visible; color: var(--home-ink); font-family: var(--font-mono), monospace; direction: ltr; unicode-bidi: isolate; }
 .svg text { stroke: none; }
+.svg :is(path, rect, circle, ellipse, text) { transition: stroke .45s ease, fill .45s ease; }
 .guide { fill: none; stroke: var(--home-line); stroke-width: 1; }
 .dashed { stroke-dasharray: 2 7; }
-.line { fill: none; stroke: var(--home-muted); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.line { fill: none; stroke: var(--st, var(--home-muted)); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 .thin { fill: none; stroke: color-mix(in srgb, var(--home-muted) 55%, var(--home-line)); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
 .inkLine { fill: none; stroke: var(--home-ink); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-.paper { fill: var(--home-paper); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
-.surface { fill: var(--home-surface); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
-.soft { fill: var(--home-soft); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
-.glass { fill: color-mix(in srgb, #7f9a86 20%, var(--home-surface)); stroke: var(--home-muted); stroke-width: 1.1; stroke-linejoin: round; }
+.paper { fill: var(--home-paper); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; stroke-linejoin: round; }
+.surface { fill: var(--home-surface); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; stroke-linejoin: round; }
+.soft { fill: var(--home-soft); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; stroke-linejoin: round; }
+.glass { fill: color-mix(in srgb, #7f9a86 22%, var(--home-surface)); stroke: var(--st, var(--home-muted)); stroke-width: 1.1; stroke-linejoin: round; }
 .fillPaper { fill: var(--home-paper); stroke: none; }
 .fillSurface { fill: var(--home-surface); stroke: none; }
 .fillSoft { fill: var(--home-soft); stroke: none; }
 .tint { fill: color-mix(in srgb, var(--home-accent) 13%, var(--home-surface)); stroke: var(--home-accent); stroke-width: 1.15; stroke-linejoin: round; }
-.tintMuted { fill: color-mix(in srgb, var(--home-accent) 13%, var(--home-surface)); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
-.tintDeep { fill: color-mix(in srgb, var(--home-accent) 24%, var(--home-surface)); stroke: var(--home-muted); stroke-width: 1.15; stroke-linejoin: round; }
-.tintFill { fill: color-mix(in srgb, var(--home-accent) 16%, var(--home-surface)); stroke: none; }
-.area { fill: color-mix(in srgb, var(--home-accent) 9%, transparent); stroke: none; }
+.tintMuted { fill: color-mix(in srgb, var(--home-accent) 14%, var(--home-surface)); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; stroke-linejoin: round; }
+.tintDeep { fill: color-mix(in srgb, var(--home-accent) 26%, var(--home-surface)); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; stroke-linejoin: round; }
+.tintFill { fill: color-mix(in srgb, var(--home-accent) 18%, transparent); stroke: none; }
+.area { fill: color-mix(in srgb, var(--home-accent) 10%, transparent); stroke: none; }
 .accentFill { fill: var(--home-accent); stroke: none; }
 .accentLine { fill: none; stroke: var(--home-accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .accentDot { fill: var(--home-paper); stroke: var(--home-accent); stroke-width: 1.4; }
@@ -58,15 +64,28 @@
 .bar { fill: none; stroke: var(--home-ink); stroke-width: 3; stroke-linecap: round; }
 .barSoft { fill: none; stroke: var(--home-line); stroke-width: 3; stroke-linecap: round; }
 .barAccent { fill: none; stroke: var(--home-accent); stroke-width: 3; stroke-linecap: round; }
+.qr { fill: var(--home-ink); stroke: none; }
+.wheel { fill: var(--home-surface); stroke: var(--home-ink); stroke-width: 1.3; stroke-linejoin: round; }
+.leader { fill: none; stroke: var(--st, color-mix(in srgb, var(--home-muted) 70%, transparent)); stroke-width: .9; }
 
 /* Material colours of the "machine" (fixed across themes, like the home hero). */
 .machineTop { fill: #dc7040; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
 .machineLeft { fill: #b8471f; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
 .machineRight { fill: #a13f1c; stroke: #7d3014; stroke-width: 1.1; stroke-linejoin: round; }
-.machineSlot { fill: #5e2410; stroke: #5e2410; stroke-width: 1; stroke-linejoin: round; }
+.machineSlot { fill: #3c4640; stroke: #2c3530; stroke-width: 1; stroke-linejoin: round; }
 .whiteLine { fill: none; stroke: #fff3e4; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
 .whiteText { fill: #fff8ef; font-size: 7px; letter-spacing: .14em; }
 .lamp { fill: #ffe7bc; stroke: none; }
+
+/* Software panels floating over a scene. */
+.panel { fill: var(--home-surface); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; }
+.panelHead { fill: var(--head, var(--home-soft)); stroke: var(--st, var(--home-muted)); stroke-width: 1.15; }
+
+/* Stage tags: badge + name. */
+.badgeDisc { fill: var(--badge, var(--home-paper)); stroke: var(--home-accent); stroke-width: 1.2; }
+.badgeNum { fill: var(--badge-ink, var(--home-accent)); font-size: 7px; letter-spacing: .02em; font-weight: 600; }
+.tag .badge { transform-box: fill-box; transform-origin: center; transition: transform .3s ease; }
+.tagName { fill: var(--tag, var(--home-ink)); }
 
 /* Type */
 .annot { fill: var(--home-muted); font-size: 8px; letter-spacing: .12em; }
@@ -75,31 +94,101 @@
 .microAccent { fill: var(--home-accent); font-size: 7px; letter-spacing: .1em; }
 .key { fill: var(--home-ink); font-size: 8px; letter-spacing: .1em; }
 .keyAccent { fill: var(--home-accent); font-size: 8px; letter-spacing: .1em; }
+.figureNum { fill: var(--home-ink); font-family: var(--font-sans), sans-serif; font-size: 17px; font-weight: 500; letter-spacing: -.02em; }
 .label { fill: var(--home-ink); font-family: var(--font-sans), sans-serif; font-size: 13px; font-weight: 500; letter-spacing: -.02em; }
 
+/* ── Stages ─────────────────────────────────────────────────────────────── */
+.stage { transition: opacity .5s ease; }
+.halo { opacity: var(--on, 0); transition: opacity .45s ease; pointer-events: none; }
+.haloFill { fill: color-mix(in srgb, var(--home-accent) 9%, transparent); stroke: var(--home-accent); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.haloPulse { fill: none; stroke: var(--home-accent); stroke-width: 1.2; transform-box: fill-box; transform-origin: center; animation: ifHalo 2.4s ease-out infinite; }
+/* The fast connector only shows while its stage is active. */
+.link { fill: none; stroke: var(--home-accent); stroke-width: 2.3; stroke-linecap: round; stroke-dasharray: 5 9; opacity: var(--on, 0); animation: ifLink 1.1s linear infinite; transition: opacity .45s ease; }
+
+/* Something is selected: every region steps back, ambient flows go quiet… */
+[data-active-stage]:not([data-active-stage=""]) .stage { opacity: .42; }
+[data-active-stage]:not([data-active-stage=""]) .ambient { opacity: .22; }
+/* …and the selected region comes forward. One entry per stage id in workflows.ts. */
+[data-active-stage="order"] .stage[data-stage="order"],
+[data-active-stage="plan"] .stage[data-stage="plan"],
+[data-active-stage="material"] .stage[data-stage="material"],
+[data-active-stage="production"] .stage[data-stage="production"],
+[data-active-stage="qc"] .stage[data-stage="qc"],
+[data-active-stage="dispatch"] .stage[data-stage="dispatch"],
+[data-active-stage="invoice"] .stage[data-stage="invoice"],
+[data-active-stage="dashboard"] .stage[data-stage="dashboard"],
+[data-active-stage="capture"] .stage[data-stage="capture"],
+[data-active-stage="score"] .stage[data-stage="score"],
+[data-active-stage="respond"] .stage[data-stage="respond"],
+[data-active-stage="visit"] .stage[data-stage="visit"],
+[data-active-stage="negotiate"] .stage[data-stage="negotiate"],
+[data-active-stage="book"] .stage[data-stage="book"],
+[data-active-stage="handover"] .stage[data-stage="handover"],
+[data-active-stage="remind"] .stage[data-stage="remind"],
+[data-active-stage="arrive"] .stage[data-stage="arrive"],
+[data-active-stage="queue"] .stage[data-stage="queue"],
+[data-active-stage="consult"] .stage[data-stage="consult"],
+[data-active-stage="bill"] .stage[data-stage="bill"],
+[data-active-stage="recall"] .stage[data-stage="recall"],
+[data-active-stage="browse"] .stage[data-stage="browse"],
+[data-active-stage="cart"] .stage[data-stage="cart"],
+[data-active-stage="recover"] .stage[data-stage="recover"],
+[data-active-stage="checkout"] .stage[data-stage="checkout"],
+[data-active-stage="fulfil"] .stage[data-stage="fulfil"],
+[data-active-stage="deliver"] .stage[data-stage="deliver"],
+[data-active-stage="reorder"] .stage[data-stage="reorder"],
+[data-active-stage="enquiry"] .stage[data-stage="enquiry"],
+[data-active-stage="counsel"] .stage[data-stage="counsel"],
+[data-active-stage="demo"] .stage[data-stage="demo"],
+[data-active-stage="enrol"] .stage[data-stage="enrol"],
+[data-active-stage="batch"] .stage[data-stage="batch"],
+[data-active-stage="attend"] .stage[data-stage="attend"],
+[data-active-stage="fees"] .stage[data-stage="fees"],
+[data-active-stage="results"] .stage[data-stage="results"] {
+  opacity: 1;
+  --on: 1;
+  --st: var(--home-accent);
+  --badge: var(--home-accent);
+  --badge-ink: var(--home-paper);
+  --tag: var(--home-accent);
+  --head: color-mix(in srgb, var(--home-accent) 20%, var(--home-surface));
+}
+
 /* ── Small drawings: thumbnails and narrow containers ──────────────────── */
-/* Thumbnails never show the frame or annotations; the key labels grow so they
-   stay legible at ~320px wide. */
-.compact .frame, .compact :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor) { display: none; }
+/* Thumbnails show no frame and no text (the hub keeps its sector names);
+   outlines thicken slightly so the drawing holds at ~320px wide. */
+.compact .frame, .compact :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor, .tag, .panelTitle, .figureNum) { display: none; }
 .compact :is(.key, .keyAccent) { font-size: 13px; letter-spacing: .04em; }
+.compact :is(.paper, .surface, .soft, .glass, .tintMuted, .tintDeep, .panel, .panelHead, .line) { stroke-width: 1.5; }
+/* Shapes that stand in for annotation text when the drawing is small. */
+.smallOnly { display: none; }
+.compact .smallOnly { display: inline; }
+/* A key label whose icon is hidden when small moves into the icon's place. */
+.compact .pullSmall { transform: translateX(var(--pull, 0px)); }
 @container indfig (max-width: 520px) {
-  .svg:not(.compact) :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor) { display: none; }
+  .svg:not(.compact) :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor, .tagName) { display: none; }
   .svg:not(.compact) :is(.key, .keyAccent) { font-size: 12.5px; letter-spacing: .04em; }
+  .svg:not(.compact) .tag .badge { transform: scale(1.55); }
+  .svg:not(.compact) .pullSmall { transform: translateX(var(--pull, 0px)); }
+  .svg:not(.compact) .smallOnly { display: inline; }
 }
 /* Bare <IndustryArt> (no figure container) on a phone. */
 @media (max-width: 560px) {
-  .svg:not(.compact) :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor) { display: none; }
+  .svg:not(.compact) :is(.annot, .micro, .microInk, .microAccent, .whiteText, .label, .minor, .tagName) { display: none; }
   .svg:not(.compact) :is(.key, .keyAccent) { font-size: 12.5px; letter-spacing: .04em; }
+  .svg:not(.compact) .tag .badge { transform: scale(1.55); }
+  .svg:not(.compact) .pullSmall { transform: translateX(var(--pull, 0px)); }
+  .svg:not(.compact) .smallOnly { display: inline; }
 }
 
 /* ── Motion ─────────────────────────────────────────────────────────────── */
-.flow { fill: none; stroke: var(--home-accent); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 3 57; animation: ifFlow 12s linear infinite; }
+.flow { fill: none; stroke: var(--home-accent); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 3 57; animation: ifFlow 12s linear infinite; transition: opacity .45s ease; }
 .flowFast { animation-duration: 7s; }
 /* Short spokes: denser signal dashes so each segment always carries a few. */
 .flowShort { stroke-dasharray: 3 17; animation-name: ifFlowShort; animation-duration: 3.6s; }
 .flowReverse { animation-direction: reverse; }
 /* Material on a conveyor: short blocks instead of signal dashes. */
-.goods { fill: none; stroke: var(--home-accent); stroke-width: 5; stroke-linecap: butt; stroke-dasharray: 7 29; opacity: .85; animation: ifGoods 9s linear infinite; }
+.goods { fill: none; stroke: var(--home-accent); stroke-width: 5; stroke-linecap: butt; stroke-dasharray: 7 29; opacity: .85; animation: ifGoods 9s linear infinite; transition: opacity .45s ease; }
 .pulse { transform-box: fill-box; transform-origin: center; animation: ifPulse 2.8s ease-out infinite; }
 .blink { animation: ifBlink 1.6s ease-in-out infinite; }
 .bob { animation: ifBob 4.5s ease-in-out infinite; }
@@ -121,6 +210,8 @@
 @keyframes ifFlow { to { stroke-dashoffset: -240; } }
 @keyframes ifFlowShort { to { stroke-dashoffset: -80; } }
 @keyframes ifGoods { to { stroke-dashoffset: -216; } }
+@keyframes ifLink { to { stroke-dashoffset: -28; } }
+@keyframes ifHalo { 0% { transform: scale(1); opacity: .9; } 80%, 100% { transform: scale(1.22); opacity: 0; } }
 @keyframes ifPulse { 0% { transform: scale(1); opacity: .55; } 70%, 100% { transform: scale(2.6); opacity: 0; } }
 @keyframes ifBlink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 @keyframes ifBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
@@ -129,7 +220,7 @@
 @keyframes ifScanY { 0%, 6% { transform: translateY(0); } 94%, 100% { transform: translateY(var(--scan, 100px)); } }
 @keyframes ifRows { 0% { transform: translateY(0); } 25% { transform: translateY(var(--row, 20px)); } 50% { transform: translateY(calc(var(--row, 20px) * 2)); } 75% { transform: translateY(calc(var(--row, 20px) * 3)); } }
 @keyframes ifAppear { 0% { opacity: 0; transform: translateY(4px); } 8%, 86% { opacity: 1; transform: none; } 100% { opacity: 0; } }
-@keyframes ifDrive { 0%, 100% { transform: translateX(0); } 45%, 55% { transform: translateX(var(--drive, 10px)); } }
+@keyframes ifDrive { 0%, 100% { transform: translate(0, 0); } 45%, 55% { transform: translate(var(--drive, 10px), var(--drive-y, 0px)); } }
 @keyframes ifGrow { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.6); } }
 @keyframes ifTravel { 0% { offset-distance: 0%; opacity: 0; } 12% { opacity: 1; } 86% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
 @keyframes ifDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
@@ -141,11 +232,12 @@
 
 /* Pausing: page control / hidden tab, or off-screen (on the drawing itself or
    any ancestor scene). Appear-style cycles and movers fall back to their
-   complete static state rather than freezing mid-way. */
+   complete static state rather than freezing mid-way; a highlighted stage
+   keeps its halo and connector, just still. */
 :global([data-motion="paused"]) .svg *,
 :global([data-in-view="false"]) .svg *,
 .svg[data-in-view="false"] * { animation-play-state: paused !important; }
-:global([data-motion="paused"]) .svg :is(.cycle, .draw, .drive, .press, .rowScan, .scanY) { animation: none !important; }
+:global([data-motion="paused"]) .svg :is(.cycle, .draw, .drive, .press, .rowScan, .scanY, .pulse, .blink, .bob, .grow, .haloPulse, .link) { animation: none !important; }
 :global([data-motion="paused"]) .svg .draw { stroke-dashoffset: 0 !important; }
 :global([data-motion="paused"]) .svg .traveler { display: none !important; }
 
@@ -156,7 +248,7 @@
 :global(:is([data-figure-hover], a):is(:hover, :focus-within)) .compact * { animation-play-state: running; }
 
 @media (prefers-reduced-motion: reduce) {
-  .svg, .svg * { animation: none !important; }
+  .svg, .svg * { animation: none !important; transition: none !important; }
   .svg .draw { stroke-dashoffset: 0 !important; }
   .svg .traveler { display: none !important; }
 }
