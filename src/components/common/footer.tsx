@@ -8,6 +8,7 @@ import type { Locale, Messages } from "@/lib/i18n";
 import { BRAND, SOCIAL_PROFILES } from "@/lib/constants";
 import { AUDIT, CTA_LABEL } from "@/lib/offer";
 import { FOOTER_COPY } from "./footer-copy";
+import { navigationCopy } from "./navigation-copy";
 import styles from "./Footer.module.css";
 
 interface FooterProps { translations: Messages; }
@@ -44,7 +45,7 @@ export default function Footer({ translations: t }: FooterProps) {
   const columns = [
     t.footer.columns.services,
     t.footer.columns.industries,
-    { ...t.footer.columns.company, links: [...companyLinks, { label: copy.journal, href: "/blogs" }] },
+    { ...t.footer.columns.company, links: [...companyLinks, { label: copy.journal, href: "/blogs" }, { label: navigationCopy[locale].newsroom, href: "/newsroom" }] },
   ];
 
   return <footer className={styles.footer}>

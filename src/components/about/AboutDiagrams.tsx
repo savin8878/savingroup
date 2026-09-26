@@ -8,9 +8,10 @@ const at = (t: number, d: number, st?: number, sd?: number) =>
   ({ "--t": `${t}s`, "--d": `${d}s`, ...(st === undefined ? {} : { "--st": String(st), "--sd": String(sd) }) }) as CSSProperties;
 const cx = (...names: Array<string | false | undefined>) => names.filter(Boolean).join(" ");
 
-/** Static pencil wobble for main outlines: one noise texture displaces the group by a fraction of a pixel. Nothing in it animates. */
+/** Static pencil wobble for main outlines: one noise texture displaces the group by a fraction of a pixel. Nothing in it animates.
+ *  The region spans the whole drawing (user space) so a group holding only a straight line, whose bounding box has no height, still renders. */
 function SketchFilter({ id }: { id: string }) {
-  return <filter id={id} colorInterpolationFilters="sRGB">
+  return <filter id={id} filterUnits="userSpaceOnUse" x="-2%" y="-2%" width="104%" height="104%" colorInterpolationFilters="sRGB">
     <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="1" seed="5" result="grain" />
     <feDisplacementMap in="SourceGraphic" in2="grain" scale="1.6" xChannelSelector="R" yChannelSelector="G" />
   </filter>;

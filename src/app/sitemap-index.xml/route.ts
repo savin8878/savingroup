@@ -1,5 +1,6 @@
 import { BASE_URL, COUNTRIES } from "@/lib/constants";
 import { getAllBlogPosts } from "@/lib/blogs";
+import { getAllNewsPosts } from "@/lib/news";
 import {
   STATIC_PAGE_LASTMOD,
   CITY_LASTMOD,
@@ -61,9 +62,16 @@ export async function GET(request: Request) {
   //
   // Still a fixed set of dates rather than `new Date()` — a lastmod that
   // moves on every render is a freshness signal Google learns to discount.
+  // Newsroom stories change daily; an unavailable newsroom simply contributes
+  // no date (the per-country sitemap degrades the same way).
+  const newsDates = await getAllNewsPosts()
+    .then((posts) => posts.map((p) => (p.updatedAt ?? p.publishedAt).slice(0, 10)))
+    .catch(() => [] as string[]);
+
   const latestContentDate =
     [
       ...BLOG_POSTS.map((p) => p.updatedAt ?? p.publishedAt),
+      ...newsDates,
       CITY_LASTMOD,
       INDUSTRY_LASTMOD,
       ...Object.values(STATIC_PAGE_LASTMOD),

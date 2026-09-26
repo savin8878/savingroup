@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants";
 import { NextResponse } from "next/server";
 import { getAllBlogPosts, BLOG_CATEGORIES } from "@/lib/blogs";
+import { getAllNewsPosts, NEWS_CATEGORY_KEYS, type NewsPost } from "@/lib/news";
 import { INDIA_CITIES, getCityIndexableLocales } from "@/lib/cities";
 import { CITY_BLOG_POSTS } from "@/lib/city-blog";
 import { INDUSTRY_SLUGS } from "@/lib/industry-data";
@@ -65,6 +66,7 @@ const PAGE_PRIORITY: Record<string, number> = {
   about: 0.7,
   contact: 0.8,
   blogs: 0.9,
+  newsroom: 0.85,
   privacy: 0.2,
   terms: 0.2,
   cities: 0.85,
@@ -81,6 +83,7 @@ const PAGE_CHANGEFREQ: Record<string, string> = {
   about: "monthly",
   contact: "monthly",
   blogs: "weekly",
+  newsroom: "daily",
   privacy: "yearly",
   terms: "yearly",
   cities: "monthly",
@@ -89,6 +92,13 @@ const PAGE_CHANGEFREQ: Record<string, string> = {
 const BLOG_POST_PRIORITY = 0.7;
 const BLOG_CATEGORY_PRIORITY = 0.75;
 const BLOG_CHANGEFREQ = "monthly";
+
+// Newsroom stories are short-lived by nature: crawled often while fresh, and
+// their desk pages change daily.
+const NEWS_STORY_PRIORITY = 0.65;
+const NEWS_DESK_PRIORITY = 0.7;
+const NEWS_CHANGEFREQ = "daily";
+const dateOnly = (iso: string) => iso.slice(0, 10);
 
 
 
@@ -128,6 +138,20 @@ export async function GET(
       .sort()
       .pop() ?? "2026-01-01";
 
+  // Newsroom stories. Unlike the blog, an unavailable newsroom is not fatal:
+  // the rest of the sitemap is still correct, and the stories return on the
+  // next regeneration.
+  let NEWS_POSTS: NewsPost[] = [];
+  try {
+    NEWS_POSTS = await getAllNewsPosts();
+  } catch (err) {
+    console.error("[sitemap] news posts unavailable:", err instanceof Error ? err.message : err);
+  }
+  const latestNewsDate =
+    NEWS_POSTS.map((p) => dateOnly(p.updatedAt ?? p.publishedAt))
+      .sort()
+      .pop() ?? STATIC_PAGE_LASTMOD.newsroom;
+
   // Static pages (home, services, industries, case-studies, about, contact,
   // legal) plus the blog index and the cities hub.
   //
@@ -139,6 +163,7 @@ export async function GET(
   const pagesWithBlogIndex = [
     ...STATIC_PAGES,
     "blogs",
+    "newsroom",
     "cities",
   ];
 
@@ -152,7 +177,7 @@ export async function GET(
 
       return {
         loc,
-        lastmod: STATIC_PAGE_LASTMOD[page] ?? "2026-01-01",
+        lastmod: page === "newsroom" ? latestNewsDate : STATIC_PAGE_LASTMOD[page] ?? "2026-01-01",
         priority: PAGE_PRIORITY[page] ?? 0.5,
         changefreq: PAGE_CHANGEFREQ[page] ?? "monthly",
       };
@@ -296,6 +321,24 @@ export async function GET(
     );
   });
 
+  // Newsroom desks and stories — every indexable locale, like the blog.
+  const newsDeskUrls = LANGUAGES.flatMap((locale) =>
+    NEWS_CATEGORY_KEYS.map((desk) => ({
+      loc: `${base}/${country}/${locale}/newsroom/category/${desk}`,
+      lastmod: latestNewsDate,
+      priority: NEWS_DESK_PRIORITY,
+      changefreq: NEWS_CHANGEFREQ,
+    }))
+  );
+  const newsStoryUrls = LANGUAGES.flatMap((locale) =>
+    NEWS_POSTS.map((post) => ({
+      loc: `${base}/${country}/${locale}/newsroom/${post.slug}`,
+      lastmod: dateOnly(post.updatedAt ?? post.publishedAt),
+      priority: NEWS_STORY_PRIORITY,
+      changefreq: NEWS_CHANGEFREQ,
+    }))
+  );
+
   const urls = [
     ...staticUrls,
     ...industryUrls,
@@ -303,6 +346,8 @@ export async function GET(
     ...cityBlogPostUrls,
     ...blogCategoryUrls,
     ...blogPostUrls,
+    ...newsDeskUrls,
+    ...newsStoryUrls,
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

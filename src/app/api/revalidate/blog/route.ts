@@ -10,6 +10,7 @@ import { timingSafeEqual } from "node:crypto";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { BLOG_CACHE_TAG } from "@/lib/blogs";
+import { NEWS_CACHE_TAG } from "@/lib/news";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,13 @@ export async function POST(request: NextRequest) {
   if (!secretMatches(request.headers.get("x-revalidate-secret"))) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
+  // One hook serves both content tables: the automation publisher calls it after
+  // every blog post AND every newsroom story it writes.
   revalidateTag(BLOG_CACHE_TAG, { expire: 0 });
+  revalidateTag(NEWS_CACHE_TAG, { expire: 0 });
   revalidatePath("/[country]/[locale]/blogs", "layout");
+  revalidatePath("/[country]/[locale]/newsroom", "layout");
   revalidatePath("/[country]/sitemap.xml");
   revalidatePath("/sitemap-index.xml");
-  return NextResponse.json({ ok: true, revalidated: BLOG_CACHE_TAG });
+  return NextResponse.json({ ok: true, revalidated: [BLOG_CACHE_TAG, NEWS_CACHE_TAG] });
 }

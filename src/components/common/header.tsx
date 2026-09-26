@@ -82,6 +82,6 @@ export default function Header({ translations: t, locale, country, cities }: Hea
         <div className={styles.drawerFoot}><LocalizedLink href="/contact" onClick={()=>setOpen(false)} className={styles.cta}><span>{t.nav.cta}</span><ArrowUpRight size={17} aria-hidden="true"/></LocalizedLink><div className={styles.drawerPreferences}><span>{c.theme}</span><ThemeToggle className={styles.iconButton}/><LanguageSwitcher locale={locale} country={country} placement="above"/></div></div>
       </div>
     </dialog>}
-    <noscript><nav className={styles.noScript} aria-label={c.navigation}>{[["/services",t.nav.services],["/case-studies",t.nav.work],["/pricing",c.pricing],["/about",t.nav.about],["/industries",t.nav.industries],["/blogs",c.insights],["/cities",c.cities],["/contact",t.nav.contact]].map(([href,label])=><LocalizedLink href={href} key={href}>{label}</LocalizedLink>)}</nav></noscript>
+    <noscript><nav className={styles.noScript} aria-label={c.navigation}>{[["/services",t.nav.services],["/case-studies",t.nav.work],["/pricing",c.pricing],["/about",t.nav.about],["/industries",t.nav.industries],["/blogs",c.insights],["/newsroom",c.newsroom],["/cities",c.cities],["/contact",t.nav.contact]].map(([href,label])=><LocalizedLink href={href} key={href}>{label}</LocalizedLink>)}</nav></noscript>
   </div>;
 }

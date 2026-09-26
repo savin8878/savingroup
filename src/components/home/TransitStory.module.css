@@ -1,0 +1,152 @@
+.transitSection { padding: 80px 0 48px; background: var(--home-surface); border-top: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); }
+
+/* The story: a sticky scene beside a column of step panels. Scroll progress is written to --progress / --route / --ledger by the client script. */
+.story { --progress: 0; --route: 0; --ledger: 0; --step: 0; --stage-top: 84px; --stage-height: min(62vh, 560px); --ink: var(--home-ink); --muted: var(--home-muted); --line: var(--home-line); --accent: var(--home-accent); --paper: var(--home-paper); --surface: var(--home-surface); --soft: var(--home-soft); position: relative; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 0 48px; align-items: start; }
+.sceneColumn { min-width: 0; align-self: stretch; }
+.stage { position: sticky; top: var(--stage-top); z-index: 2; max-height: var(--stage-height); display: flex; flex-direction: column; min-width: 0; border: 1px solid var(--line); background: var(--paper); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 11px 16px; border-bottom: 1px solid var(--line); font: 8px/1.6 var(--font-mono), monospace; letter-spacing: .05em; color: var(--muted); flex-shrink: 0; }
+.live { display: flex; align-items: center; gap: 9px; color: var(--ink); white-space: nowrap; }
+.live > i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: livePulse 2.4s ease-in-out infinite; }
+.live > b { font-weight: 400; color: var(--muted); }
+.modes { display: flex; gap: 4px; }
+.modes button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 6px 10px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); font: 9px var(--font-mono), monospace; letter-spacing: .04em; cursor: pointer; transition: color .2s, border-color .2s; }
+.modes button:hover { color: var(--ink); border-color: var(--muted); }
+.modes button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.modes svg { width: 13px; height: 13px; }
+
+.scene { flex: 0 1 auto; width: 100%; aspect-ratio: 780 / 410; min-height: 0; display: flex; overflow: hidden; }
+.svg { display: block; width: 100%; height: 100%; color: var(--ink); stroke-linejoin: round; stroke-linecap: round; }
+.svg text { fill: var(--muted); stroke: none; font-family: var(--font-mono), monospace; font-size: 8px; letter-spacing: .5px; }
+.dot { fill: var(--muted); opacity: .22; }
+.annotation { font-size: 8px; }
+.annotationInk { font-size: 8px; fill: var(--ink); }
+.hairline { stroke: var(--line); stroke-width: 1; }
+.svg .site text { font-size: 12px; letter-spacing: 0; }
+.distant { stroke: var(--line); }
+.structure { fill: var(--paper); stroke: var(--muted); stroke-width: 1.15; }
+.roadEdge { stroke: var(--muted); stroke-width: 1; }
+.lane { stroke: var(--line); stroke-width: 1.7; stroke-dasharray: 22 16; }
+.story[data-moving="true"] .lane { animation: laneDrift 1.1s linear infinite; }
+.story[data-moving="false"] .vehicle * { animation-play-state: paused !important; }
+.water { stroke: var(--muted); stroke-width: 1; }
+.waves { stroke: var(--line); stroke-width: 1.4; animation: waveDrift 3.2s linear infinite; }
+.clouds { stroke: var(--line); stroke-width: 1.2; animation: cloudDrift 14s linear infinite; }
+.flight { stroke: var(--line); stroke-dasharray: 5 7; }
+.routeDone { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--route)); opacity: .9; }
+.vehicle { will-change: transform; }
+.svg .vehicle text { display: none; }
+.bob { animation: shipBob 3s ease-in-out infinite; }
+
+/* Journey ledger across the top of the scene */
+.ledger { stroke: var(--line); stroke-dasharray: 3 7; }
+.ledgerFill { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--ledger)); }
+.stop { fill: var(--paper); stroke: var(--line); stroke-width: 1.2; transition: stroke .3s, fill .3s; }
+.stop[data-reached="true"] { stroke: var(--accent); fill: var(--accent); }
+.ledgerDot { fill: var(--paper); stroke: var(--accent); stroke-width: 1.5; }
+.stopLabel { font-size: 7px; letter-spacing: .3px; transition: fill .3s; }
+.stopLabel[data-reached="true"] { fill: var(--ink); }
+
+/* Discrete scene states (switched at step boundaries) */
+.pallets, .palletsIn, .state { transition: opacity .45s ease, transform .45s ease; }
+.pallets[data-on="false"], .palletsIn[data-on="false"], .state[data-on="false"] { opacity: 0; pointer-events: none; }
+.state[data-on="false"] { transform: translateY(6px); }
+.note rect { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+.note[data-accent="true"] rect { stroke: var(--accent); }
+.noteTitle { font-size: 9.5px; fill: var(--ink); letter-spacing: .3px; }
+.noteText { font-size: 8.5px; }
+.noteDot { fill: var(--accent); }
+.wire { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 5; opacity: .75; }
+.wireTag { font-size: 7px; fill: var(--accent); }
+.scan rect { fill: var(--surface); stroke: var(--ink); stroke-width: 1.1; }
+.scan path { stroke: var(--ink); stroke-width: 1.6; }
+.scanLine { stroke: var(--accent); stroke-width: 1.4; }
+.state[data-on="true"] .scanLine { animation: scanSweep 1.1s ease-in-out infinite alternate; }
+.stamp { stroke: var(--accent); stroke-width: 1.4; fill: none; stroke-dasharray: 120; stroke-dashoffset: 0; }
+.state[data-on="true"] .stamp { animation: stampDraw 1.2s ease both; }
+.stampText { font-size: 6.5px; fill: var(--accent); }
+.clock { stroke: var(--accent); stroke-width: 1.3; fill: var(--surface); }
+.clock path:last-child { animation: clockTick 6s steps(6) infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+.orbit { stroke: var(--accent); stroke-dasharray: 4 6; fill: none; opacity: .7; }
+.beacon circle { fill: none; stroke: var(--accent); stroke-width: 1.2; opacity: .55; transform-box: fill-box; transform-origin: center; }
+.beacon[data-on="true"] circle { animation: ping 2s ease-out infinite; }
+.beacon[data-on="true"] circle:last-child { animation-delay: 1s; }
+.beacon[data-on="false"] { opacity: 0; transition: opacity .3s; }
+.booth { fill: var(--paper); stroke: var(--muted); stroke-width: 1.1; }
+.boothSign { font-size: 6.5px; fill: var(--ink); }
+.gatePost { stroke: var(--ink); stroke-width: 1.6; }
+.gateArm { stroke: var(--accent); stroke-width: 2; transform: rotate(0deg); transform-origin: 0 0; transition: transform .7s cubic-bezier(.3,.1,.2,1); }
+.story[data-gate="open"] .gateArm { transform: rotate(72deg); }
+.gateBeam { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 4; }
+.state[data-on="true"] .gateBeam { animation: beamFlash .9s ease-in-out infinite alternate; }
+.trail { font-size: 8px; fill: var(--accent); }
+
+.rail { flex-shrink: 0; border-top: 1px solid var(--line); padding: 11px 16px 12px; display: flex; flex-direction: column; gap: 9px; font: 8px/1.5 var(--font-mono), monospace; letter-spacing: .05em; color: var(--muted); }
+.railTrack { height: 2px; background: var(--line); overflow: hidden; }
+.railTrack > span { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(var(--progress)); }
+.railMeta { display: flex; justify-content: space-between; gap: 16px; }
+.railMeta > span:last-child { color: var(--ink); }
+
+/* Step panels */
+.steps { padding: calc(var(--stage-height) / 2) 0 calc(var(--stage-height) * .35); margin: 0; list-style: none; }
+.step { min-height: 64vh; padding: 0 0 0 22px; border-left: 1px solid var(--line); color: var(--muted); transition: color .35s, border-color .35s; }
+.step[data-active="true"] { border-left-color: var(--accent); color: var(--ink); }
+.step > span { display: block; font: 9px var(--font-mono), monospace; letter-spacing: .08em; color: var(--muted); transition: color .35s; }
+.step[data-active="true"] > span { color: var(--accent); }
+.step h3 { font-size: 26px; letter-spacing: -.04em; line-height: 1.16; margin: 13px 0 0; max-width: 360px; font-weight: 500; }
+.step > p { font-size: 12px; line-height: 1.85; margin: 12px 0 0; max-width: 380px; color: var(--muted); }
+.record { margin-top: 20px; border: 1px solid var(--line); padding: 14px 16px 6px; max-width: 380px; background: var(--paper); opacity: .55; transition: opacity .35s, border-color .35s; }
+.step[data-active="true"] .record { opacity: 1; }
+.recordHead { display: flex; align-items: center; gap: 9px; font-size: 11px; color: var(--ink); }
+.recordHead > svg { color: var(--accent); flex-shrink: 0; }
+.recordHead > span:last-child { margin-left: auto; font: 8px var(--font-mono), monospace; color: var(--muted); }
+.recordStatus { display: inline-flex; align-items: center; gap: 7px; margin: 10px 0 0; padding-bottom: 10px; width: 100%; border-bottom: 1px solid var(--line); font: 8px/1.6 var(--font-mono), monospace; letter-spacing: .04em; color: var(--accent); }
+.recordStatus > i { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.record dl { margin: 4px 0 0; }
+.record dl > div { display: flex; justify-content: space-between; gap: 14px; padding: 7px 0; font-size: 10px; line-height: 1.6; }
+.record dt { color: var(--muted); }
+.record dd { margin: 0; text-align: right; color: var(--ink); }
+.step:not([data-active="true"]) .record dd { color: var(--muted); }
+
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes laneDrift { to { stroke-dashoffset: -38; } }
+@keyframes waveDrift { to { transform: translateX(40px); } }
+@keyframes cloudDrift { to { transform: translateX(-60px); } }
+@keyframes shipBob { 0%, 100% { transform: translateY(1px) rotate(-.4deg); } 50% { transform: translateY(-2px) rotate(.4deg); } }
+@keyframes scanSweep { from { transform: translateY(-9px); } to { transform: translateY(9px); } }
+@keyframes stampDraw { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+@keyframes clockTick { to { transform: rotate(360deg); } }
+@keyframes ping { 0% { transform: scale(.25); opacity: .9; } 100% { transform: scale(1.2); opacity: 0; } }
+@keyframes beamFlash { from { opacity: .25; } to { opacity: 1; } }
+
+@media (max-width: 1150px) {
+  .story { gap: 0 32px; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+  .step h3 { font-size: 23px; }
+}
+@media (max-width: 900px) {
+  .transitSection { padding-top: 64px; }
+  .story { display: block; --stage-top: 72px; --stage-height: 44vh; }
+  .bar { padding: 9px 12px; gap: 10px; }
+  .live > b { display: none; }
+  .modes button { min-height: 30px; padding: 5px 8px; }
+  .rail { padding: 9px 12px 10px; }
+  .steps { padding: 28px 0 24px; }
+  .step { min-height: 60vh; padding-left: 18px; }
+  .step h3 { font-size: 24px; }
+}
+@media (max-width: 640px) {
+  .transitSection { padding: 54px 0 32px; }
+  .story { --stage-top: 64px; }
+  .bar { font-size: 7px; }
+  .modes button span { display: none; }
+  .modes button { padding: 5px 9px; }
+  .rail { font-size: 7px; }
+  .railMeta > span:first-child { display: none; }
+  .step { min-height: 56vh; }
+  .step h3 { font-size: 22px; }
+  .step > p { font-size: 11px; }
+  .record { padding: 12px 13px 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story *, .story *::before, .story *::after { animation: none !important; transition: none !important; }
+  .beacon[data-on="true"] circle { opacity: .55; }
+}

@@ -320,7 +320,7 @@ const globalForDb = globalThis as unknown as {
   __blogDb?: { url: string; sql: postgres.Sql };
 };
 
-function getDb(): postgres.Sql {
+export function getDb(): postgres.Sql {
   const url = process.env.DATABASE_URL;
   if (!url) {
     throw new Error(

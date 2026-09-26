@@ -25,6 +25,7 @@ export const STATIC_PAGE_LASTMOD: Record<string, string> = {
   privacy: "2026-01-15",
   terms: "2026-01-15",
   blogs: "2026-04-18", // index bumped when new posts land
+  newsroom: "2026-09-26", // floor for the newsroom index; the sitemap uses the newest story's date when one exists
   cities: "2026-05-11", // city hub — bumped on each new metro or template shift
 };
 

@@ -14,6 +14,8 @@ export type TransitStep = {
 export type RouteSpec = {
   /** Vehicle path in the 780×410 scene. The vehicle's origin is translated along it. */
   path: string;
+  /** Accent line drawn behind the vehicle to show the distance covered (the flight arc itself for air). */
+  trail: string;
   /** Server-rendered start point (progress 0), so the first paint needs no JS. */
   start: [number, number];
   scale: number;
@@ -29,18 +31,18 @@ export type RouteSpec = {
 };
 
 export const ROUTES: Record<TransportMode, RouteSpec> = {
-  road: { path: "M180 305H625", start: [180, 305], scale: 0.55, checkpoints: [0.32, 0.62], checkPoint: [322, 305], holdPoint: [456, 305], ledger: ["SUPPLIER DOCK", "EWB CHECK", "TOLL PLAZA", "PLANT GATE"], hold: "Toll plaza", ends: ["SUPPLIER DOCK", "PLANT GATE"] },
-  sea: { path: "M200 292H600", start: [200, 292], scale: 0.5, checkpoints: [0.1, 0.62], checkPoint: [240, 292], holdPoint: [448, 292], ledger: ["ORIGIN PORT", "CUSTOMS", "ANCHORAGE", "DESTINATION PORT"], hold: "Port anchorage", ends: ["ORIGIN PORT", "DESTINATION PORT"] },
-  air: { path: "M150 267H215Q390 20 585 267H625", start: [150, 267], scale: 0.45, checkpoints: [0.06, 0.62], checkPoint: [184, 267], holdPoint: [453, 155], ledger: ["CARGO TERMINAL", "EWB CHECK", "HOLDING", "ARRIVAL TERMINAL"], hold: "Holding pattern", ends: ["CARGO TERMINAL", "ARRIVAL TERMINAL"] },
+  road: { path: "M180 305H625", trail: "M180 343H625", start: [180, 305], scale: 0.55, checkpoints: [0.32, 0.62], checkPoint: [322, 305], holdPoint: [456, 305], ledger: ["SUPPLIER DOCK", "EWB CHECK", "TOLL PLAZA", "PLANT GATE"], hold: "Toll plaza", ends: ["SUPPLIER DOCK", "PLANT GATE"] },
+  sea: { path: "M200 292H600", trail: "M200 344H600", start: [200, 292], scale: 0.5, checkpoints: [0.1, 0.62], checkPoint: [240, 292], holdPoint: [448, 292], ledger: ["ORIGIN PORT", "CUSTOMS", "ANCHORAGE", "DESTINATION PORT"], hold: "Port anchorage", ends: ["ORIGIN PORT", "DESTINATION PORT"] },
+  air: { path: "M150 267H215Q390 20 585 267H625", trail: "M150 267H215Q390 20 585 267H625", start: [150, 267], scale: 0.45, checkpoints: [0.06, 0.62], checkPoint: [184, 267], holdPoint: [453, 155], ledger: ["CARGO TERMINAL", "EWB CHECK", "HOLDING", "ARRIVAL TERMINAL"], hold: "Holding pattern", ends: ["CARGO TERMINAL", "ARRIVAL TERMINAL"] },
 };
 
 /**
  * Continuous route position (0–1) for a scene position s = progress × 7.
- * The vehicle waits at the dock through the plan and the scan, drives to the
- * checkpoint, moves in transit, is held, then arrives and stays at the gate.
+ * The vehicle waits at the dock through the plan and most of the scan, reaches the
+ * checkpoint as step 03 begins, moves in transit, is held, then arrives and stays at the gate.
  */
 export function routeAt(s: number, [check, hold]: [number, number]) {
-  const keys: [number, number][] = [[0, 0], [1.8, 0], [2.55, check], [3, check], [4, hold], [4.6, hold], [5, hold + (1 - hold) * 0.4], [5.45, 1], [7, 1]];
+  const keys: [number, number][] = [[0, 0], [1.55, 0], [2, check], [2.7, check], [4, hold], [4.6, hold], [5, hold + (1 - hold) * 0.4], [5.4, 1], [7, 1]];
   if (s <= 0) return 0;
   for (let i = 1; i < keys.length; i++) {
     const [s0, r0] = keys[i - 1];

@@ -21,6 +21,7 @@ function getEntries(t: Messages, cities: CityNavItem[], locale: Locale): Navigat
     { label: t.nav.about, href: "/about" },
     { label: t.nav.industries, href: "/industries", children: ["manufacturing","real-estate","healthcare","ecommerce","edtech"].flatMap(slug => {const item=t.industries.items.find(industry=>industry.id===slug);return item?[{label:item.name,detail:item.tag,href:`/industries/${slug}`}]:[];}) },
     { label: c.insights, href: "/blogs" },
+    { label: c.newsroom, href: "/newsroom" },
     { label: c.cities, href: "/cities", children: cities.map(city => ({label:city.name,detail:city.state,href:`/cities/${city.slug}`})) },
     { label: t.nav.contact, href: "/contact" },
   ];

@@ -1,0 +1,98 @@
+/*
+ * Newsroom (/newsroom, /newsroom/category/<desk>, /newsroom/<slug>).
+ * Layered on IndustrialHome.module.css + Blog.module.css (+ the blog index and
+ * category modules whose grids are reused). Everything renders inside
+ * <BlogMotion>, so the home tokens are in scope and dark mode follows.
+ */
+
+/* Drawings are technical plates: keep their annotations left-to-right. */
+.page svg { direction: ltr; }
+.page :is(a, button):focus-visible { border-radius: 0; }
+.page > button:last-child { min-height: 40px; }
+:global([dir="rtl"]) .page :is(h1, h2, h3, h4, p, summary, dt, dd, h1 > span, h1 > em) { unicode-bidi: plaintext; text-align: right; }
+
+/* ── Hero: the home page's operations plate, with its index row and legend ─ */
+.heroVisual { position: relative; padding-top: 12px; }
+.heroVisual > svg { display: block; width: 100%; height: auto; }
+.heroNote { display: flex; align-items: flex-start; gap: 8px; margin: 26px 0 0; font: 9px/1.6 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.heroNote > span { width: 4px; height: 4px; margin-top: calc(.8em - 2px); border-radius: 50%; background: #64785b; flex-shrink: 0; }
+.crumbs { padding-bottom: 0; }
+.crumbs a { position: relative; min-height: 40px; }
+.crumbs a::after { content: ""; position: absolute; inset: 0 -10px; }
+/* Seven desk cells (all + six) instead of the blog's six. */
+.band > ul { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+
+/* ── Lead + secondary stories ────────────────────────────────────────── */
+.leadWrap { margin-bottom: 28px; }
+.leadNote { display: flex; align-items: center; gap: 10px; margin: 0; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-muted); white-space: nowrap; }
+.leadNote > i { width: 4px; height: 4px; border-radius: 50%; background: var(--home-accent); }
+.cardGrid > li > article > div:first-child > svg { top: 30px; height: calc(100% - 34px); overflow: hidden; }
+
+/* ── The wire: numbered rows + "most important" rail ─────────────────── */
+.wireRows { min-width: 0; }
+.wireIntro { margin: 0 0 22px; max-width: 640px; font-size: 13px; line-height: 1.85; color: var(--home-muted); }
+
+/* ── How the newsroom works (dark band) ──────────────────────────────── */
+:global(.dark) .how { background: #121815; border-block: 1px solid #2f3b33; }
+@media (prefers-color-scheme: dark) { :global(:root:not(.light)) .how { background: #121815; border-block: 1px solid #2f3b33; } }
+.howBody { margin-top: 26px; max-width: 590px; font-size: 14.5px; line-height: 1.85; color: var(--home-muted); }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 34px; border-top: 1px solid var(--home-line); max-width: 760px; }
+.steps > div { padding: 22px 24px; border-inline-start: 1px solid var(--home-line); min-width: 0; }
+.steps > div:first-child { border-inline-start: 0; padding-inline-start: 0; }
+.steps > div > span { font: 8px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
+.steps strong { display: block; margin-top: 12px; font-size: 13px; font-weight: 500; color: var(--home-ink); }
+.steps p { margin: 8px 0 0; font-size: 11.5px; line-height: 1.65; color: var(--home-muted); }
+
+/* ── Desk directory: reuses the category directory grid ──────────────── */
+.deskLatest { display: block; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--home-line); font-size: 12px; line-height: 1.55; color: var(--home-muted); }
+.deskLatest > span { display: block; margin-bottom: 4px; font: 8px/1.5 var(--font-mono), monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--home-accent); }
+
+/* ── Story page additions ────────────────────────────────────────────── */
+.sources { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--home-line); }
+.sources li { border-bottom: 1px solid var(--home-line); }
+.sources a { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 6px 14px; padding: 14px 0; color: var(--home-ink); transition: color .2s; }
+.sources a:hover { color: var(--home-accent); }
+.sources a > span:first-child { font: 9px var(--font-mono), monospace; color: var(--home-muted); }
+.sources strong { display: block; font-size: 14px; line-height: 1.45; font-weight: 500; }
+.sources small { display: block; margin-top: 3px; font: 9px/1.5 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--home-muted); }
+.sources svg { color: var(--home-muted); transition: transform .2s; }
+.sources a:hover svg { transform: translate(2px, -2px); color: var(--home-accent); }
+.sourcesIntro { margin: 0 0 14px; font-size: 12.5px; line-height: 1.7; color: var(--home-muted); }
+.briefing { margin-bottom: 64px; }
+.analysis { position: relative; margin-top: 8px; padding-top: 6px; }
+.analysis::before { content: ""; position: absolute; top: 0; inset-inline-start: 0; width: 56px; height: 2px; background: var(--home-accent); }
+.empty { margin: 0; padding: 40px 0; border-block: 1px solid var(--home-line); font-size: 14px; color: var(--home-muted); }
+
+/* Shared India geo footer, re-dressed like the blog index. */
+.geo { border-top: 1px solid var(--home-line); background: var(--home-surface); color: var(--home-ink); }
+.geo > section { padding-block: 76px; background: transparent; border-top: 0; }
+.geo > section > div { width: calc(100% - 112px); max-width: 1184px; padding-inline: 0; }
+.geo h2 { max-width: 760px; color: var(--home-ink); }
+.geo article { border-radius: 0; border-color: var(--home-line); background: var(--home-paper); }
+.geo article a { border-radius: 0; color: var(--home-ink); }
+.geo article a:hover { background: transparent; color: var(--home-accent); }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 1150px) {
+  .band > ul { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .band > ul > li:nth-child(n + 5) { border-top: 1px solid var(--home-line); }
+  .geo > section > div { width: calc(100% - 72px); }
+}
+@media (max-width: 900px) {
+  .steps { grid-template-columns: 1fr; margin-top: 26px; }
+  .steps > div { padding: 18px 0; border-inline-start: 0; border-bottom: 1px solid var(--home-line); }
+  .geo > section { padding-block: 60px; }
+}
+@media (max-width: 640px) {
+  .band > ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .band > ul > li:nth-child(n + 3) { border-top: 1px solid var(--home-line); }
+  .band > ul > li:nth-child(odd) { border-inline-start: 0; }
+  .heroNote { font-size: 8px; margin-top: 20px; }
+  .cardGrid > li > article > div:first-child { aspect-ratio: 16 / 8.5; }
+  .sources a { grid-template-columns: 22px minmax(0, 1fr) auto; }
+  .geo > section { padding-block: 52px; }
+  .geo > section > div { width: calc(100% - 40px); }
+}
+
+/* Hindi, Gujarati, Arabic and Chinese can't be read at 8–9px mono sizes. */
+.page:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh)) :is(.heroNote, .leadNote, .steps > div > span, .deskLatest > span, .sources small, .sources a > span:first-child) { font-size: 11px; letter-spacing: .02em; }

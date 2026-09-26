@@ -40,3 +40,18 @@ Webhook (Database → Webhooks) on `blog_posts` for insert/update/delete:
 
 The site connects as `blog_reader` (SELECT on published posts only) with full
 TLS verification against the pinned Supabase root CA (`src/lib/supabase-ca.ts`).
+
+## Newsroom table
+
+Short industry stories live in `public.news_posts` (`news-schema.sql`, safe to
+re-run). They are written automatically by the Savin Group publisher — the
+`lib/sanat` pipeline in the sibling `automation` project — which connects with
+the admin `DIRECT_URL`, upserts rows on `slug`, and then calls
+`POST /api/revalidate/blog` so the story is live immediately. The site reads
+the table through the same read-only `blog_reader` role as the blog
+(`news-schema.sql` grants it SELECT on published rows).
+
+The newsroom renders at `/{country}/{locale}/newsroom`, with one page per
+desk (`/newsroom/category/{ai|automation|manufacturing|software|markets|policy}`)
+and one per story (`/newsroom/{slug}`). A project without the table renders an
+empty newsroom rather than failing the build.

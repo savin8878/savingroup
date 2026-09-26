@@ -17,6 +17,7 @@ export type IndiaGeoFooterPage =
   | "about"
   | "contact"
   | "blogs"
+  | "newsroom"
   | "case-studies"
   | "cities";
 
@@ -87,6 +88,15 @@ const PAGE_COPY: Record<IndiaGeoFooterPage, PageCopy> = {
     anchor: "Local revenue playbook for {city}",
     stateIntro:
       "Field notes from our {state} work — patterns we've seen across {cities} and what they mean for founders running similar plays.",
+  },
+  newsroom: {
+    eyebrow: "Industry signal · City by city",
+    headline: "What the news means for businesses in every major Indian city.",
+    lead:
+      "A plant investment in Pune, a policy change in Delhi, an AI rollout in Bengaluru — the same development lands differently in each market. Pick your city for the playbook we run there.",
+    anchor: "Automation & AI systems for businesses in {city}",
+    stateIntro:
+      "How the developments on this desk play out for operators in {state} — across {cities} and the surrounding industrial belt.",
   },
   "case-studies": {
     eyebrow: "Proof · City by city",
