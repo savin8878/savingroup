@@ -15,9 +15,15 @@
 // when it cannot, for a launcher baked into a prerendered page before the
 // kill switch was flipped.
 //
-// Needs ANTHROPIC_API_KEY (server-only). OPERATOR_ENABLED="false" turns the
-// route off. The in-memory rate limit is per instance; the real ceiling is a
-// Vercel Firewall rule on /api/operator (see .env.example).
+// Needs at least one model provider's key (server-only): ANTHROPIC_API_KEY,
+// or GROQ_API_KEY, CEREBRAS_API_KEY, GEMINI_API_KEY, MISTRAL_API_KEY,
+// OPENROUTER_API_KEY or an OPENAI_COMPATIBLE_* endpoint (lib/operator/
+// providers.ts). Anthropic is called through its SDK; the others through the
+// OpenAI-compatible Chat Completions API (lib/operator/openai-compat.ts). A
+// provider that fails before the visitor sees anything hands the round to the
+// next one. OPERATOR_ENABLED="false" turns the route off. The in-memory rate
+// limit is per instance; the real ceiling is a Vercel Firewall rule on
+// /api/operator (see .env.example).
 
 import Anthropic from "@anthropic-ai/sdk";
 import type { BetaMessageStream } from "@anthropic-ai/sdk/lib/BetaMessageStream";
@@ -36,16 +42,30 @@ import {
   OPERATOR_DEADLINE_MS,
   OPERATOR_EFFORT,
   OPERATOR_MAX_JSON_RETRIES,
-  OPERATOR_MAX_TOKENS,
   OPERATOR_MAX_TOOL_ROUNDS,
   OPERATOR_MIN_ROUND_MS,
-  OPERATOR_MODEL,
-  hasCredentials,
   isOperatorEnabled,
 } from "@/lib/operator/config";
 import { buildMessages, fitHistory, parseRequest } from "@/lib/operator/history";
 import { logOperatorError } from "@/lib/operator/log";
 import { TEXT_ONLY_NOTE, mayRetryTransient, planRound, retryWaitMs, splitAtFallback } from "@/lib/operator/loop-policy";
+import {
+  ProviderError,
+  ToolCallParseError,
+  streamChatCompletion,
+  toChatMessages,
+  toChatTools,
+  type ChatTool,
+  type LoopMessage,
+} from "@/lib/operator/openai-compat";
+import {
+  failureCooldownMs,
+  hasCredentials,
+  orderForRequest,
+  resolveProviderChain,
+  type ProviderId,
+  type ResolvedProvider,
+} from "@/lib/operator/providers";
 import {
   OPERATOR_LIMITS,
   type Artifact,
@@ -55,7 +75,7 @@ import {
   type OperatorStatus,
 } from "@/lib/operator/protocol";
 import { checkRateLimit } from "@/lib/operator/rate-limit";
-import { OPERATOR_SYSTEM_PROMPT } from "@/lib/operator/system-prompt";
+import { buildSystemPrompt } from "@/lib/operator/system-prompt";
 import { OPERATOR_TOOLS, TOOL_STATUS, isOperatorToolName, runTool } from "@/lib/operator/tools";
 
 // Node, not edge: the knowledge index and the SDK are large bundles, and the
@@ -148,6 +168,7 @@ function getClient(): Anthropic {
 }
 
 let warnedMissingKey = false;
+let warnedSkipped = false;
 
 /**
  * Maps a failure inside the stream to the code the panel shows. Messages are
@@ -176,6 +197,19 @@ function toErrorCode(err: unknown): OperatorErrorCode | null {
   // too; "internal" is kept for bugs in this handler.
   if (err instanceof Anthropic.APIError) {
     logOperatorError("upstream failure", err, err.status);
+    return "upstream";
+  }
+  if (err instanceof ProviderError) {
+    if (err.status === 429) return "overloaded";
+    if (err.status === 401 || err.status === 403) {
+      logOperatorError(`${err.provider} rejected the credentials`, undefined, err.status);
+      return "unavailable";
+    }
+    logOperatorError(`${err.provider} failure`, err, err.status);
+    return "upstream";
+  }
+  if (err instanceof ToolCallParseError) {
+    logOperatorError("unparseable tool call after the last re-issue:", err);
     return "upstream";
   }
   // Includes the SDK's tool-input parse error after the last re-issue, whose
@@ -219,6 +253,216 @@ function hasText(content: readonly BetaContentBlock[]): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                                 Providers                                  */
+/* -------------------------------------------------------------------------- */
+
+/** One round's inputs, whichever provider serves it. */
+interface RoundInput {
+  messages: BetaMessageParam[];
+  /** Tools are off for this round (loop-policy.ts). */
+  textOnly: boolean;
+  /** The one re-ask after a text-only round came back with only tool calls. */
+  forceNoTools?: boolean;
+}
+
+/** One round's result in the Messages API shape the loop works on. */
+interface RoundResult {
+  stop_reason: string | null;
+  content: BetaContentBlock[];
+}
+
+const promptCache = new Map<string, string>();
+
+/**
+ * The system prompt for a provider. It names every provider of the
+ * configured chain (not just this one) so it stays identical across rounds,
+ * turns and fallbacks: a stable, cacheable prefix. With an Anthropic-only
+ * chain it is exactly OPERATOR_SYSTEM_PROMPT.
+ */
+function systemPromptFor(provider: ResolvedProvider, processors: readonly string[]): string {
+  const inlineContext = provider.kind === "openai";
+  const key = `${inlineContext}\u0000${processors.join("\u0000")}`;
+  let prompt = promptCache.get(key);
+  if (prompt === undefined) {
+    prompt = buildSystemPrompt({ processors, inlineContext });
+    promptCache.set(key, prompt);
+  }
+  return prompt;
+}
+
+const chatToolCache = new Map<string, ChatTool[]>();
+
+function chatToolsFor(provider: ResolvedProvider): ChatTool[] {
+  const key = provider.schemaDialect ?? "";
+  let tools = chatToolCache.get(key);
+  if (!tools) {
+    tools = toChatTools(OPERATOR_TOOLS, provider.schemaDialect);
+    chatToolCache.set(key, tools);
+  }
+  return tools;
+}
+
+/** Until when (epoch ms) each provider is routed around after a failure. Per instance. */
+const coolingUntil = new Map<ProviderId, number>();
+
+function failureOf(err: unknown): { status?: number; headers?: { get(name: string): string | null } | null } | null {
+  if (err instanceof ProviderError) return { status: err.status, headers: err.headers };
+  if (err instanceof Anthropic.APIError) return { status: err.status, headers: err.headers };
+  return null;
+}
+
+function coolDown(provider: ResolvedProvider, err: unknown): void {
+  const failure = failureOf(err);
+  if (!failure) return;
+  const named = failure.headers?.get("retry-after-ms") ?? failure.headers?.get("retry-after");
+  const ms = failureCooldownMs(failure.status, named ? retryWaitMs(failure.headers) : undefined);
+  if (ms > 0) coolingUntil.set(provider.id, Date.now() + ms);
+}
+
+const isTransientStatus = (status: number | undefined) => status === undefined || status === 429 || status >= 500;
+
+/**
+ * One round on an OpenAI-compatible provider. A tool call whose arguments
+ * are not JSON (or Groq's `tool_use_failed`, the same failure caught
+ * server-side) re-issues the round, like streamRound does for Anthropic, but
+ * only while nothing of it is on screen: without Anthropic's replay there is
+ * no way to take the text back.
+ */
+async function streamCompatRound(
+  provider: ResolvedProvider,
+  input: RoundInput,
+  options: RoundOptions,
+  processors: readonly string[],
+): Promise<RoundResult> {
+  const { signal, deadlineAt, onStatus, onText, separate } = options;
+  const request = {
+    messages: toChatMessages(systemPromptFor(provider, processors), input.messages as unknown as LoopMessage[], provider),
+    tools: chatToolsFor(provider),
+    toolChoice: input.textOnly || input.forceNoTools ? ("none" as const) : ("auto" as const),
+  };
+
+  for (let jsonRetries = 0; ; ) {
+    let wrote = false;
+    try {
+      const round = await streamChatCompletion(provider, request, {
+        signal,
+        onText: (delta) => {
+          if (separate && !wrote) onText("\n\n");
+          wrote = true;
+          onText(delta);
+        },
+        onThinking: () => onStatus("thinking"),
+        onToolStart: (name) => onStatus(isOperatorToolName(name) ? TOOL_STATUS[name] : "thinking"),
+      });
+      const content = [
+        ...(round.text ? [{ type: "text", text: round.text, citations: null }] : []),
+        ...round.toolCalls.map((call) => ({ type: "tool_use", id: call.id, name: call.name, input: call.input })),
+      ] as unknown as BetaContentBlock[];
+      return { stop_reason: round.stopReason, content };
+    } catch (err) {
+      if (signal.aborted) throw err;
+      const malformed = err instanceof ToolCallParseError || (err instanceof ProviderError && err.code === "tool_use_failed");
+      if (!malformed || wrote || jsonRetries >= OPERATOR_MAX_JSON_RETRIES || deadlineAt - Date.now() < OPERATOR_MIN_ROUND_MS) {
+        throw err;
+      }
+      jsonRetries++;
+      logOperatorError(`${provider.id}: malformed tool call, re-issuing the round`);
+    }
+  }
+}
+
+/** One round on one provider. */
+function callProvider(
+  provider: ResolvedProvider,
+  input: RoundInput,
+  options: RoundOptions,
+  processors: readonly string[],
+): Promise<RoundResult> {
+  if (provider.kind === "openai") return streamCompatRound(provider, input, options, processors);
+
+  const params: BetaMessageStreamParams = {
+    model: provider.model,
+    max_tokens: provider.maxTokens,
+    // Static prompt, cached. Together with the tool definitions ahead of it
+    // this is the stable prefix every conversation shares.
+    system: [{ type: "text", text: systemPromptFor(provider, processors), cache_control: { type: "ephemeral" } }],
+    tools: OPERATOR_TOOLS,
+    messages: input.messages,
+    // Top-level automatic caching: the growing conversation is re-read from
+    // cache by each later round and each later turn.
+    cache_control: { type: "ephemeral" },
+    // Adaptive thinking with the default display (omitted on this model):
+    // the persona forbids exposing internal reasoning, and only a
+    // "thinking" status ever reaches the panel.
+    thinking: { type: "adaptive" },
+    output_config: { effort: OPERATOR_EFFORT },
+    betas: [FALLBACK_BETA],
+    fallbacks: "default",
+    // tool_choice otherwise stays unset: changing it invalidates the cached
+    // conversation, so only the one forced re-ask pays that.
+    ...(input.forceNoTools ? { tool_choice: { type: "none" as const } } : {}),
+  };
+  return streamRound(params, options);
+}
+
+/**
+ * Runs a round on the first provider that serves it. A provider that fails
+ * before any of this round reached the visitor (quota, rate limit, outage,
+ * bad key, unknown model, a schema it rejects) hands the round to the next
+ * one and is routed around for a while (failureCooldownMs). The last
+ * provider gets the one short transient retry streamRound gives Anthropic.
+ */
+async function roundWithFallback(
+  providers: readonly ResolvedProvider[],
+  input: RoundInput,
+  options: RoundOptions,
+  processors: readonly string[],
+): Promise<{ message: RoundResult; provider: ResolvedProvider }> {
+  for (let i = 0; i < providers.length; i++) {
+    const provider = providers[i];
+    let wrote = false;
+    const attempt: RoundOptions = {
+      ...options,
+      onText: (delta) => {
+        wrote = true;
+        options.onText(delta);
+      },
+    };
+    try {
+      return { message: await callProvider(provider, input, attempt, processors), provider };
+    } catch (err) {
+      if (options.signal.aborted) throw err;
+      coolDown(provider, err);
+      const next = providers[i + 1];
+      const timeLeft = options.deadlineAt - Date.now();
+      if (!wrote && next && timeLeft >= OPERATOR_MIN_ROUND_MS) {
+        logOperatorError(`${provider.id} failed, handing the round to ${next.id}:`, err, failureOf(err)?.status);
+        continue;
+      }
+      if (
+        !wrote &&
+        !next &&
+        err instanceof ProviderError &&
+        isTransientStatus(err.status) &&
+        !options.retry.used
+      ) {
+        const wait = retryWaitMs(err.headers);
+        if (mayRetryTransient(wait, timeLeft)) {
+          options.retry.used = true;
+          logOperatorError("transient upstream failure, retrying once after", undefined, `${Math.round(wait)} ms`, err.status);
+          await pause(wait, options.signal);
+          if (options.signal.aborted) throw err;
+          i--;
+          continue;
+        }
+      }
+      throw err;
+    }
+  }
+  throw new Error("no model provider can serve this round");
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                 Tool loop                                  */
 /* -------------------------------------------------------------------------- */
 
@@ -230,6 +474,8 @@ interface LoopContext {
   /** When the response stream started; the deadline counts from here. */
   startedAt: number;
   emit: (event: OperatorEvent) => void;
+  /** The configured provider chain, in order (providers.ts). */
+  providers: readonly ResolvedProvider[];
 }
 
 interface RoundOptions {
@@ -330,9 +576,20 @@ async function streamRound(params: BetaMessageStreamParams, options: RoundOption
  * events as it goes and ends with exactly one done or error event; throws
  * for anything toErrorCode should classify.
  */
-async function runOperator({ messages, country, locale, signal, startedAt, emit }: LoopContext): Promise<void> {
+async function runOperator({ messages, country, locale, signal, startedAt, emit, providers }: LoopContext): Promise<void> {
   const deadlineAt = startedAt + OPERATOR_DEADLINE_MS;
   const retry = { used: false };
+  const processors = providers.map((provider) => provider.label);
+  // The provider that served the previous round goes first in the next one.
+  let servedBy: ResolvedProvider | undefined;
+  const candidates = (round: number): ResolvedProvider[] => {
+    const ordered = orderForRequest(providers, coolingUntil, Date.now());
+    const list = servedBy ? [servedBy, ...ordered.filter((provider) => provider !== servedBy)] : ordered;
+    // Claude continues a tool loop only with its own thinking blocks, which
+    // rounds another model served do not have: it can start a turn, or take
+    // over from itself, but not take over from another provider.
+    return round > 0 && servedBy?.kind !== "anthropic" ? list.filter((provider) => provider.kind !== "anthropic") : list;
+  };
   let lastStatus: OperatorStatus | null = null;
   let anyText = false;
   // Text or a visual has reached the visitor this turn.
@@ -370,37 +627,21 @@ async function runOperator({ messages, country, locale, signal, startedAt, emit 
     // Claude considers the result; the model may not open a thinking block.
     if (round > 0) onStatus("thinking");
     const textOnly = plan === "text";
-    // Tell Claude its tools are off, once, where the API takes a system
+    // Tell the model its tools are off, once, where the API takes a system
     // message: right after the tool results. (Not after a pause_turn
-    // continuation, where an assistant turn is last.) tool_choice stays as it
-    // is: changing it invalidates the cached conversation.
+    // continuation, where an assistant turn is last.) For Claude, tool_choice
+    // stays as it is: changing it invalidates the cached conversation. The
+    // OpenAI-compatible providers also get tool_choice "none" (callProvider).
     if (textOnly && !noted && messages.at(-1)?.role === "user") {
       messages.push({ role: "system", content: TEXT_ONLY_NOTE });
       noted = true;
     }
 
-    const params: BetaMessageStreamParams = {
-      model: OPERATOR_MODEL,
-      max_tokens: OPERATOR_MAX_TOKENS,
-      // Static prompt, cached. Together with the tool definitions ahead of it
-      // this is the stable prefix every conversation shares.
-      system: [{ type: "text", text: OPERATOR_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-      tools: OPERATOR_TOOLS,
-      messages,
-      // Top-level automatic caching: the growing conversation is re-read from
-      // cache by each later round and each later turn.
-      cache_control: { type: "ephemeral" },
-      // Adaptive thinking with the default display (omitted on this model):
-      // the persona forbids exposing internal reasoning, and only a
-      // "thinking" status ever reaches the panel.
-      thinking: { type: "adaptive" },
-      output_config: { effort: OPERATOR_EFFORT },
-      betas: [FALLBACK_BETA],
-      fallbacks: "default",
-    };
+    const input: RoundInput = { messages, textOnly };
     const roundOptions: RoundOptions = { signal, deadlineAt, retry, onStatus, onText, separate: anyText };
 
-    const message = await streamRound(params, roundOptions);
+    const { message, provider } = await roundWithFallback(candidates(round), input, roundOptions, processors);
+    servedBy = provider;
 
     // The chain as a whole declined (the fallback model too, or none ran).
     if (message.stop_reason === "refusal") {
@@ -416,7 +657,7 @@ async function runOperator({ messages, country, locale, signal, startedAt, emit 
       // it also said nothing, ask once more with tool_choice "none", the one
       // place where paying the cache miss is worth it.
       if (!hasText(message.content) && deadlineAt - Date.now() >= OPERATOR_MIN_ROUND_MS) {
-        const forced = await streamRound({ ...params, tool_choice: { type: "none" } }, roundOptions);
+        const forced = await callProvider(provider, { ...input, forceNoTools: true }, roundOptions, processors);
         if (forced.stop_reason === "refusal") {
           emit({ type: "error", code: "refusal" });
           return;
@@ -500,10 +741,15 @@ export async function POST(req: NextRequest) {
     const limit = checkRateLimit(clientKey(req), Date.now());
     if (!limit.ok) return fail(429, "rate_limited", { "Retry-After": String(limit.retryAfterSeconds) });
 
-    if (!hasCredentials()) {
+    const chain = resolveProviderChain();
+    if (chain.skipped.length && !warnedSkipped) {
+      warnedSkipped = true;
+      logOperatorError("OPERATOR_PROVIDERS entries skipped (unknown, or no key/model/base URL):", undefined, chain.skipped.join(", "));
+    }
+    if (!chain.providers.length) {
       if (!warnedMissingKey) {
         warnedMissingKey = true;
-        logOperatorError("ANTHROPIC_API_KEY is not set");
+        logOperatorError("no model provider is configured: set GROQ_API_KEY, GEMINI_API_KEY, CEREBRAS_API_KEY, MISTRAL_API_KEY, OPENROUTER_API_KEY, OPENAI_COMPATIBLE_* or ANTHROPIC_API_KEY");
       }
       return fail(503, "unavailable");
     }
@@ -549,7 +795,7 @@ export async function POST(req: NextRequest) {
           upstream.abort();
         }, OPERATOR_DEADLINE_MS);
         try {
-          await runOperator({ messages, country, locale, signal: upstream.signal, startedAt, emit });
+          await runOperator({ messages, country, locale, signal: upstream.signal, startedAt, emit, providers: chain.providers });
         } catch (err) {
           // An abort (disconnect or deadline) surfaces as an SDK abort error:
           // nothing to classify or log.

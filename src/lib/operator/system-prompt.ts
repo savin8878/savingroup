@@ -722,10 +722,59 @@ If the visitor asks who can see this chat or where it goes, say only this:
 
 Do not claim more than this: no retention periods, no promises about what Anthropic does with the text. Remind the visitor not to share passwords or sensitive personal data.`;
 
+export interface SystemPromptOptions {
+  /**
+   * Names of the AI providers a message may be sent to, in the order the
+   * route tries them (providers.ts). The data-handling answer names them.
+   */
+  processors: readonly string[];
+  /**
+   * Page context arrives inside the visitor's messages as <website_context>
+   * blocks instead of as system messages: the OpenAI-compatible providers get
+   * one leading system message only (openai-compat.ts).
+   */
+  inlineContext: boolean;
+}
+
+const CONTEXT_AS_SYSTEM = "- Page context arrives as system messages containing";
+const CONTEXT_INLINE =
+  "- Page context arrives in <website_context> blocks that the website appends to the visitor's messages (the visitor did not type them), containing";
+const PROCESSOR_LINE = "- Each message goes through the site to Anthropic's API, which generates the reply.";
+const PROCESSOR_LIMIT = "no promises about what Anthropic does with the text.";
+
+function replaceOnce(text: string, from: string, to: string): string {
+  if (!text.includes(from)) throw new Error(`system-prompt: expected text not found: ${from}`);
+  return text.replace(from, to);
+}
+
+function listNames(names: readonly string[]): string {
+  return names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} or ${names.at(-1)}`;
+}
+
+/**
+ * The system prompt for one provider chain. Byte-identical for a given
+ * chain, so it stays a cacheable prefix; with the Anthropic-only chain it is
+ * exactly OPERATOR_SYSTEM_PROMPT.
+ */
+export function buildSystemPrompt({ processors, inlineContext }: SystemPromptOptions): string {
+  let notes = DEPLOYMENT_NOTES;
+  if (inlineContext) notes = replaceOnce(notes, CONTEXT_AS_SYSTEM, CONTEXT_INLINE);
+  const names = [...new Set(processors)];
+  if (names.length && !(names.length === 1 && names[0] === "Anthropic")) {
+    notes = replaceOnce(
+      notes,
+      PROCESSOR_LINE,
+      `- Each message goes through the site to the API of a third-party AI provider (${listNames(names)}), which generates the reply.`,
+    );
+    notes = replaceOnce(notes, PROCESSOR_LIMIT, "no promises about what the AI provider does with the text.");
+  }
+  return [
+    PERSONA,
+    "---",
+    notes,
+    "# VERIFIED SAVIN FACT SHEET\n\nThe only Savin facts you may state without calling search_savin_knowledge first:\n\n" + OPERATOR_FACT_SHEET,
+  ].join("\n\n");
+}
+
 /** Static on purpose: see the file header on prompt caching. */
-export const OPERATOR_SYSTEM_PROMPT = [
-  PERSONA,
-  "---",
-  DEPLOYMENT_NOTES,
-  "# VERIFIED SAVIN FACT SHEET\n\nThe only Savin facts you may state without calling search_savin_knowledge first:\n\n" + OPERATOR_FACT_SHEET,
-].join("\n\n");
+export const OPERATOR_SYSTEM_PROMPT = buildSystemPrompt({ processors: ["Anthropic"], inlineContext: false });

@@ -6,7 +6,10 @@
 // The route is public and every request is billed, so most of these numbers
 // are cost and abuse ceilings first and quality settings second.
 
-/** The model behind the Operator. */
+/**
+ * The Claude model used when Anthropic is in the provider chain (override
+ * with ANTHROPIC_MODEL). Other providers' models are set in providers.ts.
+ */
 export const OPERATOR_MODEL = "claude-opus-5";
 
 /**
@@ -115,11 +118,3 @@ export function isOperatorEnabled(): boolean {
   return process.env.OPERATOR_ENABLED !== "false";
 }
 
-/**
- * Whether the Anthropic client can authenticate. Checked before the stream
- * opens so a missing key is a clean 503 ("unavailable"), not a stream that
- * starts and then errors.
- */
-export function hasCredentials(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
-}
