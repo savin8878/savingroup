@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "test:sitemaps": "node --test --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/sitemap.test.mjs",
-    "test:operator": "node --test --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/operator-knowledge.test.mjs scripts/operator-server.test.mjs scripts/operator-client.test.mjs scripts/operator-views.test.mjs",
+    "test:operator": "node --test --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/operator-knowledge.test.mjs scripts/operator-server.test.mjs scripts/operator-client.test.mjs scripts/operator-views.test.mjs scripts/operator-providers.test.mjs",
     "validate:sitemaps": "node scripts/validate-sitemaps.mjs"
   },
   "dependencies": {

@@ -63,7 +63,6 @@ import {
   hasCredentials,
   orderForRequest,
   resolveProviderChain,
-  type ProviderId,
   type ResolvedProvider,
 } from "@/lib/operator/providers";
 import {
@@ -302,8 +301,8 @@ function chatToolsFor(provider: ResolvedProvider): ChatTool[] {
   return tools;
 }
 
-/** Until when (epoch ms) each provider is routed around after a failure. Per instance. */
-const coolingUntil = new Map<ProviderId, number>();
+/** Until when (epoch ms) each chain entry (provider/model) is routed around after a failure. Per instance. */
+const coolingUntil = new Map<string, number>();
 
 function failureOf(err: unknown): { status?: number; headers?: { get(name: string): string | null } | null } | null {
   if (err instanceof ProviderError) return { status: err.status, headers: err.headers };
@@ -316,7 +315,7 @@ function coolDown(provider: ResolvedProvider, err: unknown): void {
   if (!failure) return;
   const named = failure.headers?.get("retry-after-ms") ?? failure.headers?.get("retry-after");
   const ms = failureCooldownMs(failure.status, named ? retryWaitMs(failure.headers) : undefined);
-  if (ms > 0) coolingUntil.set(provider.id, Date.now() + ms);
+  if (ms > 0) coolingUntil.set(provider.key, Date.now() + ms);
 }
 
 const isTransientStatus = (status: number | undefined) => status === undefined || status === 429 || status >= 500;
@@ -356,7 +355,15 @@ async function streamCompatRound(
       });
       const content = [
         ...(round.text ? [{ type: "text", text: round.text, citations: null }] : []),
-        ...round.toolCalls.map((call) => ({ type: "tool_use", id: call.id, name: call.name, input: call.input })),
+        // `extra_content` (Gemini's thought signature) rides on the block so
+        // toChatMessages can send it back with the call next round.
+        ...round.toolCalls.map((call) => ({
+          type: "tool_use",
+          id: call.id,
+          name: call.name,
+          input: call.input,
+          ...(call.extra ? { extra_content: call.extra } : {}),
+        })),
       ] as unknown as BetaContentBlock[];
       return { stop_reason: round.stopReason, content };
     } catch (err) {
@@ -366,7 +373,7 @@ async function streamCompatRound(
         throw err;
       }
       jsonRetries++;
-      logOperatorError(`${provider.id}: malformed tool call, re-issuing the round`);
+      logOperatorError(`${provider.key}: malformed tool call, re-issuing the round`);
     }
   }
 }
@@ -436,7 +443,7 @@ async function roundWithFallback(
       const next = providers[i + 1];
       const timeLeft = options.deadlineAt - Date.now();
       if (!wrote && next && timeLeft >= OPERATOR_MIN_ROUND_MS) {
-        logOperatorError(`${provider.id} failed, handing the round to ${next.id}:`, err, failureOf(err)?.status);
+        logOperatorError(`${provider.key} failed, handing the round to ${next.key}:`, err, failureOf(err)?.status);
         continue;
       }
       if (
@@ -579,7 +586,7 @@ async function streamRound(params: BetaMessageStreamParams, options: RoundOption
 async function runOperator({ messages, country, locale, signal, startedAt, emit, providers }: LoopContext): Promise<void> {
   const deadlineAt = startedAt + OPERATOR_DEADLINE_MS;
   const retry = { used: false };
-  const processors = providers.map((provider) => provider.label);
+  const processors = [...new Set(providers.map((provider) => provider.label))];
   // The provider that served the previous round goes first in the next one.
   let servedBy: ResolvedProvider | undefined;
   const candidates = (round: number): ResolvedProvider[] => {

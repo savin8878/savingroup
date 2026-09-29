@@ -70,15 +70,16 @@ test("the chain is every provider with credentials, in the default order", () =>
   assert.equal(providers.hasCredentials({ GROQ_API_KEY: "   " }), false, "a blank key is no key");
 
   const { providers: chain, skipped } = providers.resolveProviderChain({ GEMINI_API_KEY: "g", GROQ_API_KEY: "q" });
-  assert.deepEqual(chain.map((p) => p.id), ["groq", "gemini"]);
+  assert.deepEqual(chain.map((p) => p.key), ["groq/openai/gpt-oss-120b", "gemini/gemini-flash-latest", "gemini/gemini-flash-lite-latest"]);
   assert.deepEqual(skipped, []);
-  const [groq, gemini] = chain;
+  const [groq, gemini, geminiLite] = chain;
   assert.equal(groq.baseUrl, "https://api.groq.com/openai/v1");
-  assert.equal(groq.model, "llama-3.3-70b-versatile");
   assert.equal(groq.kind, "openai");
+  assert.equal(groq.reasoningEffort, undefined);
   assert.equal(gemini.baseUrl, "https://generativelanguage.googleapis.com/v1beta/openai");
-  assert.equal(gemini.model, "gemini-flash-latest");
   assert.equal(gemini.schemaDialect, "gemini");
+  assert.equal(gemini.reasoningEffort, "low");
+  assert.equal(geminiLite.label, "Google Gemini");
   assert.equal(providers.resolveProviderChain({ GOOGLE_API_KEY: "g" }).providers[0]?.id, "gemini", "GOOGLE_API_KEY works too");
 
   const anthropic = providers.resolveProviderChain({ ANTHROPIC_API_KEY: "a", GROQ_API_KEY: "q" }).providers;
@@ -96,14 +97,20 @@ test("OPERATOR_PROVIDERS sets the order; unusable entries are reported, override
     GROQ_MAX_TOKENS: "2048",
     GEMINI_MAX_TOKENS: "lots",
     GEMINI_BASE_URL: "https://proxy.example/v1/",
+    GEMINI_MODEL: "gemini-3.5-flash",
+    GEMINI_REASONING_EFFORT: "default",
   };
   const { providers: chain, skipped } = providers.resolveProviderChain(env);
-  assert.deepEqual(chain.map((p) => p.id), ["gemini", "groq"]);
+  assert.deepEqual(chain.map((p) => p.key), ["gemini/gemini-3.5-flash", "groq/openai/gpt-oss-120b"]);
   assert.deepEqual(skipped, ["nope", "mistral"]);
-  assert.equal(chain[1].model, "openai/gpt-oss-120b");
   assert.equal(chain[1].maxTokens, 2048);
   assert.equal(chain[0].maxTokens, 8192, "a malformed override is ignored");
   assert.equal(chain[0].baseUrl, "https://proxy.example/v1", "trailing slash dropped");
+  assert.equal(chain[0].reasoningEffort, undefined, '"default" leaves reasoning_effort out');
+
+  const listed = providers.resolveProviderChain({ GROQ_API_KEY: "q", GROQ_MODEL: " qwen/qwen3.8-27b, openai/gpt-oss-20b ,qwen/qwen3.8-27b", GROQ_REASONING_EFFORT: "high" }).providers;
+  assert.deepEqual(listed.map((p) => p.model), ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"], "a comma list, trimmed and deduplicated");
+  assert.ok(listed.every((p) => p.reasoningEffort === "high"));
 });
 
 test("a custom OpenAI-compatible endpoint needs a base URL and a model, not necessarily a key", () => {
@@ -130,14 +137,19 @@ test("cooldowns: rate limits follow Retry-After within bounds, config errors wai
   assert.equal(failureCooldownMs(429, 600_000), 60_000);
   assert.equal(failureCooldownMs(429, undefined), 20_000);
   for (const status of [401, 403, 404, 413]) assert.equal(failureCooldownMs(status, undefined), 600_000, String(status));
-  assert.equal(failureCooldownMs(503, undefined), 10_000);
+  assert.equal(failureCooldownMs(503, undefined), 30_000, "high demand");
+  assert.equal(failureCooldownMs(500, undefined), 10_000);
   assert.equal(failureCooldownMs(undefined, undefined), 10_000, "dropped connection");
   assert.equal(failureCooldownMs(400, undefined), 0);
 
   const chain = providers.resolveProviderChain({ GROQ_API_KEY: "q", CEREBRAS_API_KEY: "c", GEMINI_API_KEY: "g" }).providers;
-  const cooling = new Map([["groq", 5_000], ["cerebras", 2_000]]);
-  assert.deepEqual(providers.orderForRequest(chain, cooling, 1_000).map((p) => p.id), ["gemini", "cerebras", "groq"], "cooling ones last, soonest first");
-  assert.deepEqual(providers.orderForRequest(chain, cooling, 9_000).map((p) => p.id), ["groq", "cerebras", "gemini"]);
+  const cooling = new Map([["groq/openai/gpt-oss-120b", 5_000], ["cerebras/gpt-oss-120b", 2_000], ["gemini/gemini-flash-latest", 3_000]]);
+  assert.deepEqual(
+    providers.orderForRequest(chain, cooling, 1_000).map((p) => p.key),
+    ["gemini/gemini-flash-lite-latest", "cerebras/gpt-oss-120b", "gemini/gemini-flash-latest", "groq/openai/gpt-oss-120b"],
+    "cooling entries last, soonest first; a provider's other model is not held back",
+  );
+  assert.deepEqual(providers.orderForRequest(chain, cooling, 9_000).map((p) => p.key), chain.map((p) => p.key));
 });
 
 /* ------------------------------- system prompt ------------------------------- */
@@ -189,6 +201,15 @@ test("messages: one leading system message; page context rides on the visitor tu
   });
   assert.deepEqual(out[5], { role: "tool", tool_call_id: "toolu_01", content: "Error: rendered" });
   assert.ok(!JSON.stringify(out).includes("hidden"), "thinking never leaves");
+
+  // Gemini's thought signature goes back on the call it came with.
+  const signed = compat.toChatMessages("S", [
+    { role: "user", content: "Map it" },
+    { role: "assistant", content: [{ type: "tool_use", id: "call_1", name: "x", input: {}, extra_content: { google: { thought_signature: "SIG" } } }] },
+    { role: "user", content: [{ type: "tool_result", tool_use_id: "call_1", content: "ok" }] },
+  ], {});
+  assert.deepEqual(signed[2].tool_calls[0].extra_content, { google: { thought_signature: "SIG" } });
+  assert.equal(signed[2].content, null, "no text beside the call");
 
   // Mistral takes only nine-character alphanumeric ids; both sides map alike.
   const mistral = compat.toChatMessages("S", messages, { toolCallIds: "alnum9" });
@@ -271,8 +292,19 @@ const mock = http.createServer(async (req, res) => {
           chunk({ reasoning: "..." }) +
           toolReply("call_9", "search_savin_knowledge", '{"query":"discovery sprint"}'),
       );
-    case "noid": // Gemini-style: the whole call in one chunk, no index, no id
-      return sse(chunk({ tool_calls: [{ function: { name: "search_savin_knowledge", arguments: '{"query":"x"}' } }] }) + chunk({}, "stop") + DONE);
+    case "noid": // Gemini-style: the whole call in one chunk, no index, no id, a thought signature
+      return sse(
+        chunk({
+          tool_calls: [
+            {
+              extra_content: { google: { thought_signature: "SIG" } },
+              function: { name: "search_savin_knowledge", arguments: '{"query":"x"}' },
+            },
+          ],
+        }) +
+          chunk({}, "stop") +
+          DONE,
+      );
     case "badargs":
       return sse(toolReply("call_1", "build_workflow_graph", '{"title": ,,, }'));
     case "cutoff":
@@ -306,6 +338,28 @@ const mock = http.createServer(async (req, res) => {
     case "groq429":
       if (provider === "groq") return error(429, { error: { message: "Rate limit reached", code: "rate_limit_exceeded" } }, { "retry-after": "30" });
       return sse(textReply(`Hello from ${provider}.`));
+    case "sig": // Gemini 3: the next request must carry the call's thought signature back
+      if (afterTools) {
+        const call = body.messages.at(-2).tool_calls?.[0];
+        if (call?.extra_content?.google?.thought_signature !== "SIG-1") {
+          return error(400, { error: { message: "Function call is missing a thought_signature in functionCall parts." } });
+        }
+        return sse(textReply("Signed."));
+      }
+      return sse(
+        chunk({
+          tool_calls: [
+            {
+              id: "call_g1",
+              type: "function",
+              extra_content: { google: { thought_signature: "SIG-1" } },
+              function: { name: "search_savin_knowledge", arguments: '{"query":"discovery sprint"}' },
+            },
+          ],
+        }) +
+          chunk({}, "stop") +
+          DONE,
+      );
     case "allfail":
       return error(503, { error: { message: "Service unavailable" } });
     default:
@@ -376,6 +430,7 @@ test("streamChatCompletion, and the route end to end, against a local OpenAI-com
     assert.equal(round.stopReason, "tool_use");
     assert.equal(round.toolCalls[0].name, "search_savin_knowledge");
     assert.match(round.toolCalls[0].id, /^call_[a-z0-9]{9}$/);
+    assert.deepEqual(round.toolCalls[0].extra, { google: { thought_signature: "SIG" } });
   });
 
   await t.test("arguments that are not JSON throw ToolCallParseError, unless cut off at max_tokens", async () => {
@@ -451,8 +506,9 @@ test("streamChatCompletion, and the route end to end, against a local OpenAI-com
     assert.equal(upstream.length, 1);
     const { body, headers } = upstream[0];
     assert.equal(headers.authorization, "Bearer groq-key");
-    assert.equal(body.model, "llama-3.3-70b-versatile");
-    assert.equal(body.max_tokens, 4096);
+    assert.equal(body.model, "openai/gpt-oss-120b");
+    assert.equal(body.max_tokens, 8192);
+    assert.equal(body.reasoning_effort, undefined);
     assert.equal(body.tool_choice, "auto");
     assert.deepEqual(body.tools.map((tool) => tool.function.name), OPERATOR_TOOLS.map((tool) => tool.name));
     assert.deepEqual(body.messages.map((m) => m.role), ["system", "user"]);
@@ -503,11 +559,24 @@ test("streamChatCompletion, and the route end to end, against a local OpenAI-com
     assert.deepEqual(first.upstream.map((c) => c.provider), ["groq", "gemini"]);
     const gemini = first.upstream[1].body;
     assert.equal(gemini.model, "gemini-flash-latest");
+    assert.equal(gemini.reasoning_effort, "low");
     assert.ok(!JSON.stringify(gemini.tools).includes("exclusiveMinimum"), "Gemini gets its schema dialect");
 
     const next = await callRoute("hello");
     assert.deepEqual(next.upstream.map((c) => c.provider), ["gemini"], "groq is cooling down (Retry-After 30 s)");
     assert.equal(next.text, "Hello from gemini.");
+  });
+
+  await t.test("route: Gemini's thought signature survives the tool round", async () => {
+    process.env.OPERATOR_PROVIDERS = "gemini";
+    try {
+      const { text, artifacts, upstream } = await callRoute("sig");
+      assert.equal(text, "Signed.");
+      assert.deepEqual(artifacts.map((a) => a.type), ["sources"]);
+      assert.deepEqual(upstream.map((c) => c.provider), ["gemini", "gemini"]);
+    } finally {
+      delete process.env.OPERATOR_PROVIDERS;
+    }
   });
 
   await t.test("route: when every provider fails, the visitor gets one error event", async () => {

@@ -32,6 +32,12 @@ export interface ChatToolCall {
   id: string;
   type: "function";
   function: { name: string; arguments: string };
+  /**
+   * Provider-specific data that must travel back with the call. Gemini 3
+   * puts its `google.thought_signature` here and rejects the next request
+   * (400) if it is missing.
+   */
+  extra_content?: Record<string, unknown>;
 }
 
 export type ChatMessage =
@@ -55,6 +61,8 @@ export interface CompatToolCall {
   id: string;
   name: string;
   input: unknown;
+  /** The call's `extra_content`, echoed back verbatim next round. */
+  extra?: Record<string, unknown>;
 }
 
 export interface CompatRound {
@@ -115,6 +123,10 @@ export function alnum9(id: string): string {
     out += alphabet[(source >>> ((i % 5) * 6)) % 62];
   }
   return out;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function textOf(content: string | readonly LoopBlock[]): string {
@@ -198,6 +210,7 @@ export function toChatMessages(
         id: id(String(b.id)),
         type: "function" as const,
         function: { name: String(b.name), arguments: JSON.stringify(b.input ?? {}) },
+        ...(isPlainObject(b.extra_content) ? { extra_content: b.extra_content } : {}),
       }));
     if (!text && !calls.length) continue;
     out.push(calls.length ? { role: "assistant", content: text || null, tool_calls: calls } : { role: "assistant", content: text });
@@ -366,6 +379,7 @@ interface PendingCall {
   id: string;
   name: string;
   args: string;
+  extra?: Record<string, unknown>;
 }
 
 /**
@@ -395,6 +409,7 @@ export async function streamChatCompletion(
     messages: request.messages,
     ...(request.tools.length ? { tools: request.tools, tool_choice: request.toolChoice } : {}),
     max_tokens: provider.maxTokens,
+    ...(provider.reasoningEffort ? { reasoning_effort: provider.reasoningEffort } : {}),
     stream: true,
   };
 
@@ -477,6 +492,7 @@ export async function streamChatCompletion(
         }
         if (typeof fn.arguments === "string") call.args += fn.arguments;
         else if (fn.arguments && typeof fn.arguments === "object") call.args = JSON.stringify(fn.arguments);
+        if (isPlainObject(raw.extra_content)) call.extra = { ...call.extra, ...raw.extra_content };
       });
     }
     if (typeof choice.finish_reason === "string" && choice.finish_reason) finish = choice.finish_reason;
@@ -537,7 +553,7 @@ export async function streamChatCompletion(
         throw new ToolCallParseError(`${provider.id}: tool call ${call.name} has arguments that are not JSON`);
       }
     }
-    toolCalls.push({ id: call.id || newCallId(), name: call.name, input });
+    toolCalls.push({ id: call.id || newCallId(), name: call.name, input, ...(call.extra ? { extra: call.extra } : {}) });
   }
 
   const stopReason: CompatRound["stopReason"] = truncated
