@@ -28,6 +28,8 @@ import {
 import Header from "@/components/common/header";
 import type { CityNavItem } from "@/components/common/MegaMenu";
 import Footer from "@/components/common/footer";
+import OperatorRoot from "@/components/operator/OperatorRoot";
+import { isOperatorEnabled } from "@/lib/operator/config";
 import { INDIA_CITIES } from "@/lib/cities";
 import { getCityIdentity } from "@/lib/city-identity";
 
@@ -318,6 +320,17 @@ export default async function LocaleLayout({
         />
         <main className="flex-grow">{children}</main>
         <Footer translations={t} />
+        {/* Savin Operator. After the footer so its launcher is last in the
+            tab order and never precedes page content; it also shows on
+            not-found. OPERATOR_ENABLED="false" removes it site-wide (the
+            same switch that makes /api/operator answer 503). */}
+        {isOperatorEnabled() && (
+          <OperatorRoot
+            locale={locale}
+            country={country}
+            contact={{ email: t.contact.details.email, phone: t.contact.details.phone }}
+          />
+        )}
       </body>
     </html>
   );

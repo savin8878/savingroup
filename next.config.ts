@@ -1,11 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // @react-pdf/renderer (used by the /pricing/download PDF route) is required
-  // at runtime rather than bundled by Turbopack. On Windows + pnpm, bundling it
-  // makes Turbopack try to symlink the package, which fails without the symlink
-  // privilege (os error 1314). Marking it external sidesteps that and is the
-  // recommended setup for server-side PDF generation.
+  // @react-pdf/renderer (used by the /pricing/download PDF route) must stay
+  // external. Bundling it compiles its React reconciler against Next's
+  // server-only React build and every render fails with "Cannot read
+  // properties of undefined (reading 'S')". Next.js already has it on its
+  // default server-externals list; keeping it here makes that explicit.
+  // Turbopack links external packages into .next/node_modules at build time.
+  // Next.js 16.1.0 used symlinks for that, which fail on Windows without
+  // Developer Mode (os error 1314); 16.1.1+ falls back to junctions, so keep
+  // next at >= 16.1.1.
   serverExternalPackages: ["@react-pdf/renderer"],
   images: {
     remotePatterns: [
@@ -19,6 +23,13 @@ const nextConfig: NextConfig = {
   // the canonical `delhi` slug (already indexed) and 308 the brand-name
   // variant so PageRank consolidates instead of stranding on a 404.
   redirects: async () => [
+    // Crawlers and SEO tools probe /sitemap.xml by convention. The real entry
+    // point is the sitemap index (see robots.ts); one hop, no chain.
+    {
+      source: "/sitemap.xml",
+      destination: "/sitemap-index.xml",
+      permanent: true,
+    },
     {
       source: "/:country/:locale/cities/delhi-ncr",
       destination: "/:country/:locale/cities/delhi",

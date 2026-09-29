@@ -14,6 +14,7 @@ import {
   isIndexable,
 } from "@/lib/constants";
 import { validCountryISOs } from "@/middleware";
+import { localizedPath, normalizePublicUrl } from "@/lib/public-url";
 import { getUrlGeo, formatLocation, formatLocationShort, type GeoInfo } from "@/lib/geo";
 import {
   getCityIndexableLocales,
@@ -67,9 +68,7 @@ export function buildAlternates({
   locale: string;
   subPath: string;
 }): AlternatesShape {
-  const cleanSub = subPath.replace(/^\/+|\/+$/g, "");
-  const subSegment = cleanSub ? `/${cleanSub}` : "";
-  const canonical = `/${country}/${locale}${subSegment}`;
+  const canonical = localizedPath({ country, locale, pathname: subPath });
 
   if (!isIndexable(country, locale)) {
     return { canonical };
@@ -85,10 +84,10 @@ export function buildAlternates({
   for (const c of INDEXABLE_COUNTRIES) {
     for (const lang of INDEXABLE_LOCALES) {
       languages[`${lang}-${c.toUpperCase()}`] =
-        `${BASE_URL}/${c}/${lang}${subSegment}`;
+        normalizePublicUrl({ country: c, locale: lang, pathname: subPath });
     }
   }
-  languages["x-default"] = `${BASE_URL}/in/en${subSegment}`;
+  languages["x-default"] = normalizePublicUrl({ country: "in", locale: "en", pathname: subPath });
 
   return { canonical, languages };
 }
@@ -113,9 +112,8 @@ export function buildCityAlternates({
   city: CityContent;
   cityPath: string;
 }): AlternatesShape {
-  const cleanCityPath = cityPath.replace(/^\/+|\/+$/g, "");
-  const fullSub = `cities/${cleanCityPath}`;
-  const canonical = `/${country}/${locale}/${fullSub}`;
+  const fullSub = `cities/${cityPath}`;
+  const canonical = localizedPath({ country, locale, pathname: fullSub });
 
   if (!isCityIndexable(city, country, locale)) {
     return { canonical };
@@ -129,10 +127,10 @@ export function buildCityAlternates({
   for (const c of INDEXABLE_COUNTRIES) {
     for (const lang of cityLocales) {
       languages[`${lang}-${c.toUpperCase()}`] =
-        `${BASE_URL}/${c}/${lang}/${fullSub}`;
+        normalizePublicUrl({ country: c, locale: lang, pathname: fullSub });
     }
   }
-  languages["x-default"] = `${BASE_URL}/in/en/${fullSub}`;
+  languages["x-default"] = normalizePublicUrl({ country: "in", locale: "en", pathname: fullSub });
 
   return { canonical, languages };
 }

@@ -6,7 +6,13 @@ import { IndustryFigure, IndustryArt, FIGURE_LEGENDS, type IndustryFigureKey } f
 import { INDUSTRY_WORKFLOWS } from "@/components/industries/workflows";
 import { StageCycler } from "./StageCycler";
 
-export const metadata: Metadata = { title: "Figures preview", robots: { index: false, follow: false } };
+// `canonical: null` drops the layout's homepage canonical and hreflang cluster,
+// which would otherwise contradict the noindex.
+export const metadata: Metadata = {
+  title: "Figures preview",
+  robots: { index: false, follow: false },
+  alternates: { canonical: null },
+};
 
 const KEYS: IndustryFigureKey[] = ["hub", "manufacturing", "real-estate", "healthcare", "ecommerce", "edtech"];
 

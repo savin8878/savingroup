@@ -24,9 +24,9 @@ import { BASE_URL } from "@/lib/constants";
  *    history if we ever want to re-gate training-only bots.)
  *
  * The sitemap pointer fans out via `/sitemap-index.xml` → one
- * `/{country}/sitemap.xml` per INDEXABLE_COUNTRIES entry, each emitting
- * home + 8 static pages + blog index/posts/categories + 5 industries +
- * 11 city overviews + 11 city blog posts, per indexable locale.
+ * `/{country}/sitemap.xml` per INDEXABLE_COUNTRIES entry. What each one
+ * lists is the inventory in `src/lib/sitemap.ts`. Only the index is named
+ * here: crawlers discover the country sitemaps from it.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
