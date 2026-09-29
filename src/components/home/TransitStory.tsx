@@ -180,7 +180,7 @@ export function TransitStory() {
       <div ref={stage} className={styles.stage}>
         <div className={styles.bar}>
           <span className={styles.live}><i />FIG. 03 · IN TRANSIT <b>· STAGE {step + 1} OF {STEPS}</b></span>
-          <div className={styles.modes} role="group" aria-label="Transport mode">{MODES.map((option) => { const Icon = ICONS[option]; return <button key={option} type="button" aria-pressed={mode === option} onClick={() => setMode(option)}><Icon aria-hidden="true" /><span>{TRANSPORT[option].label}</span></button>; })}</div>
+          <div className={styles.modes} role="group" aria-label="Transport mode">{MODES.map((option) => { const Icon = ICONS[option]; return <button key={option} type="button" aria-label={TRANSPORT[option].label} aria-pressed={mode === option} onClick={() => setMode(option)}><Icon aria-hidden="true" /><span>{TRANSPORT[option].label}</span></button>; })}</div>
         </div>
         <div className={styles.scene}><TransitScene mode={mode} step={step} scene={steps[step].scene} refs={{ vehicle, beacon, path, ledgerDot }} /></div>
         <div className={styles.rail}>

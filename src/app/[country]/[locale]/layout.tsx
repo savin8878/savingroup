@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
+import { notFound } from "next/navigation";
 import {
   Space_Grotesk,
   DM_Sans,
@@ -17,6 +18,7 @@ import {
   type Locale,
 } from "@/lib/i18n";
 import {
+  ALL_COUNTRIES,
   BASE_URL,
   isIndexable,
 } from "@/lib/constants";
@@ -139,15 +141,31 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * The middleware 308s every path without a known /{country}/{locale}/ prefix,
+ * except paths containing a dot, which it passes through as possible static
+ * files. The ones that are not files (/.well-known/security.txt,
+ * /in/logo.png) land here with the dotted segment as `country` or `locale`,
+ * and used to render the homepage as a 200 — which is how
+ * /.well-known/ai-catalog.json served HTML to Lighthouse. Answer 404 instead.
+ */
+function resolveLocale(country: string, rawLocale: string): Locale {
+  if (
+    !(ALL_COUNTRIES as readonly string[]).includes(country) ||
+    !LOCALE_CODES.includes(rawLocale as Locale)
+  ) {
+    notFound();
+  }
+  return rawLocale as Locale;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ country: string; locale: string }>;
 }): Promise<Metadata> {
   const { country, locale: rawLocale } = await params;
-  const locale = (LOCALE_CODES.includes(rawLocale as Locale)
-    ? (rawLocale as Locale)
-    : "en") as Locale;
+  const locale = resolveLocale(country, rawLocale);
   const t = getTranslation(locale);
 
   // Hreflang + canonical fallback for the locale layout. Child pages
@@ -214,9 +232,7 @@ export default async function LocaleLayout({
   params: Promise<{ country: string; locale: string }>;
 }) {
   const { country, locale: rawLocale } = await params;
-  const locale = (LOCALE_CODES.includes(rawLocale as Locale)
-    ? (rawLocale as Locale)
-    : "en") as Locale;
+  const locale = resolveLocale(country, rawLocale);
   const t = getTranslation(locale);
   const meta = LOCALES[locale];
 
