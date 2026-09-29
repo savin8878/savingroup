@@ -20,8 +20,9 @@ import type { SitemapEntry } from "@/lib/sitemap-xml";
  *   /{country}/sitemap.xml    every indexable URL under /{country}/, all locales
  *
  * Countries and locales come from `constants.ts`, the same sets that decide
- * each page's robots directive and hreflang cluster, so a URL is listed here
- * exactly when the page it points at says `index, follow`.
+ * each page's robots directive, so a URL is listed here exactly when the page
+ * it points at says `index, follow`. That is every ISO country; only the
+ * HREFLANG_COUNTRIES markets also carry an hreflang cluster.
  *
  * If a country ever nears MAX_URLS_PER_SITEMAP, keep /{country}/sitemap.xml as
  * a sitemap index over per-section children built from the `section` field.

@@ -24,20 +24,62 @@ export const RESOLVABLE_COUNTRIES = [
 ] as const;
 
 /**
+ * Every ISO 3166-1 alpha-2 code the router accepts as `/{country}/`. The
+ * middleware passes `/{code}/{locale}/...` through for each of these, so every
+ * one renders a page (countries outside RESOLVABLE_COUNTRIES get the generic,
+ * non-market-specific content blocks).
+ */
+export const ALL_COUNTRIES = [
+  "ad", "ae", "af", "ag", "ai", "al", "am", "ao", "ar", "as", "at", "au", "aw", "ax", "az",
+  "ba", "bb", "bd", "be", "bf", "bg", "bh", "bi", "bj", "bl", "bm", "bn", "bo", "bq", "br",
+  "bs", "bt", "bv", "bw", "by", "bz", "ca", "cc", "cd", "cf", "cg", "ch", "ci", "ck", "cl",
+  "cm", "cn", "co", "cr", "cu", "cv", "cw", "cx", "cy", "cz", "de", "dj", "dk", "dm", "do",
+  "dz", "ec", "ee", "eg", "eh", "er", "es", "et", "fi", "fj", "fk", "fm", "fo", "fr", "ga",
+  "gb", "gd", "ge", "gf", "gg", "gh", "gi", "gl", "gm", "gn", "gp", "gq", "gr", "gt", "gu",
+  "gw", "gy", "hk", "hm", "hn", "hr", "ht", "hu", "id", "ie", "il", "im", "in", "io", "iq",
+  "ir", "is", "it", "je", "jm", "jo", "jp", "ke", "kg", "kh", "ki", "km", "kn", "kp", "kr",
+  "kw", "ky", "kz", "la", "lb", "lc", "li", "lk", "lr", "ls", "lt", "lu", "lv", "ly", "ma",
+  "mc", "md", "me", "mf", "mg", "mh", "mk", "ml", "mm", "mn", "mo", "mp", "mq", "mr", "ms",
+  "mt", "mu", "mv", "mw", "mx", "my", "mz", "na", "nc", "ne", "nf", "ng", "ni", "nl", "no",
+  "np", "nr", "nu", "nz", "om", "pa", "pe", "pf", "pg", "ph", "pk", "pl", "pm", "pn", "pr",
+  "ps", "pt", "pw", "py", "qa", "re", "ro", "rs", "ru", "rw", "sa", "sb", "sc", "sd", "se",
+  "sg", "sh", "si", "sj", "sk", "sl", "sm", "sn", "so", "sr", "ss", "st", "sv", "sx", "sy",
+  "sz", "tc", "td", "tf", "tg", "th", "tj", "tk", "tl", "tm", "tn", "to", "tr", "tt", "tv",
+  "tz", "ua", "ug", "um", "us", "uy", "uz", "va", "vc", "ve", "vg", "vi", "vn", "vu", "wf",
+  "ws", "ye", "yt", "za", "zm", "zw",
+] as const;
+
+/**
  * Countries we want Google to actually INDEX. Every country here gets:
  *   - an entry in the sitemap index
  *   - a per-country sitemap.xml
  *   - `index,follow` robots metadata on every page
  *
- * Opened to the full resolvable set on 2026-09-09 (previously `["in"]`). Every
- * market the site can render is now indexed, so this deliberately tracks
- * RESOLVABLE_COUNTRIES — adding a country there makes it indexable too.
+ * Opened to the full resolvable set on 2026-09-09 (previously `["in"]`), and
+ * to every country in ALL_COUNTRIES on 2026-09-29, when the sitemap index
+ * went back to listing every ISO code as it did Feb–Apr 2026. The resolvable
+ * markets come first so they lead the sitemap index; the rest follow in
+ * ALL_COUNTRIES order.
  *
- * The .in TLD still pins the site to India in Google's eyes, so the non-IN
- * markets depend on the per-country hreflang cluster built in `buildAlternates`
- * (seo.ts) to keep Google from folding them back into /in/.
+ * The .in TLD still pins the site to India in Google's eyes. Only the
+ * HREFLANG_COUNTRIES markets are held apart from /in/ by an hreflang cluster;
+ * the others are indexable with a self-canonical and no cluster, so Google
+ * decides for itself whether they are duplicates of /in/.
  */
-export const INDEXABLE_COUNTRIES = RESOLVABLE_COUNTRIES;
+export const INDEXABLE_COUNTRIES: readonly (typeof ALL_COUNTRIES)[number][] = [
+  ...RESOLVABLE_COUNTRIES,
+  ...ALL_COUNTRIES.filter((c) => !(RESOLVABLE_COUNTRIES as readonly string[]).includes(c)),
+];
+
+/**
+ * Countries in the hreflang cluster that `buildAlternates` (seo.ts) emits.
+ * Every member page lists every other member for every indexable locale, so
+ * the tag count is |HREFLANG_COUNTRIES| x |INDEXABLE_LOCALES| per page — 96
+ * today. Spanning all of INDEXABLE_COUNTRIES would put ~2,000 alternate tags
+ * in every page's <head>, so the cluster stays on the markets with real
+ * country-specific content.
+ */
+export const HREFLANG_COUNTRIES = RESOLVABLE_COUNTRIES;
 
 /**
  * Locales the site can RESOLVE. Adding a new language = add it here AND in
@@ -105,11 +147,16 @@ export function isIndexableLocale(
 
 /**
  * Combined check — index only when BOTH country and locale are indexable.
- * A page at /us/en/* is noindex (US not indexable) even though en is.
- * A page at /in/zh/* is noindex (zh not indexable) even though in is.
+ * Both sets are currently the full resolvable/ISO sets, so this is false only
+ * for codes the router does not know (e.g. /zz/en or /in/xx).
  */
 export function isIndexable(country: string, locale: string): boolean {
   return isIndexableCountry(country) && isIndexableLocale(locale);
+}
+
+/** Is this country a member of the hreflang cluster? See HREFLANG_COUNTRIES. */
+export function isHreflangCountry(code: string): boolean {
+  return (HREFLANG_COUNTRIES as readonly string[]).includes(code.toLowerCase());
 }
 
 /** Resolvable check — does this country render at all? */

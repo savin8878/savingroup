@@ -5,7 +5,7 @@ import { BASE_URL } from "@/lib/constants";
  * Site robots policy.
  *
  *  - Allow the entire public tree. Every country × locale combination in
- *    RESOLVABLE_COUNTRIES × RESOLVABLE_LOCALES is indexable (see
+ *    INDEXABLE_COUNTRIES × INDEXABLE_LOCALES is indexable (see
  *    `constants.ts`), so every one of them must be crawlable.
  *  - Disallow `/api/` only. `/_next/` must NOT be disallowed: every stylesheet
  *    and every JS chunk the pages load lives under `/_next/static/`, and

@@ -180,9 +180,8 @@ export async function generateMetadata({
       description: t.seo.description,
     },
     // Every country x locale in INDEXABLE_COUNTRIES x INDEXABLE_LOCALES is
-    // indexed. Both sets currently track their RESOLVABLE_* counterparts, so
-    // that is all 12 markets x 8 locales. Anything outside those sets still
-    // resolves but ships `noindex,follow`.
+    // indexed: every ISO country x all 8 locales. Anything outside those sets
+    // (only unknown codes) still resolves but ships `noindex,follow`.
     //
     // This is the indexability lever. Widening it is cheap; what makes the
     // widened surface hold up is content parity — see the note on

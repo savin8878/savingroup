@@ -56,7 +56,7 @@ export async function load(url, context, next) {
 const { SITE_ORIGIN, localizedPath, normalizePublicUrl } = await import("../src/lib/public-url.ts");
 const xml = await import("../src/lib/sitemap-xml.ts");
 const sitemap = await import("../src/lib/sitemap.ts");
-const { INDEXABLE_COUNTRIES, INDEXABLE_LOCALES, isIndexable } = await import("../src/lib/constants.ts");
+const { ALL_COUNTRIES, HREFLANG_COUNTRIES, INDEXABLE_COUNTRIES, INDEXABLE_LOCALES, isIndexable } = await import("../src/lib/constants.ts");
 const { getCityBySlug } = await import("../src/lib/cities.ts");
 const { buildAlternates, buildCityAlternates } = await import("../src/lib/seo.ts");
 const { checkXml, extractEntries, urlProblems } = await import("./validate-sitemaps.mjs");
@@ -170,15 +170,19 @@ test("index lists one sitemap per indexable country and nothing else", () => {
     const newest = sitemap.buildCountrySitemap(cc, CONTENT).map((u) => u.lastmod).filter(Boolean).sort().pop();
     assert.equal(entry.lastmod, newest, cc);
   }
+  assert.equal(index.length, ALL_COUNTRIES.length, "one sitemap per ISO country");
+  assert.equal(index[0].loc, `${SITE_ORIGIN}/in/sitemap.xml`, "India leads the index");
   assert.equal(sitemap.isSitemapCountry("in"), true);
+  assert.equal(sitemap.isSitemapCountry("cv"), true, "non-target countries get a sitemap too");
   assert.equal(sitemap.isSitemapCountry("IN"), false, "uppercase variants are not served");
-  assert.equal(sitemap.isSitemapCountry("cn"), false, "noindex markets get no sitemap");
+  assert.equal(sitemap.isSitemapCountry("zz"), false, "unknown codes get no sitemap");
   assert.equal(sitemap.SITEMAP_INDEX_URL, `${SITE_ORIGIN}/sitemap-index.xml`);
 });
 
 test("every sitemap URL is the canonical its page declares, inside its hreflang cluster", () => {
   let checked = 0;
   for (const country of INDEXABLE_COUNTRIES) {
+    const inCluster = HREFLANG_COUNTRIES.includes(country);
     const locs = new Set(sitemap.buildCountrySitemap(country, CONTENT).map((u) => u.loc));
     for (const route of sitemap.getIndexableRoutes(CONTENT)) {
       for (const locale of route.locales ?? INDEXABLE_LOCALES) {
@@ -188,14 +192,21 @@ test("every sitemap URL is the canonical its page declares, inside its hreflang 
           : buildAlternates({ country, locale, subPath: route.path });
         const canonical = SITE_ORIGIN + alt.canonical;
         assert.ok(locs.has(canonical), `${canonical} missing from /${country}/sitemap.xml`);
-        assert.equal(alt.languages?.[`${locale}-${country.toUpperCase()}`], canonical, `${canonical} not in its own hreflang cluster`);
-        assert.ok(alt.languages?.["x-default"]?.startsWith(`${SITE_ORIGIN}/in/en`));
+        if (inCluster) {
+          assert.equal(alt.languages?.[`${locale}-${country.toUpperCase()}`], canonical, `${canonical} not in its own hreflang cluster`);
+          assert.ok(alt.languages?.["x-default"]?.startsWith(`${SITE_ORIGIN}/in/en`));
+        } else {
+          assert.equal(alt.languages, undefined, `${canonical} is outside the cluster and must not declare one`);
+        }
         checked++;
       }
     }
   }
   assert.ok(checked > 1000, `checked ${checked}`);
 
-  const noindex = buildAlternates({ country: "cn", locale: "en", subPath: "services" });
-  assert.deepEqual(noindex, { canonical: "/cn/en/services" }, "noindex pages declare no cluster");
+  const cluster = buildAlternates({ country: "in", locale: "en", subPath: "services" }).languages;
+  assert.equal(Object.keys(cluster).length, HREFLANG_COUNTRIES.length * INDEXABLE_LOCALES.length + 1, "cluster size stays bounded");
+  assert.ok(!Object.keys(cluster).includes("en-CV"), "non-target countries stay out of the cluster");
+  const noindex = buildAlternates({ country: "zz", locale: "en", subPath: "services" });
+  assert.deepEqual(noindex, { canonical: "/zz/en/services" }, "noindex pages declare no cluster");
 });

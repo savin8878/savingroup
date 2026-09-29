@@ -8,9 +8,10 @@ import {
 } from "@/lib/i18n";
 import {
   BASE_URL,
-  INDEXABLE_COUNTRIES,
+  HREFLANG_COUNTRIES,
   INDEXABLE_LOCALES,
   SOCIAL_PROFILES,
+  isHreflangCountry,
   isIndexable,
 } from "@/lib/constants";
 import { validCountryISOs } from "@/middleware";
@@ -46,14 +47,15 @@ type AlternatesShape = {
  * Standard hreflang + canonical for pages whose indexable surface is the
  * site-wide one (INDEXABLE_COUNTRIES × INDEXABLE_LOCALES).
  *
- * - When the requested URL is INDEXABLE: emit a self-canonical and a
- *   languages map listing each indexable locale variant of THIS page,
- *   keyed by the locale's `hreflang` (region-tagged where applicable),
- *   plus an `x-default` pointing at the EN variant.
- * - When the requested URL is NOINDEX (e.g. /us/en/services or /in/zh/...):
- *   emit a self-canonical and OMIT the languages map. The page is not a
- *   cluster member — including hreflangs from it would have Google try to
- *   form a cluster keyed off a noindex page, which it then discards.
+ * - When the requested URL is INDEXABLE and its country is in
+ *   HREFLANG_COUNTRIES: emit a self-canonical and a languages map listing
+ *   each hreflang-market x indexable-locale variant of THIS page, keyed
+ *   region-tagged (`en-IN`), plus an `x-default` pointing at /in/en.
+ * - When the requested URL is indexable but outside the cluster (e.g.
+ *   /cv/en/services), or NOINDEX: emit a self-canonical and OMIT the
+ *   languages map. The page is not a cluster member — including hreflangs
+ *   from it would declare a set the member pages never point back to,
+ *   which Google discards.
  *
  * `subPath` is the part AFTER `/in/{locale}/` — pass `""` for the homepage,
  * `"services"` for the services page, `"industries/manufacturing"` for an
@@ -70,18 +72,21 @@ export function buildAlternates({
 }): AlternatesShape {
   const canonical = localizedPath({ country, locale, pathname: subPath });
 
-  if (!isIndexable(country, locale)) {
+  // Indexable countries outside the cluster (/cv/, /za/, ...) get a bare
+  // self-canonical too: listing the cluster from a page that is not in it is
+  // a non-reciprocal set, which Google discards.
+  if (!isIndexable(country, locale) || !isHreflangCountry(country)) {
     return { canonical };
   }
 
-  // The cluster spans every indexable country x locale pair. Each member is
-  // region-tagged (`en-IN`, `en-US`, ...) and the map is identical on every
-  // member page, so each URL self-references — which is what Google requires
-  // for an hreflang cluster to be honoured. Emitting a single `/in/` entry
-  // from all markets (the pre-2026-09-09 behaviour) would have Google fold
-  // the non-IN variants back into /in/ instead of indexing them.
+  // The cluster spans every HREFLANG_COUNTRIES x indexable locale pair. Each
+  // member is region-tagged (`en-IN`, `en-US`, ...) and the map is identical
+  // on every member page, so each URL self-references — which is what Google
+  // requires for an hreflang cluster to be honoured. Emitting a single `/in/`
+  // entry from all markets (the pre-2026-09-09 behaviour) would have Google
+  // fold the non-IN variants back into /in/ instead of indexing them.
   const languages: Record<string, string> = {};
-  for (const c of INDEXABLE_COUNTRIES) {
+  for (const c of HREFLANG_COUNTRIES) {
     for (const lang of INDEXABLE_LOCALES) {
       languages[`${lang}-${c.toUpperCase()}`] =
         normalizePublicUrl({ country: c, locale: lang, pathname: subPath });
@@ -115,16 +120,16 @@ export function buildCityAlternates({
   const fullSub = `cities/${cityPath}`;
   const canonical = localizedPath({ country, locale, pathname: fullSub });
 
-  if (!isCityIndexable(city, country, locale)) {
+  if (!isCityIndexable(city, country, locale) || !isHreflangCountry(country)) {
     return { canonical };
   }
 
   // Same country x locale cluster as `buildAlternates` — city pages are no
-  // longer /in/-only, so the cluster must span every indexable market or the
+  // longer /in/-only, so the cluster must span every hreflang market or the
   // non-IN variants advertise a cluster they aren't a member of.
   const cityLocales = getCityIndexableLocales(city);
   const languages: Record<string, string> = {};
-  for (const c of INDEXABLE_COUNTRIES) {
+  for (const c of HREFLANG_COUNTRIES) {
     for (const lang of cityLocales) {
       languages[`${lang}-${c.toUpperCase()}`] =
         normalizePublicUrl({ country: c, locale: lang, pathname: fullSub });
@@ -390,8 +395,8 @@ export async function buildPageMetadata({
       images: [`${BASE_URL}/og.png`],
     },
     // Every country x locale in INDEXABLE_COUNTRIES x INDEXABLE_LOCALES is
-    // indexed; anything outside still renders but ships `noindex,follow`.
-    // See constants.ts for what the two sets currently contain.
+    // indexed; anything outside (only unknown codes today) ships
+    // `noindex,follow`. See constants.ts for what the two sets contain.
     robots: isIndexable(country, locale)
       ? {
           index: true,
