@@ -48,13 +48,20 @@ export interface SitemapContent {
 }
 
 /**
- * Both reads throw on failure (see `getAllBlogPosts`). The sitemap routes let
- * that propagate: a build fails loudly, and a failed regeneration keeps the
- * last good sitemap instead of publishing one without the posts.
+ * Build the sitemap data once per process and reuse it across every country
+ * route. Each country route does not need to re-hit the blog/news tables, and
+ * doing so in a large static build can make the route exceed Next's 60s
+ * worker timeout.
  */
+let sitemapContentPromise: Promise<SitemapContent> | undefined;
+
 export async function loadSitemapContent(): Promise<SitemapContent> {
-  const [blogPosts, newsPosts] = await Promise.all([getAllBlogPosts(), getAllNewsPosts()]);
-  return { blogPosts, newsPosts };
+  sitemapContentPromise ??= (async () => {
+    const [blogPosts, newsPosts] = await Promise.all([getAllBlogPosts(), getAllNewsPosts()]);
+    return { blogPosts, newsPosts };
+  })();
+
+  return sitemapContentPromise;
 }
 
 /** One indexable page, before it is multiplied out across locales. */

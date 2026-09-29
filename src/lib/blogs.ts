@@ -349,18 +349,27 @@ export function getDb(): postgres.Sql {
 const fetchPublishedPosts = unstable_cache(
   async (): Promise<BlogPost[]> => {
     const sql = getDb();
-    const rows = await sql<BlogPostRow[]>`
-      select slug, title, subtitle, excerpt, category, read_time,
-             published_at::text as published_at,
-             updated_at::text   as updated_at,
-             author, hero_sketch, keywords, takeaways, sections, tags,
-             related_slugs, cross_page_links, faq, featured,
-             popularity_score, translations
-      from public.blog_posts
-      where published = true
-      order by sort_order, slug
-    `;
-    return rows.map(rowToPost).filter((p): p is BlogPost => p !== null);
+    try {
+      const rows = await sql<BlogPostRow[]>`
+        select slug, title, subtitle, excerpt, category, read_time,
+               published_at::text as published_at,
+               updated_at::text   as updated_at,
+               author, hero_sketch, keywords, takeaways, sections, tags,
+               related_slugs, cross_page_links, faq, featured,
+               popularity_score, translations
+        from public.blog_posts
+        where published = true
+        order by sort_order, slug
+      `;
+      return rows.map(rowToPost).filter((p): p is BlogPost => p !== null);
+    } catch (error) {
+      const code = (error as { code?: string } | null)?.code;
+      if (code === "42P01") {
+        console.warn("[blogs] public.blog_posts does not exist yet — create supabase/schema.sql to enable blog pages");
+        return [];
+      }
+      throw error;
+    }
   },
   ["blog-posts"],
   { revalidate: BLOG_REVALIDATE_SECONDS, tags: [BLOG_CACHE_TAG] }
