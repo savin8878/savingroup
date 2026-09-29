@@ -19,10 +19,15 @@
 // stay text), raw HTML (stays text), images (the alt text stays text).
 //
 // Links are an allow-list (see safeHref): root-relative site paths,
-// https://www.savingroup.in, https://wa.me and mailto:. Anything else, such as
-// javascript:, data:, "//host" or another domain, renders as its text only,
-// so neither the model nor text it quotes can put a clickable off-site or
-// script URL in front of a visitor.
+// https://www.savingroup.in, and WhatsApp / mailto links ONLY to Savin's own
+// published number and address (passed in as `allowed`; without it no wa.me
+// or mailto link is produced at all). Anything else, such as javascript:,
+// data:, "//host", another domain, another WhatsApp number or another email
+// recipient, renders as its text only, so neither the model nor text it
+// quotes (a pasted supplier email, say) can put a clickable off-site, script
+// or look-alike "contact Savin" destination in front of a visitor. A link
+// whose label reads as a URL, email or phone number must also name the same
+// target as its href, so the label cannot disguise where it goes.
 //
 // Pure: loaded by scripts/operator-client.test.mjs under type stripping.
 
@@ -48,23 +53,78 @@ export type Block =
 /* -------------------------------------------------------------------------- */
 
 /**
+ * Savin's own published channels (t.contact.details), the only WhatsApp and
+ * email destinations a reply may link to. The model never needs to write
+ * such links (the brief card and the error fallback build theirs from server
+ * data), so anything else here is a typo or an injected look-alike.
+ */
+export interface AllowedChannels {
+  /** The published phone number's digits, country code included ("918305838352"). */
+  whatsappDigits: string;
+  email: string;
+}
+
+/** wa.me/<digits>, optionally with a prefilled ?text= and nothing else. */
+const WA_ME = /^https:\/\/wa\.me\/(\d{6,15})\/?(?:\?text=[^#&]*)?$/i;
+
+/**
  * The href to render, or null when the target is not allowed.
  *
  * Whitespace, control characters and backslashes are refused outright:
  * browsers strip tabs/newlines from URLs and treat "\" like "/", so
  * "/\evil.com" or "/\t/evil.com" would otherwise become the protocol-relative
  * "//evil.com" after passing a naive prefix check.
+ *
+ * wa.me and mailto: fail closed: without `allowed`, or for any other number,
+ * recipient, extra recipient or header (?cc=, ?bcc=, ?subject=), null.
  */
-export function safeHref(raw: string): string | null {
+export function safeHref(raw: string, allowed?: AllowedChannels): string | null {
   const href = raw.trim();
   if (!href || href.length > 2048) return null;
   if (/[\s\\<>"'`\u0000-\u001f\u007f]/.test(href)) return null;
   if (href.startsWith("/")) return href.startsWith("//") ? null : href;
   const lower = href.toLowerCase();
   if (lower === "https://www.savingroup.in" || lower.startsWith("https://www.savingroup.in/")) return href;
-  if (lower.startsWith("https://wa.me/")) return href;
-  if (lower.startsWith("mailto:") && href.length > "mailto:".length) return href;
+  if (lower.startsWith("https://wa.me/")) {
+    const digits = WA_ME.exec(href)?.[1];
+    return digits && allowed?.whatsappDigits && digits === allowed.whatsappDigits ? href : null;
+  }
+  if (lower.startsWith("mailto:")) {
+    const address = href.slice("mailto:".length);
+    return address && isAllowedEmail(address, allowed) ? href : null;
+  }
   return null;
+}
+
+function isAllowedEmail(address: string, allowed: AllowedChannels | undefined): boolean {
+  const own = allowed?.email.trim().toLowerCase();
+  return Boolean(own) && !address.includes("?") && address.toLowerCase() === own;
+}
+
+const LABEL_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LABEL_URL = /^(?:[a-z][a-z0-9+.-]*:\/\/|www\.)/i;
+const LABEL_PHONE = /^\+?[\d\s().-]+$/;
+
+/** Scheme, "www." and trailing slashes aside, the same address. */
+function sameUrl(label: string, href: string): boolean {
+  const norm = (url: string) => url.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/+$/, "");
+  const target = href.startsWith("/") ? `savingroup.in${href}` : href;
+  return norm(label) === norm(target);
+}
+
+/**
+ * A label that itself reads as a destination (a URL, an email, a phone
+ * number) must name the href's own target; any other label is free text.
+ * Stops "[+91 83058 38352](https://wa.me/<someone else>)" style disguises
+ * even between allowed targets.
+ */
+function labelFits(label: string, href: string): boolean {
+  const text = label.trim();
+  if (LABEL_EMAIL.test(text)) return href.toLowerCase() === `mailto:${text.toLowerCase()}`;
+  if (LABEL_URL.test(text)) return sameUrl(text, href);
+  const digits = text.replace(/\D/g, "");
+  if (LABEL_PHONE.test(text) && digits.length >= 7) return WA_ME.exec(href)?.[1] === digits;
+  return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -181,7 +241,7 @@ function matchLink(src: string, at: number): LinkMatch | null {
  * Parse one block's worth of inline markup. `links` is false inside a link
  * label so a label can never contain a second (nested) link.
  */
-function inline(src: string, depth: number, links: boolean): Inline[] {
+function inline(src: string, depth: number, links: boolean, allowed: AllowedChannels | undefined): Inline[] {
   const out: Inline[] = [];
   let text = "";
   const flush = () => {
@@ -256,9 +316,9 @@ function inline(src: string, depth: number, links: boolean): Inline[] {
       const link = matchLink(src, i);
       if (link) {
         flush();
-        const children = inline(link.label, depth + 1, false);
-        const href = safeHref(link.href);
-        if (href && children.length) out.push({ type: "link", href, children });
+        const children = inline(link.label, depth + 1, false, allowed);
+        const href = safeHref(link.href, allowed);
+        if (href && children.length && labelFits(inlineText(children), href)) out.push({ type: "link", href, children });
         else pushAll(out, children);
         i = link.end;
         continue;
@@ -279,7 +339,7 @@ function inline(src: string, depth: number, links: boolean): Inline[] {
         const close = findCloser(src, from, ch, want);
         if (close === -1) noCloser.add(key);
         else {
-          const children = inline(src.slice(from, close), depth + 1, links);
+          const children = inline(src.slice(from, close), depth + 1, links, allowed);
           if (children.length) {
             flush();
             out.push(want === 2 ? { type: "strong", children } : { type: "em", children });
@@ -300,7 +360,7 @@ function inline(src: string, depth: number, links: boolean): Inline[] {
       const match = URL_START.exec(src);
       if (match) {
         const url = match[0].replace(URL_TRAILING, "");
-        const href = safeHref(url);
+        const href = safeHref(url, allowed);
         if (href) {
           flush();
           out.push({ type: "link", href, children: [{ type: "text", text: url }] });
@@ -314,8 +374,14 @@ function inline(src: string, depth: number, links: boolean): Inline[] {
       EMAIL.lastIndex = i;
       const match = EMAIL.exec(src);
       if (match) {
-        flush();
-        out.push({ type: "link", href: `mailto:${match[0]}`, children: [{ type: "text", text: match[0] }] });
+        // Only Savin's own address becomes a link; any other address (a
+        // supplier's, or a look-alike injected into pasted text) stays text.
+        if (isAllowedEmail(match[0], allowed)) {
+          flush();
+          out.push({ type: "link", href: `mailto:${match[0]}`, children: [{ type: "text", text: match[0] }] });
+        } else {
+          text += match[0];
+        }
         i += match[0].length;
         continue;
       }
@@ -331,8 +397,9 @@ function inline(src: string, depth: number, links: boolean): Inline[] {
   return out;
 }
 
-export function parseInline(src: string): Inline[] {
-  return inline(src, 0, true);
+/** `allowed`: Savin's published channels; without it, no wa.me or mailto link survives. */
+export function parseInline(src: string, allowed?: AllowedChannels): Inline[] {
+  return inline(src, 0, true, allowed);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -385,7 +452,7 @@ function startsBlock(line: string): boolean {
 }
 
 /** Parse a list starting at `lines[at]`; returns the index after it. */
-function parseList(lines: string[], at: number, blocks: Block[]): number {
+function parseList(lines: string[], at: number, blocks: Block[], allowed: AllowedChannels | undefined): number {
   const first = listItem(lines[at]) as ListItem;
   const items: string[][] = [];
   let current = [first.text];
@@ -426,19 +493,20 @@ function parseList(lines: string[], at: number, blocks: Block[]): number {
     type: "list",
     ordered: first.ordered,
     start: first.ordered ? first.number : 1,
-    items: items.map((lines) => parseInline(lines.join("\n"))),
+    items: items.map((lines) => parseInline(lines.join("\n"), allowed)),
   });
   return i;
 }
 
-export function parseMarkdown(source: string): Block[] {
+/** `allowed`: Savin's published channels; without it, no wa.me or mailto link survives. */
+export function parseMarkdown(source: string, allowed?: AllowedChannels): Block[] {
   const lines = source.replace(/\r\n?/g, "\n").split("\n");
   const blocks: Block[] = [];
   let paragraph: string[] = [];
 
   const flushParagraph = () => {
     if (!paragraph.length) return;
-    const children = parseInline(paragraph.join("\n"));
+    const children = parseInline(paragraph.join("\n"), allowed);
     if (children.length) blocks.push({ type: "paragraph", children });
     paragraph = [];
   };
@@ -468,7 +536,7 @@ export function parseMarkdown(source: string): Block[] {
     const heading = HEADING.exec(line);
     if (heading) {
       flushParagraph();
-      const children = parseInline((heading[2] ?? "").trim());
+      const children = parseInline((heading[2] ?? "").trim(), allowed);
       const level = Math.min(heading[1].length, 4) as HeadingLevel;
       if (children.length) blocks.push({ type: "heading", level, children });
       i++;
@@ -491,7 +559,7 @@ export function parseMarkdown(source: string): Block[] {
         body.push(quoted[1]);
         i++;
       }
-      const children = parseInline(body.join("\n").trim());
+      const children = parseInline(body.join("\n").trim(), allowed);
       if (children.length) blocks.push({ type: "quote", children });
       continue;
     }
@@ -499,7 +567,7 @@ export function parseMarkdown(source: string): Block[] {
     const item = listItem(line);
     if (item && item.indent < 4) {
       flushParagraph();
-      i = parseList(lines, i, blocks);
+      i = parseList(lines, i, blocks, allowed);
       continue;
     }
 
@@ -515,12 +583,18 @@ export function parseMarkdown(source: string): Block[] {
 /*                                 Plain text                                 */
 /* -------------------------------------------------------------------------- */
 
-function inlineText(nodes: Inline[]): string {
+/**
+ * The visible text of inline nodes. `code: false` leaves code spans out,
+ * which is what <Markdown> wants when judging a block's language: an ERP
+ * field name in backticks says nothing about the sentence around it.
+ */
+export function inlineText(nodes: Inline[], { code = true }: { code?: boolean } = {}): string {
   let out = "";
   for (const node of nodes) {
-    if (node.type === "text" || node.type === "code") out += node.text;
+    if (node.type === "text") out += node.text;
+    else if (node.type === "code") out += code ? node.text : " ";
     else if (node.type === "br") out += "\n";
-    else out += inlineText(node.children);
+    else out += inlineText(node.children, { code });
   }
   return out;
 }

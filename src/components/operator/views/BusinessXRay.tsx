@@ -16,6 +16,7 @@ import type { Locale } from "@/lib/i18n";
 import type { BusinessXRay as BusinessXRayData } from "@/lib/operator/protocol";
 import { ExportActions } from "./AuditBrief";
 import { fileSlug, levelLabel, xrayToMarkdown } from "./brief-format";
+import { proseBlocks, textAttrs } from "./text-attrs";
 import { getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
 
@@ -43,6 +44,8 @@ export function BusinessXRay({ xray, locale }: BusinessXRayProps) {
   const points = xray.automationPoints.filter((item) => present(item.point));
   const questions = xray.verificationQuestions.filter(present);
   const experiment = xray.firstExperiment;
+  // Every line below is the model's, in whatever language and script the visitor used.
+  const attrs = (text: string) => textAttrs(text, locale);
 
   const section = (n: number, body: ReactNode, empty: boolean) => (
     <div className={s.xsection} key={n}>
@@ -60,13 +63,13 @@ export function BusinessXRay({ xray, locale }: BusinessXRayProps) {
         <div className={s.headTop}>
           <span className={s.eyebrow}>{copy.eyebrows.xray}</span>
         </div>
-        <h3 id={titleId} className={s.title} dir="auto">{xray.title}</h3>
+        <h3 id={titleId} className={s.title} {...attrs(xray.title)}>{xray.title}</h3>
         {facts.length > 0 && (
           <dl className={s.facts} aria-label={x.company}>
             {facts.map((key) => (
               <div key={key}>
                 <dt className={s.micro}>{x.companyFields[key]}</dt>
-                <dd dir="auto">{xray.company[key]}</dd>
+                <dd {...attrs(xray.company[key] as string)}>{xray.company[key]}</dd>
               </div>
             ))}
           </dl>
@@ -75,24 +78,27 @@ export function BusinessXRay({ xray, locale }: BusinessXRayProps) {
 
       {section(1, (
         <ol className={s.xlist} aria-labelledby={sectionId(1)}>
-          {workflow.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">{i + 1}.</span><span dir="auto">{item}</span></li>)}
+          {workflow.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">{i + 1}.</span><span {...attrs(item)}>{item}</span></li>)}
         </ol>
       ), workflow.length === 0)}
 
       {section(2, (
         <ul className={s.xlist} aria-labelledby={sectionId(2)}>
-          {systems.map((system, i) => (
-            <li key={i}>
-              <span className={s.xnum} aria-hidden="true">—</span>
-              <span dir="auto"><strong>{system.name}</strong>{present(system.role) ? ` — ${system.role}` : ""}</span>
-            </li>
-          ))}
+          {systems.map((system, i) => {
+            const role = present(system.role) ? ` — ${system.role}` : "";
+            return (
+              <li key={i}>
+                <span className={s.xnum} aria-hidden="true">—</span>
+                <span {...attrs(system.name + role)}><strong>{system.name}</strong>{role}</span>
+              </li>
+            );
+          })}
         </ul>
       ), systems.length === 0)}
 
       {section(3, (
         <ul className={s.xlist} aria-labelledby={sectionId(3)}>
-          {handoffs.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">—</span><span dir="auto">{item}</span></li>)}
+          {handoffs.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">—</span><span {...attrs(item)}>{item}</span></li>)}
         </ul>
       ), handoffs.length === 0)}
 
@@ -102,7 +108,7 @@ export function BusinessXRay({ xray, locale }: BusinessXRayProps) {
             {friction.map((item, i) => (
               <li key={i} data-evidence={item.evidence}>
                 <span className={`${s.tag} ${s.evidence}`} data-evidence={item.evidence}>{item.evidence === "stated" ? x.stated : x.inferred}</span>
-                <span dir="auto">{item.issue}</span>
+                <span {...attrs(item.issue)}>{item.issue}</span>
               </li>
             ))}
           </ul>
@@ -117,28 +123,35 @@ export function BusinessXRay({ xray, locale }: BusinessXRayProps) {
         <ul className={s.points} aria-labelledby={sectionId(5)}>
           {points.map((item, i) => (
             <li key={i}>
-              <span dir="auto">{item.point}</span>
+              <span {...attrs(item.point)}>{item.point}</span>
               <span className={s.level} data-level={item.level}>{levelLabel(item.level, x)}</span>
-              {present(item.approach) && <p dir="auto">{item.approach}</p>}
+              {present(item.approach) && <p {...attrs(item.approach)}>{item.approach}</p>}
             </li>
           ))}
         </ul>
       ), points.length === 0)}
 
-      {section(6, <p className={s.prose} dir="auto">{xray.connectedArchitecture.trim()}</p>, !present(xray.connectedArchitecture))}
+      {/* Line by line: the model may put an English line (a system name, a flow) inside an Arabic answer. */}
+      {section(6, (
+        <div className={s.prose}>
+          {proseBlocks(xray.connectedArchitecture).map((lines, i) => (
+            <p key={i}>{lines.map((line, j) => <span key={j} {...attrs(line)}>{line}</span>)}</p>
+          ))}
+        </div>
+      ), !present(xray.connectedArchitecture))}
 
       {section(7, (
         <ol className={s.xlist} aria-labelledby={sectionId(7)}>
-          {questions.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">{i + 1}.</span><span dir="auto">{item}</span></li>)}
+          {questions.map((item, i) => <li key={i}><span className={s.xnum} aria-hidden="true">{i + 1}.</span><span {...attrs(item)}>{item}</span></li>)}
         </ol>
       ), questions.length === 0)}
 
       {section(8, (
         <div className={s.experiment}>
-          <strong dir="auto">{experiment.name}</strong>
+          <strong {...attrs(experiment.name)}>{experiment.name}</strong>
           <dl>
-            {present(experiment.scope) && <div><dt className={s.micro}>{x.scope}</dt><dd dir="auto">{experiment.scope}</dd></div>}
-            {present(experiment.successMeasure) && <div><dt className={s.micro}>{x.successMeasure}</dt><dd dir="auto">{experiment.successMeasure}</dd></div>}
+            {present(experiment.scope) && <div><dt className={s.micro}>{x.scope}</dt><dd {...attrs(experiment.scope)}>{experiment.scope}</dd></div>}
+            {present(experiment.successMeasure) && <div><dt className={s.micro}>{x.successMeasure}</dt><dd {...attrs(experiment.successMeasure)}>{experiment.successMeasure}</dd></div>}
           </dl>
         </div>
       ), !present(experiment.name))}

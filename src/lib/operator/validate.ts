@@ -35,6 +35,7 @@ import type {
   GraphNode,
   GraphNodeKind,
   ImpactActivity,
+  ImpactField,
   ImpactInput,
   KnowledgeKind,
   KnowledgeSource,
@@ -45,7 +46,7 @@ import type {
   ValueSource,
   WorkflowGraph,
 } from "./protocol";
-import { computeImpact } from "./impact";
+import { IMPACT_FIELDS, computeImpact } from "./impact";
 import { CONTACT_CHANNELS, getKnowledgeRecord, toKnowledgeSource } from "./knowledge";
 
 export type Validation<T> = { ok: true; value: T } | { ok: false; error: string };
@@ -68,6 +69,8 @@ export const SIM_STEP_KINDS: readonly SimStepKind[] = [
   "event", "check", "decision", "approval", "action", "alert", "record",
 ];
 export const VALUE_SOURCES: readonly ValueSource[] = ["visitor", "assumption"];
+/** IMPACT_FIELDS (impact.ts) as tool input spells them, in the same order. */
+export const IMPACT_TOOL_FIELDS = ["people", "minutes_per_occurrence", "occurrences"] as const;
 export const EVIDENCE_KINDS: readonly Evidence[] = ["stated", "inferred"];
 export const CAPABILITY_IDS: readonly CapabilityId[] = [
   "ai", "automation", "erp", "industrial", "software", "integrations", "data", "platforms",
@@ -103,12 +106,23 @@ export const INPUT_LIMITS = {
     hourlyCost: { max: 1_000_000 },
     currency: 5,
   },
-  xray: { maxItems: 12, text: 400 },
+  // The X-Ray and the brief are the largest tool inputs, and a tool round has
+  // to fit the route's time budget (config.ts) including the thinking before
+  // it. Lists and prose past these caps are cut, never rejected.
+  xray: { maxItems: 8, text: 300 },
   brief: {
-    maxItems: 12, item: 200, short: 120, prose: 600, summary: 1000,
+    maxItems: 8, item: 200, short: 120, prose: 500, summary: 800,
     contactName: 80, email: 254, phone: 24, urgency: 200,
   },
 } as const;
+
+/**
+ * Most minutes one person can plausibly spend on one activity per period (16
+ * working hours a day). Catches the common slip of a TOTAL volume sent as
+ * the per-person `occurrences`, which the arithmetic would otherwise turn
+ * into a precise-looking, impossible estimate.
+ */
+const PERSON_MINUTES_CAP = { day: 16 * 60, week: 7 * 16 * 60, month: 31 * 16 * 60 } as const;
 
 /* -------------------------------------------------------------------------- */
 /*                                   Guards                                   */
@@ -395,10 +409,17 @@ function simulationFrom(raw: unknown, style: Style): Simulation {
 
     // The persona's hard rule, enforced rather than requested: nothing
     // financial, contractual, production, safety-critical or destructive
-    // happens in a simulation without a human approval before it.
+    // happens in a simulation without a HUMAN approval before it. An
+    // approval by an AI agent or a system is not one, and the panel labels
+    // every approval step "Human approval", so it is rejected outright.
+    if (out.kind === "approval" && out.actorKind !== "person") {
+      fail(`Step ${i + 1} is an approval; approvals must be performed by a person (${actorKindKey} "person").`);
+    }
     const consequential = readBoolean(step.consequential, `${path}.consequential`);
     if (consequential) {
-      if (!approvalSeen) fail(`Step ${i + 1} is consequential; add a human approval step before it.`);
+      if (!approvalSeen) {
+        fail(`Step ${i + 1} is consequential; add an approval step performed by a person (${actorKindKey} "person") before it.`);
+      }
       out.consequential = true;
     }
     if (out.kind === "approval") approvalSeen = true;
@@ -424,6 +445,38 @@ function simulationFrom(raw: unknown, style: Style): Simulation {
 /*                                   Impact                                   */
 /* -------------------------------------------------------------------------- */
 
+/** "minutes_per_occurrence", "minutesPerOccurrence" and "MINUTES_PER_OCCURRENCE" all name the same field. */
+const IMPACT_FIELD_BY_NAME = new Map<string, ImpactField>(
+  IMPACT_FIELDS.map((name) => [name.toLowerCase(), name] as [string, ImpactField]),
+);
+
+/**
+ * Which of an activity's three numbers were assumed. Input that predates the
+ * per-number flags (a single `source` for all three, as older transcripts in
+ * sessionStorage carry) is read conservatively: "assumption" marks all
+ * three, "visitor" none.
+ */
+function readAssumed(activity: Record<string, unknown>, path: string): ImpactField[] {
+  const raw = activity.assumed;
+  if (isAbsent(raw)) {
+    if (!isAbsent(activity.source)) {
+      return readSource(activity.source, `${path}.source`) === "assumption" ? [...IMPACT_FIELDS] : [];
+    }
+    fail(
+      `${path}.assumed is required: list which of ${IMPACT_TOOL_FIELDS.join(", ")} the visitor did not state, or [] if they stated all three.`,
+    );
+  }
+  // Eager input streaming can deliver a one-item list as a bare string.
+  const list = typeof raw === "string" ? [raw] : readList(raw, `${path}.assumed`, { min: 0, max: 8, truncate: true });
+  const assumed = new Set<ImpactField>();
+  list.forEach((item, j) => {
+    const name = typeof item === "string" ? IMPACT_FIELD_BY_NAME.get(item.trim().toLowerCase().replace(/_/g, "")) : undefined;
+    if (!name) fail(`${path}.assumed[${j}] must be one of: ${IMPACT_TOOL_FIELDS.join(", ")}.`);
+    assumed.add(name);
+  });
+  return IMPACT_FIELDS.filter((name) => assumed.has(name));
+}
+
 function impactFrom(raw: unknown, style: Style): ImpactInput {
   const L = INPUT_LIMITS.impact;
   const input = readRecord(raw, "input");
@@ -434,14 +487,23 @@ function impactFrom(raw: unknown, style: Style): ImpactInput {
     const path = `activities[${i}]`;
     const activity = readRecord(rawActivity, path);
     const [minutes, minutesKey] = field(activity, style, "minutes_per_occurrence", "minutesPerOccurrence");
-    return {
+    const out: ImpactActivity = {
       label: readText(activity.label, `${path}.label`, { max: L.label }),
       people: readNumber(activity.people, `${path}.people`, L.people),
       minutesPerOccurrence: readNumber(minutes, `${path}.${minutesKey}`, L.minutes),
       occurrences: readNumber(activity.occurrences, `${path}.occurrences`, L.occurrences),
       per: readEnum(activity.per, `${path}.per`, ["day", "week", "month"] as const),
-      source: readSource(activity.source, `${path}.source`),
+      assumed: readAssumed(activity, path),
+      source: "visitor",
     };
+    out.source = out.assumed.length ? "assumption" : "visitor";
+    if (out.minutesPerOccurrence * out.occurrences > PERSON_MINUTES_CAP[out.per]) {
+      fail(
+        `${path}: ${out.minutesPerOccurrence} min × ${out.occurrences} per ${out.per} is more than one person can work in a ${out.per}. ` +
+          "occurrences counts the times EACH person does it; divide the total volume by people.",
+      );
+    }
+    return out;
   });
 
   const [days, daysKey] = field(input, style, "working_days_per_month", "workingDaysPerMonth");

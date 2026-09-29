@@ -31,8 +31,14 @@ export interface ViewsCopy {
     friction: string;
     /** Screen-reader name of the × badge in the list view. */
     frictionPoint: string;
-    /** Visually hidden word before an edge's target in the list view. */
-    to: string;
+    /**
+     * Screen-reader words around an edge's target in the list view: "to {to}".
+     * A template, not a word, because Hindi and Gujarati put the postposition
+     * AFTER the noun ("{to} की ओर"); a prefix would read backwards.
+     */
+    edgeTo: string;
+    /** Screen-reader text of a friction handoff: "{from} to {to}" ("{from} से {to} तक"). */
+    between: string;
     loopsBack: string;
     /** A node with no outgoing edges, in the list view. */
     end: string;
@@ -92,6 +98,22 @@ export interface ViewsCopy {
     per: { day: string; week: string; month: string };
     /** "{n} working days per month". */
     workingDays: string;
+    /**
+     * "{n} people", by Intl.PluralRules category of the locale. `other` is
+     * required; a category a locale leaves out falls back to its `other`.
+     */
+    peopleCount: Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
+    /** An activity with assumed numbers: "{label}: {parts}", parts joined by listSeparator. */
+    assumedActivity: string;
+    /** An assumed duration: "{n} min each time". */
+    assumedMinutes: string;
+    listSeparator: string;
+    /** "{pct}% of this time removed by the proposed change". */
+    assumedReduction: string;
+    /** "Staff cost of {amount} per hour". */
+    assumedCost: string;
+    /** Under the table when the rounded rows do not add up to the total exactly. */
+    roundingNote: string;
     assumptions: string;
     disclaimer: string;
   };
@@ -124,7 +146,8 @@ const EN: ViewsCopy = {
     legend: "Key",
     friction: "Friction",
     frictionPoint: "Friction point",
-    to: "to",
+    edgeTo: "to {to}",
+    between: "{from} to {to}",
     loopsBack: "loops back",
     end: "End of this path",
     tags: { manual: "Manual", ai: "AI", approval: "Approval" },
@@ -195,6 +218,13 @@ const EN: ViewsCopy = {
     minutes: "{n} min",
     per: { day: "{n}× / day", week: "{n}× / week", month: "{n}× / month" },
     workingDays: "{n} working days per month",
+    peopleCount: { one: "{n} person", other: "{n} people" },
+    assumedActivity: "{label}: {parts}",
+    assumedMinutes: "{n} min each time",
+    listSeparator: ", ",
+    assumedReduction: "{pct}% of this time removed by the proposed change",
+    assumedCost: "Staff cost of {amount} per hour",
+    roundingNote: "Rows are rounded to one decimal; the total is calculated before rounding.",
     assumptions: "Assumptions",
     disclaimer: "Estimate from the numbers in this conversation. Verify them before attaching a financial value — this is not a quote or a guarantee.",
   },
@@ -289,7 +319,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "Leyenda",
       friction: "Fricción",
       frictionPoint: "Punto de fricción",
-      to: "hacia",
+      edgeTo: "hacia {to}",
+      between: "de {from} a {to}",
       loopsBack: "vuelve atrás",
       end: "Fin de este recorrido",
       tags: { manual: "Manual", ai: "IA", approval: "Aprobación" },
@@ -338,6 +369,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       total: "Total",
       per: { day: "{n}× / día", week: "{n}× / semana", month: "{n}× / mes" },
       workingDays: "{n} días laborables al mes",
+      peopleCount: { one: "{n} persona", other: "{n} personas" },
+      assumedActivity: "{label}: {parts}",
+      assumedMinutes: "{n} min cada vez",
+      listSeparator: ", ",
+      assumedReduction: "El cambio propuesto elimina el {pct} % de este tiempo",
+      assumedCost: "Coste del personal de {amount} por hora",
+      roundingNote: "Las filas se redondean a un decimal; el total se calcula antes de redondear.",
       assumptions: "Supuestos",
       disclaimer: "Estimación con las cifras de esta conversación. Compruébalas antes de asignarles un valor económico: no es un presupuesto ni una garantía.",
     },
@@ -357,7 +395,7 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
     },
     brief: {
       title: "Resumen para la auditoría",
-      greeting: "Hola, Savin Group. Os envío un resumen de nuestro flujo de trabajo; me gustaría comentarlo.",
+      greeting: "Hola, Savin Group. Les envío un resumen de nuestro flujo de trabajo; me gustaría comentarlo.",
       fields: { summary: "Resumen", company: "Empresa", contact: "Contacto", industry: "Sector", currentSystems: "Sistemas actuales", currentWorkflow: "Flujo de trabajo actual", primaryProblem: "Problema principal", observedFriction: "Fricción observada", desiredOutcome: "Resultado deseado", potentialArchitecture: "Arquitectura posible", unknowns: "Incógnitas", urgency: "Urgencia", relevantCapabilities: "Capacidades relevantes" },
       contact: { name: "Nombre", role: "Cargo", email: "Correo", phone: "Teléfono" },
       capabilities: { ai: "IA y agentes inteligentes", automation: "Automatización de procesos", erp: "ERP y sistemas de negocio", industrial: "IoT industrial", software: "Software a medida", integrations: "APIs e integraciones", data: "Datos y analítica", platforms: "Plataformas digitales" },
@@ -384,7 +422,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "Légende",
       friction: "Frictions",
       frictionPoint: "Point de friction",
-      to: "vers",
+      edgeTo: "vers {to}",
+      between: "de {from} vers {to}",
       loopsBack: "revient en arrière",
       end: "Fin de ce parcours",
       tags: { manual: "Manuel", ai: "IA", approval: "Validation" },
@@ -433,6 +472,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       total: "Total",
       per: { day: "{n}× / jour", week: "{n}× / semaine", month: "{n}× / mois" },
       workingDays: "{n} jours ouvrés par mois",
+      peopleCount: { one: "{n} personne", other: "{n} personnes" },
+      assumedActivity: "{label} : {parts}",
+      assumedMinutes: "{n} min à chaque fois",
+      listSeparator: ", ",
+      assumedReduction: "{pct} % de ce temps supprimé par le changement proposé",
+      assumedCost: "Coût du personnel de {amount} de l’heure",
+      roundingNote: "Les lignes sont arrondies à une décimale ; le total est calculé avant arrondi.",
       assumptions: "Hypothèses",
       disclaimer: "Estimation fondée sur les chiffres de cette conversation. Vérifiez-les avant d’y associer une valeur financière : ce n’est ni un devis ni une garantie.",
     },
@@ -479,7 +525,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "Legende",
       friction: "Reibungspunkte",
       frictionPoint: "Reibungspunkt",
-      to: "zu",
+      edgeTo: "zu {to}",
+      between: "von {from} zu {to}",
       loopsBack: "führt zurück",
       end: "Ende dieses Pfads",
       tags: { manual: "Manuell", ai: "KI", approval: "Freigabe" },
@@ -504,7 +551,7 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       noRecord: "Für diesen Schritt gibt es keine Beispielwerte.",
       outcome: "Ergebnis",
       complete: "Simulation abgeschlossen",
-      manualHint: "Automatische Wiedergabe ist aus. Mit Zurück und Weiter durch die Schritte gehen.",
+      manualHint: "Automatische Wiedergabe ist aus. Mit „Vorheriger Schritt“ und „Nächster Schritt“ durch die Schritte gehen.",
       actorKinds: { person: "Person", system: "System", ai: "KI", machine: "Maschine", external: "Externe Partei" },
       stepKinds: { event: "Ereignis", check: "Prüfung", decision: "Entscheidung", approval: "Freigabe", action: "Aktion", alert: "Warnung", record: "Datensatz" },
     },
@@ -529,6 +576,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       minutes: "{n} Min.",
       per: { day: "{n}× / Tag", week: "{n}× / Woche", month: "{n}× / Monat" },
       workingDays: "{n} Arbeitstage pro Monat",
+      peopleCount: { one: "{n} Person", other: "{n} Personen" },
+      assumedActivity: "{label}: {parts}",
+      assumedMinutes: "jeweils {n} Min.",
+      listSeparator: ", ",
+      assumedReduction: "{pct} % dieser Zeit entfallen durch die vorgeschlagene Änderung",
+      assumedCost: "Personalkosten von {amount} pro Stunde",
+      roundingNote: "Die Zeilen sind auf eine Nachkommastelle gerundet; die Summe wird vor dem Runden berechnet.",
       assumptions: "Annahmen",
       disclaimer: "Schätzung auf Basis der Zahlen aus diesem Gespräch. Prüfen Sie sie, bevor Sie einen finanziellen Wert daraus ableiten – dies ist weder ein Angebot noch eine Garantie.",
     },
@@ -575,7 +629,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "دليل الرموز",
       friction: "نقاط الاحتكاك",
       frictionPoint: "نقطة احتكاك",
-      to: "إلى",
+      edgeTo: "إلى {to}",
+      between: "من {from} إلى {to}",
       loopsBack: "يعود إلى الخلف",
       end: "نهاية هذا المسار",
       tags: { manual: "يدوي", ai: "ذكاء اصطناعي", approval: "موافقة" },
@@ -626,6 +681,14 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       minutes: "{n} دقيقة",
       per: { day: "{n}× يوميًا", week: "{n}× أسبوعيًا", month: "{n}× شهريًا" },
       workingDays: "{n} يوم عمل في الشهر",
+      // Arabic has all six plural forms; one and two are words, not "1 شخص".
+      peopleCount: { zero: "{n} شخص", one: "شخص واحد", two: "شخصان", few: "{n} أشخاص", many: "{n} شخصًا", other: "{n} شخص" },
+      assumedActivity: "{label}: {parts}",
+      assumedMinutes: "{n} دقيقة في كل مرة",
+      listSeparator: "، ",
+      assumedReduction: "إزالة {pct}% من هذا الوقت بفضل التغيير المقترح",
+      assumedCost: "تكلفة الموظفين {amount} للساعة",
+      roundingNote: "الصفوف مقرَّبة إلى منزلة عشرية واحدة، ويُحسب الإجمالي قبل التقريب.",
       assumptions: "الافتراضات",
       disclaimer: "تقدير مبني على الأرقام الواردة في هذه المحادثة. تحقّق منها قبل ربطها بقيمة مالية — هذا ليس عرض سعر ولا ضمانًا.",
     },
@@ -672,7 +735,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "संकेत",
       friction: "रुकावटें",
       frictionPoint: "रुकावट का बिंदु",
-      to: "की ओर",
+      edgeTo: "{to} की ओर",
+      between: "{from} से {to} तक",
       loopsBack: "वापस लौटता है",
       end: "इस रास्ते का अंत",
       tags: { manual: "मैनुअल", ai: "AI", approval: "मंज़ूरी" },
@@ -723,6 +787,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       minutes: "{n} मिनट",
       per: { day: "{n}× / दिन", week: "{n}× / सप्ताह", month: "{n}× / माह" },
       workingDays: "प्रति माह {n} कार्यदिवस",
+      peopleCount: { one: "{n} व्यक्ति", other: "{n} लोग" },
+      assumedActivity: "{label}: {parts}",
+      assumedMinutes: "हर बार {n} मिनट",
+      listSeparator: ", ",
+      assumedReduction: "प्रस्तावित बदलाव से इस समय का {pct}% कम होगा",
+      assumedCost: "स्टाफ़ की लागत {amount} प्रति घंटा",
+      roundingNote: "पंक्तियाँ एक दशमलव तक पूर्णांकित हैं; कुल योग पूर्णांकन से पहले निकाला गया है।",
       assumptions: "मान्यताएँ",
       disclaimer: "इस बातचीत में दिए गए आँकड़ों पर आधारित अनुमान। कोई वित्तीय मूल्य जोड़ने से पहले इन्हें जाँच लें — यह कोटेशन या गारंटी नहीं है।",
     },
@@ -769,7 +840,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "图例",
       friction: "摩擦点",
       frictionPoint: "摩擦点",
-      to: "至",
+      edgeTo: "至 {to}",
+      between: "从 {from} 至 {to}",
       loopsBack: "返回前面的环节",
       end: "此路径结束",
       tags: { manual: "人工", ai: "AI", approval: "审批" },
@@ -820,6 +892,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       minutes: "{n} 分钟",
       per: { day: "每天 {n} 次", week: "每周 {n} 次", month: "每月 {n} 次" },
       workingDays: "每月 {n} 个工作日",
+      peopleCount: { other: "{n} 人" },
+      assumedActivity: "{label}：{parts}",
+      assumedMinutes: "每次 {n} 分钟",
+      listSeparator: "，",
+      assumedReduction: "拟议的改变可减少其中 {pct}% 的时间",
+      assumedCost: "人工成本每小时 {amount}",
+      roundingNote: "各行已四舍五入到一位小数；合计按四舍五入前的数值计算。",
       assumptions: "假设条件",
       disclaimer: "此估算基于本次对话中的数字。在据此评估财务价值之前请先核实——这不是报价，也不是保证。",
     },
@@ -866,7 +945,8 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       legend: "સંકેતો",
       friction: "અવરોધો",
       frictionPoint: "અવરોધનું બિંદુ",
-      to: "તરફ",
+      edgeTo: "{to} તરફ",
+      between: "{from}થી {to} સુધી",
       loopsBack: "પાછું ફરે છે",
       end: "આ માર્ગનો અંત",
       tags: { manual: "મેન્યુઅલ", ai: "AI", approval: "મંજૂરી" },
@@ -917,6 +997,13 @@ const TRANSLATIONS: Record<Exclude<Locale, "en">, CopyPatch> = {
       minutes: "{n} મિનિટ",
       per: { day: "{n}× / દિવસ", week: "{n}× / અઠવાડિયું", month: "{n}× / મહિનો" },
       workingDays: "દર મહિને {n} કામકાજના દિવસો",
+      peopleCount: { one: "{n} વ્યક્તિ", other: "{n} લોકો" },
+      assumedActivity: "{label}: {parts}",
+      assumedMinutes: "દર વખતે {n} મિનિટ",
+      listSeparator: ", ",
+      assumedReduction: "સૂચિત ફેરફારથી આ સમયમાંથી {pct}% ઘટશે",
+      assumedCost: "સ્ટાફનો ખર્ચ કલાકદીઠ {amount}",
+      roundingNote: "પંક્તિઓ એક દશાંશ સુધી રાઉન્ડ કરેલી છે; કુલ રાઉન્ડિંગ પહેલાં ગણાયેલો છે.",
       assumptions: "ધારણાઓ",
       disclaimer: "આ વાતચીતના આંકડાઓ પર આધારિત અંદાજ. તેને નાણાકીય મૂલ્ય સાથે જોડતાં પહેલાં ચકાસી લો — આ ક્વોટ કે ગેરંટી નથી.",
     },
@@ -988,4 +1075,16 @@ export function getViewsCopy(locale: string): ViewsCopy {
 /** "Step {n} of {total}" + { n: 3, total: 8 } → "Step 3 of 8". Unknown placeholders stay as written. */
 export function fill(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in values ? String(values[name]) : match));
+}
+
+/**
+ * The text before and after one placeholder: "to {to}" → ["to ", ""],
+ * "{to} की ओर" → ["", " की ओर"]. Lets a visible label stay a single node
+ * while screen-reader-only words sit on whichever side the language puts
+ * them. A template without the placeholder reads as a prefix.
+ */
+export function splitAround(template: string, name: string): [string, string] {
+  const token = `{${name}}`;
+  const at = template.indexOf(token);
+  return at < 0 ? [`${template} `, ""] : [template.slice(0, at), template.slice(at + token.length)];
 }

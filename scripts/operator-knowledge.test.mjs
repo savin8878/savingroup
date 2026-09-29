@@ -64,9 +64,10 @@ const {
   OPERATOR_FACT_SHEET,
   CONTACT_CHANNELS,
 } = knowledge;
-const { AUDIT, DISCOVERY } = await import("../src/lib/offer.ts");
+const { AUDIT, CTA_LABEL, DISCOVERY } = await import("../src/lib/offer.ts");
 const { CASE_STUDIES_EN } = await import("../src/components/case-studies/case-studies-copy.ts");
 const { default: en } = await import("../src/locales/en.json");
+const { OPERATOR_SYSTEM_PROMPT } = await import("../src/lib/operator/system-prompt.ts");
 
 const KINDS = new Set([
   "offer", "service_system", "capability", "case_study", "industry", "industry_faq",
@@ -280,4 +281,110 @@ test("fact sheet and contact channels", () => {
   for (const re of UNVERIFIABLE) assert.doesNotMatch(sheet, re);
   const words = sheet.split(/\s+/).filter(Boolean).length;
   assert.ok(words <= 900, `${words} words`);
+});
+
+/* ------------------------------ honesty fixes ------------------------------ */
+
+// Every CTA button leads to /contact, whose form fakes a successful submit.
+test("no record or fact-sheet line steers visitors to the site's button or form", () => {
+  for (const record of KNOWLEDGE_RECORDS) {
+    assert.ok(!text(record).includes(CTA_LABEL), `${record.id} names the CTA button`);
+    assert.doesNotMatch(text(record), /\b(?:enquiry|contact|request) form\b/i, `${record.id} points at the form`);
+  }
+  assert.ok(!OPERATOR_FACT_SHEET.includes(CTA_LABEL), "fact sheet names the CTA button");
+  assert.doesNotMatch(OPERATOR_FACT_SHEET, /from the contact page|\bform\b/i);
+  for (const id of ["offer:free-audit", "absence:scheduler"]) {
+    const body = getKnowledgeRecord(id).body;
+    assert.ok(body.includes(CONTACT_CHANNELS.email) && body.includes(CONTACT_CHANNELS.whatsappDisplay), id);
+  }
+});
+
+test("industry copy carries no unsourced statistics, vendor limits or replace-first stance", () => {
+  const industry = KNOWLEDGE_RECORDS.filter((record) => record.kind === "industry" || record.kind === "industry_faq");
+  assert.ok(industry.length >= 20, `${industry.length} industry records`);
+  for (const record of industry) {
+    const t = text(record);
+    assert.doesNotMatch(t, /\d\s?%/, `${record.id}: bare percentage`);
+    assert.doesNotMatch(t, /\blosing \d/i, record.id);
+    assert.doesNotMatch(t, /\(most are\)|\bwe replace it\b/i, `${record.id}: replace-first stance`);
+    assert.doesNotMatch(t, /\bone in four\b|\bthree-quarters\b/i, record.id);
+  }
+  // Only the flagged sentences go: the scenarios, deliverables and answers stay.
+  const manufacturing = getKnowledgeRecord("industry:manufacturing").body;
+  assert.match(manufacturing, /Production planning happens on a printed Excel sheet/);
+  assert.match(manufacturing, /Inventory mismatches between godowns and books\./);
+  assert.doesNotMatch(manufacturing, /3–7%|caps at/);
+  const store = getKnowledgeRecord("industry:ecommerce-build").body;
+  assert.match(store, /Storefront CRO rebuild: Mobile-first PDP with sub-2s LCP, [^.]*WhatsApp Click-to-Chat from PDP\./);
+  assert.doesNotMatch(store, /OTP step/);
+  const crm = getKnowledgeRecord("industry_faq:real-estate-q5");
+  assert.ok(crm, "the keep-your-CRM answer survives without its replace-first sentences");
+  assert.match(crm.body, /on top\.$/);
+});
+
+test("no record invents a paid audit or states a third-party product's limits", () => {
+  const PAID_AUDIT = [/\bpaid\s+(?:[\w-]+\s+){0,2}audit\b/i, /\bCRO audit\b/i];
+  const VENDOR_LIMIT = [/\b(?:Tally|Zoho|SAP)\b[^.]*\b\d+\s+(?:concurrent\s+)?users?\b/i, /\bcaps? at \d/i];
+  for (const record of KNOWLEDGE_RECORDS) {
+    for (const re of [...PAID_AUDIT, ...VENDOR_LIMIT]) assert.doesNotMatch(text(record), re, `${record.id} matches ${re}`);
+  }
+  for (const re of PAID_AUDIT) assert.doesNotMatch(OPERATOR_FACT_SHEET, re);
+  // The e-commerce answer keeps its honest half; the Tally/Zoho/SAP comparison goes whole.
+  assert.match(getKnowledgeRecord("industry_faq:ecommerce-q2")?.body ?? "", /under-promise/);
+  assert.equal(getKnowledgeRecord("industry_faq:manufacturing-q1"), undefined);
+  for (const record of searchKnowledge("Tally users limit", { limit: 8 })) {
+    for (const re of VENDOR_LIMIT) assert.doesNotMatch(text(record), re, record.id);
+  }
+});
+
+test("capability work is never priced from a website tier", () => {
+  const absence = getKnowledgeRecord("absence:capability-pricing");
+  assert.ok(absence, "missing absence:capability-pricing");
+  assert.equal(absence.kind, "absence");
+  for (const tier of en.pricing.tiers) assert.ok(absence.body.includes(tier.scope), `${tier.id} scope missing`);
+  assert.equal(searchKnowledge("IoT sensor price")[0]?.id, "absence:capability-pricing");
+  assert.equal(searchKnowledge("price of AI agent")[0]?.id, "absence:capability-pricing");
+  assert.ok(ids(searchKnowledge("Tally WhatsApp integration price")).includes("absence:capability-pricing"));
+  // A general price question still leads with the published prices.
+  assert.ok(["pricing_tier", "offer"].includes(searchKnowledge("how much does it cost")[0]?.kind));
+
+  const sheet = OPERATOR_FACT_SHEET;
+  assert.doesNotMatch(sheet, /a complete system from/, "the RevSite Pro entry point keeps its scope");
+  assert.match(sheet, /complete revenue system \(website \+ WhatsApp lead capture/);
+  const notPublished = sheet.slice(sheet.indexOf("NOT PUBLISHED"), sheet.indexOf("CONTACT ("));
+  assert.match(notPublished, /Prices for AI agents, industrial IoT, integrations, custom software/);
+  // Tier ranges and system ranges are separate lists, never sums of each other.
+  assert.match(sheet, /Tier ranges and service-system ranges are separate published lists/);
+  assert.match(getKnowledgeRecord("offer:tier-to-system").body, /separate published lists/);
+});
+
+test("the Discovery Sprint rule is stated once and consistently", () => {
+  const sheet = OPERATOR_FACT_SHEET;
+  assert.doesNotMatch(sheet, /Only if a build is worth scoping/);
+  assert.match(sheet, /Enterprise scopes always start with the paid Discovery Sprint\. For the other plans \(Launch, Growth and Scale\)[^\n]*optional/);
+  assert.match(getKnowledgeRecord("offer:discovery-sprint").body, /Enterprise scopes always start with the paid Discovery Sprint/);
+  const path = getKnowledgeRecord("process_step:quote-path").body;
+  assert.match(path, /Nothing is billed before the quote is fixed[^.]*\. The one exception is Enterprise: those scopes start with the paid Discovery Sprint \(₹15,000/);
+});
+
+test("deployment notes defer absences to the fact sheet and cover the chat's own handling", () => {
+  const notes = OPERATOR_SYSTEM_PROMPT.slice(
+    OPERATOR_SYSTEM_PROMPT.indexOf("# DEPLOYMENT NOTES"),
+    OPERATOR_SYSTEM_PROMPT.indexOf("# VERIFIED SAVIN FACT SHEET"),
+  );
+  assert.ok(notes.length > 1000, "deployment notes not found");
+  // lib/team.ts and SOCIAL_PROFILES decide these; the fact sheet follows them.
+  assert.doesNotMatch(notes, /no team names|no social profiles|no named team/i);
+  assert.match(notes, /follow the NOT PUBLISHED list in the fact sheet/);
+  assert.match(notes, /Name only WhatsApp or email/);
+  assert.match(notes, /Never direct visitors to a form or button on the site/);
+  assert.match(notes, /form is not a verified channel/);
+  assert.match(notes, /never use it as an input to calculate_operational_impact/);
+  assert.match(notes, /Never map a process, integration or capability onto a website pricing tier/);
+  const chat = notes.slice(notes.indexOf("## 8."));
+  assert.match(chat, /^## 8\. This conversation/);
+  assert.match(chat, /kept in this browser tab/);
+  assert.match(chat, /Anthropic's API/);
+  assert.match(chat, /Savin's team does not receive the conversation/);
+  assert.ok(OPERATOR_SYSTEM_PROMPT.endsWith(OPERATOR_FACT_SHEET));
 });

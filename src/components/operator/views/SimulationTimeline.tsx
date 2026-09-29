@@ -16,6 +16,12 @@
 //   Any manual step pauses it, as on the industries WorkflowSimulator.
 // - Screen readers hear manual step changes, the gate and completion — not
 //   every autoplay tick.
+// - Keyboard focus is never dropped. Controls that stop applying (Previous
+//   on the first step, Next at a gate or the end, Play under reduced motion)
+//   are aria-disabled, not disabled: a disabled button under focus sends
+//   focus to <body>, and the next Tab restarts from the top of the panel.
+//   A step the visitor moves onto that is a gate focuses its Approve button;
+//   approving (which removes that button) focuses Next.
 
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import {
@@ -38,6 +44,7 @@ import {
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import type { SimActorKind, Simulation } from "@/lib/operator/protocol";
+import { textAttrs } from "./text-attrs";
 import { useMotionAllowed } from "./useMotionAllowed";
 import { fill, getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
@@ -66,6 +73,10 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const titleId = `op-${uid}-title`;
   const rootRef = useRef<HTMLElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const approveRef = useRef<HTMLButtonElement>(null);
+  /** Set by a visitor's action, applied after that action's render commits. */
+  const focusAfter = useRef<"gate" | "next" | null>(null);
   const motion = useMotionAllowed(rootRef);
 
   const [mounted, setMounted] = useState(false);
@@ -79,6 +90,9 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
   const step = steps[Math.min(current, Math.max(0, total - 1))];
   const gated = mounted && !finished && step?.kind === "approval" && !approved.has(current);
   const running = mounted && playing && motion && inView && !gated && !finished && total > 0;
+  const atStart = current === 0;
+  const nextOff = gated || finished;
+  const playOff = !motion && !finished;
 
   useEffect(() => setMounted(true), []);
 
@@ -114,6 +128,16 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
     if (gated && step) setAnnouncement(`${c.gateTitle}: ${step.label}`);
   }, [gated, step, c.gateTitle]);
 
+  // Visitor-initiated moves only: autoplay reaching a gate must not pull focus out of wherever the visitor is.
+  // "gate": focus Approve if the move landed on one, else leave focus where it is. "next": focus Approve or Next.
+  useEffect(() => {
+    const want = focusAfter.current;
+    if (!want) return;
+    focusAfter.current = null;
+    if (gated) approveRef.current?.focus();
+    else if (want === "next") nextRef.current?.focus();
+  });
+
   const announceStep = useCallback((index: number) => {
     const target = steps[index];
     if (target) setAnnouncement(`${fill(c.stepOf, { n: index + 1, total })}: ${target.label}`);
@@ -125,9 +149,14 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
     setFinished(false);
     setCurrent(next);
     announceStep(next);
+    focusAfter.current = "gate";
+  };
+  const back = () => {
+    if (atStart) return;
+    go(current - 1);
   };
   const forward = () => {
-    if (gated) return;
+    if (nextOff) return;
     setPlaying(false);
     if (current >= total - 1) {
       setFinished(true);
@@ -140,14 +169,21 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
     setCurrent(0);
     setPlaying(true);
     announceStep(0);
+    focusAfter.current = "gate";
   };
   const togglePlay = () => {
-    if (finished) restart();
-    else setPlaying((value) => !value);
+    if (playOff) return;
+    if (finished) {
+      restart();
+      // Under reduced motion Play turns inert once the run restarts: hand the visitor the control that steps it.
+      if (!motion) focusAfter.current = "next";
+    } else setPlaying((value) => !value);
   };
   const approve = () => {
     setApproved((previous) => new Set(previous).add(current));
     setAnnouncement(c.approved);
+    // The Approve button unmounts with the gate.
+    focusAfter.current = "next";
   };
 
   const stateOf = (index: number) => {
@@ -169,14 +205,14 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
           <Info size={14} strokeWidth={1.6} aria-hidden="true" />
           <span>{c.disclaimer}</span>
         </p>
-        <h3 id={titleId} className={s.title} dir="auto">{simulation.title}</h3>
-        <p className={s.lede} dir="auto">{simulation.scenario}</p>
+        <h3 id={titleId} className={s.title} {...textAttrs(simulation.title, locale)}>{simulation.title}</h3>
+        <p className={s.lede} {...textAttrs(simulation.scenario, locale)}>{simulation.scenario}</p>
       </header>
 
       {total > 0 && (
         <div className={s.controls}>
           <div className={s.ctrlGroup}>
-            <button type="button" className={s.ctrl} data-primary="" onClick={togglePlay} disabled={!mounted || (!motion && !finished)} aria-label={playLabel} title={playLabel}>
+            <button type="button" className={s.ctrl} data-primary="" onClick={togglePlay} disabled={!mounted} aria-disabled={playOff || undefined} aria-label={playLabel} title={playLabel}>
               <PlayIcon size={16} strokeWidth={1.6} aria-hidden="true" />
             </button>
             <button type="button" className={s.ctrl} onClick={restart} disabled={!mounted} aria-label={c.restart} title={c.restart}>
@@ -188,10 +224,10 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
             <span className={s.progressBar} aria-hidden="true" style={{ "--p": progress } as CSSProperties}><i /></span>
           </div>
           <div className={s.ctrlGroup}>
-            <button type="button" className={s.ctrl} onClick={() => go(current - 1)} disabled={!mounted || current === 0} aria-label={c.previous} title={c.previous}>
+            <button type="button" className={s.ctrl} onClick={back} disabled={!mounted} aria-disabled={atStart || undefined} aria-label={c.previous} title={c.previous}>
               <ArrowLeft size={16} strokeWidth={1.6} className={s.dirIcon} aria-hidden="true" />
             </button>
-            <button type="button" className={s.ctrl} onClick={forward} disabled={!mounted || gated || finished} aria-label={c.next} title={c.next}>
+            <button ref={nextRef} type="button" className={s.ctrl} onClick={forward} disabled={!mounted} aria-disabled={nextOff || undefined} aria-label={c.next} title={c.next}>
               <ArrowRight size={16} strokeWidth={1.6} className={s.dirIcon} aria-hidden="true" />
             </button>
           </div>
@@ -214,20 +250,21 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
                 </span>
                 <div className={s.stepMain}>
                   <div className={s.stepHead}>
-                    <span className={s.stepLabel} dir="auto">{item.label}</span>
+                    <span className={s.stepLabel} {...textAttrs(item.label, locale)}>{item.label}</span>
                     <span className={s.tag} data-tone={item.kind === "approval" ? "accent" : undefined}>{c.stepKinds[item.kind] ?? item.kind}</span>
                     {item.consequential && <span className={s.tag} data-tone="accent">{c.consequential}</span>}
                     {item.kind === "approval" && approved.has(index) && (
                       <span className={s.tag} data-tone="ok"><Check size={11} strokeWidth={2.2} aria-hidden="true" />{c.approved}</span>
                     )}
                   </div>
-                  {meta && <p className={s.stepMeta} dir="auto">{c.actorKinds[item.actorKind] ?? item.actorKind} · {meta}</p>}
-                  {item.detail && <p className={s.stepDetail} dir="auto">{item.detail}</p>}
+                  {/* Our actor-kind word leads, so the line reads in the page direction; the model's names are isolated. */}
+                  {meta && <p className={s.stepMeta}>{c.actorKinds[item.actorKind] ?? item.actorKind} · <span {...textAttrs(meta, locale)}>{meta}</span></p>}
+                  {item.detail && <p className={s.stepDetail} {...textAttrs(item.detail, locale)}>{item.detail}</p>}
                   {isCurrent && gated && (
                     <div className={s.gate}>
                       <p className={s.gateTitle}><UserCheck size={16} strokeWidth={1.6} aria-hidden="true" />{c.gateTitle}</p>
                       <p>{c.gateBody}</p>
-                      <button type="button" className={s.approve} onClick={approve}>
+                      <button ref={approveRef} type="button" className={s.approve} onClick={approve}>
                         <Check size={15} strokeWidth={2} aria-hidden="true" />
                         {c.approve}
                       </button>
@@ -250,8 +287,9 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
                 <dl className={s.recordFields}>
                   {step.sample.map((field, index) => (
                     <div key={`${field.key}:${index}`}>
-                      <dt dir="auto">{field.key}</dt>
-                      <dd dir="ltr" className={s.ltr}>{field.value}</dd>
+                      <dt {...textAttrs(field.key, locale)}>{field.key}</dt>
+                      {/* Mostly codes and quantities ("SO-1028", "1,200"): LTR unless the value is words in a right-to-left script. */}
+                      <dd {...textAttrs(field.value, locale, "ltr")}>{field.value}</dd>
                     </div>
                   ))}
                 </dl>
@@ -264,7 +302,7 @@ export function SimulationTimeline({ simulation, locale }: SimulationTimelinePro
             <div className={s.outcome}>
               <CircleCheck size={16} strokeWidth={1.6} aria-hidden="true" />
               <span className={s.micro}>{c.outcome}</span>
-              <p dir="auto">{simulation.outcome}</p>
+              <p {...textAttrs(simulation.outcome, locale)}>{simulation.outcome}</p>
             </div>
           )}
         </div>

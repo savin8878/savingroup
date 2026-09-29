@@ -17,11 +17,13 @@ import type { BetaTool } from "@anthropic-ai/sdk/resources/beta/messages/message
 import type { Artifact, Locale, OperatorStatus } from "./protocol";
 import { computeImpact } from "./impact";
 import { localizeHref, searchKnowledge, toKnowledgeSource } from "./knowledge";
+import { logOperatorError } from "./log";
 import {
   CAPABILITY_IDS,
   EVIDENCE_KINDS,
   GRAPH_EDGE_MODES,
   GRAPH_NODE_KINDS,
+  IMPACT_TOOL_FIELDS,
   INPUT_LIMITS,
   KNOWLEDGE_KINDS,
   SIM_ACTOR_KINDS,
@@ -119,7 +121,7 @@ export const OPERATOR_TOOLS: BetaTool[] = [
     name: "calculate_operational_impact",
     description:
       "Compute the staff-hours (and, only if an hourly cost is supplied, the cost) that manual activities consume each month and year, and how much a proposed change could release. The server does the arithmetic and shows the visitor an estimate card that lists every assumed input. " +
-      "Call it only with numbers the visitor gave you, or with assumptions you state openly and mark as source \"assumption\". Ask for the missing variables instead when an estimate would be mostly guesswork. " +
+      "Call it only with numbers the visitor gave you, or with assumptions you state openly: list them in each activity's assumed, and mark any other assumed value as source \"assumption\". Ask for the missing variables instead when an estimate would be mostly guesswork. " +
       "Never use it to invent ROI, revenue or savings: omit hourly_cost and reduction_percent unless the visitor gave them or explicitly accepted assumed values. Afterwards present the figures as estimates to verify, never as promised savings.",
     input_schema: {
       type: "object",
@@ -150,12 +152,19 @@ export const OPERATOR_TOOLS: BetaTool[] = [
                 type: "number",
                 minimum: I.occurrences.min,
                 maximum: I.occurrences.max,
-                description: "How many times each person does it per period (see per).",
+                description:
+                  "How many times EACH person does it per period (see per). If the visitor gave a total volume, divide it by people.",
               },
               per: oneOf("The period that occurrences is counted over.", ["day", "week", "month"]),
-              source: sourceField,
+              assumed: {
+                type: "array",
+                maxItems: IMPACT_TOOL_FIELDS.length,
+                items: { type: "string", enum: IMPACT_TOOL_FIELDS },
+                description:
+                  "Which of people, minutes_per_occurrence and occurrences the visitor did NOT state (you proposed them); [] only if they stated all three. Each is shown as assumed under the estimate.",
+              },
             },
-            required: ["label", "people", "minutes_per_occurrence", "occurrences", "per", "source"],
+            required: ["label", "people", "minutes_per_occurrence", "occurrences", "per", "assumed"],
           },
         },
         working_days_per_month: {
@@ -195,7 +204,7 @@ export const OPERATOR_TOOLS: BetaTool[] = [
     name: "build_workflow_graph",
     description:
       "Render the visitor's process as a node-and-edge map in the chat panel. Call it when a map would make the process clearer than prose: typically once with view \"current\" after you understand how work flows today (the trigger, who touches it, which software, spreadsheets or WhatsApp groups, where it waits), and again with view \"proposed\" after discussing changes. Reuse the same node ids for things that stay, so the two views line up. " +
-      "Put friction on the nodes and edges where it actually occurs. Use mode \"manual\" for re-typing, calls, chasing and WhatsApp handoffs. Add an \"ai\" node only where interpreting unstructured information genuinely needs it; prefer deterministic automation. Never draw diagrams in text instead of calling this.",
+      "Put friction only where the visitor described it, on the node or edge where it occurs; raise suspected friction as a question in your reply instead of drawing it. Use mode \"manual\" for re-typing, calls, chasing and WhatsApp handoffs. Add an \"ai\" node only where interpreting unstructured information genuinely needs it; prefer deterministic automation. Never draw diagrams in text instead of calling this.",
     input_schema: {
       type: "object",
       properties: {
@@ -217,7 +226,10 @@ export const OPERATOR_TOOLS: BetaTool[] = [
               label: str("Short visible label.", G.nodeLabel),
               kind: oneOf("What the node is.", GRAPH_NODE_KINDS),
               detail: str("Optional one-line detail.", G.nodeText),
-              friction: str("Only if this node is a point of friction: what goes wrong here.", G.nodeText),
+              friction: str(
+                "Only friction the visitor described at this node: what goes wrong here. Raise suspected friction as a question in your reply instead of drawing it.",
+                G.nodeText,
+              ),
             },
             required: ["id", "label", "kind"],
           },
@@ -233,7 +245,10 @@ export const OPERATOR_TOOLS: BetaTool[] = [
               to: { type: "string", description: "Target node id (not the same as from)." },
               mode: oneOf("How work crosses this edge.", GRAPH_EDGE_MODES),
               label: str("Optional short label, e.g. \"PDF by email\".", G.edgeLabel),
-              friction: str("Only if the handoff itself is a point of friction.", G.nodeText),
+              friction: str(
+                "Only friction the visitor described in this handoff. Raise suspected friction as a question in your reply instead of drawing it.",
+                G.nodeText,
+              ),
             },
             required: ["from", "to", "mode"],
           },
@@ -247,7 +262,7 @@ export const OPERATOR_TOOLS: BetaTool[] = [
     name: "simulate_workflow",
     description:
       "Render an illustrative step-by-step run of a proposed workflow using clearly fictional sample data (e.g. order SO-1028). The panel always labels it SIMULATION with no live system connected. Call it after a proposed flow has been discussed and seeing it run would help the visitor. " +
-      "Any financial, contractual, production, safety-critical or destructive step must set consequential: true AND come after a step of kind \"approval\" performed by a person; the server rejects the simulation otherwise. Never use real company, customer or employee names in sample data.",
+      "Any financial, contractual, production, safety-critical or destructive step must set consequential: true AND come after a step of kind \"approval\" whose actor_kind is \"person\"; the server rejects the simulation otherwise, and also rejects any approval step not performed by a person. Never use real company, customer or employee names in sample data.",
     input_schema: {
       type: "object",
       properties: {
@@ -262,7 +277,7 @@ export const OPERATOR_TOOLS: BetaTool[] = [
             properties: {
               label: str("What happens, e.g. \"Component shortage detected\".", S.label),
               actor: str("Who or what performs it, e.g. \"Purchase manager\" or \"ERP\".", S.actor),
-              actor_kind: oneOf("Kind of actor.", SIM_ACTOR_KINDS),
+              actor_kind: oneOf('Kind of actor. Approval steps are always "person".', SIM_ACTOR_KINDS),
               kind: oneOf("Kind of step.", SIM_STEP_KINDS),
               system: str("Optional system involved, e.g. \"Tally\".", S.system),
               detail: str("Optional one-line detail.", S.detail),
@@ -389,7 +404,11 @@ export const OPERATOR_TOOLS: BetaTool[] = [
         current_systems: strList("Systems in use today.", B.maxItems, B.item),
         current_workflow: str("The current workflow, briefly.", B.prose),
         primary_problem: str("The primary problem.", B.prose),
-        observed_friction: strList("Observed friction points.", B.maxItems, B.item),
+        observed_friction: strList(
+          "Only friction the visitor stated or confirmed; put inferred or suspected friction in unknowns.",
+          B.maxItems,
+          B.item,
+        ),
         desired_outcome: str('What the visitor wants to achieve ("Not stated" if unknown).', B.prose),
         potential_architecture: str("The possible architecture discussed, marked as a first pass.", B.prose),
         unknowns: strList("What still needs to be verified.", B.maxItems, B.item),
@@ -470,12 +489,15 @@ function runSearch(rawInput: unknown, ctx: ToolContext): ToolOutcome {
     confidence: record.confidence,
     ...(record.caveat ? { caveat: record.caveat } : {}),
   }));
-  const hasCaveat = records.some((record) => record.caveat);
+  // Ranking is OR-of-terms keyword overlap, so almost any query "matches"
+  // something: "refund policy" finds a build that has a refund flow. The note
+  // keeps a loose match from being stretched into an answer.
+  const notes = [
+    "Results are keyword matches ranked by overlap, not answers. If none of them directly answers the question, say you have no verified information on it.",
+  ];
+  if (records.some((record) => record.caveat)) notes.push("State each caveat together with the fact it qualifies.");
   return {
-    content: JSON.stringify({
-      results,
-      ...(hasCaveat ? { note: "State each caveat together with the fact it qualifies." } : {}),
-    }),
+    content: JSON.stringify({ results, note: notes.join(" ") }),
     isError: false,
     artifact: {
       type: "sources",
@@ -573,7 +595,7 @@ export function runTool(name: string, rawInput: unknown, ctx: ToolContext): Tool
   try {
     return execute(name, rawInput, ctx);
   } catch (err) {
-    console.error("Operator endpoint error: tool failed:", name, err);
+    logOperatorError("tool failed:", err, name);
     return {
       content: `${name} failed unexpectedly. Continue without it and do not claim it returned anything.`,
       isError: true,

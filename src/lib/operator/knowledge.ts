@@ -24,7 +24,12 @@
 import type { KnowledgeConfidence, KnowledgeKind, KnowledgeSource } from "@/lib/operator/protocol";
 import type { CaseCopy } from "@/components/case-studies/case-studies-copy";
 import en from "@/locales/en.json";
-import { AFTER_ENQUIRY, AUDIT, CTA_LABEL, DISCOVERY, ENTRY, TIER_TO_SYSTEM } from "@/lib/offer";
+// CTA_LABEL is deliberately not imported. Every "Request your free audit"
+// button leads to /contact, whose form does not deliver anything yet (it
+// shows "Message received" after a timer). Naming the button would send
+// visitors into a lost lead, so records name only WhatsApp and email as ways
+// to reach Savin. Revisit once ContactForm really submits.
+import { AFTER_ENQUIRY, AUDIT, DISCOVERY, ENTRY, TIER_TO_SYSTEM } from "@/lib/offer";
 import { TEAM } from "@/lib/team";
 import { BASE_URL, BRAND, SOCIAL_PROFILES, STATIC_PAGES } from "@/lib/constants";
 import { SERVICES_EN } from "@/components/services/services-copy";
@@ -110,11 +115,54 @@ const CLAIM_SENTENCE: readonly RegExp[] = [
   /\b(?:usually|typically) (?:shows?|sees?)\b/i,
   /\b(?:is|becomes?) realistic\b/i,
   /\b(?:in|inside|within) the first \d+(?:\s?[–-]\s?\d+)? (?:days|weeks|months)\b/i,
+  // Offers lib/offer.ts does not define. It has exactly one audit, and that
+  // one is free; the paid step is the Discovery Sprint. The e-commerce FAQ's
+  // "we run a paid CRO audit" would otherwise reach the model as canonical.
+  /\bpaid\s+(?:[\w-]+\s+){0,2}audit\b/i,
+  /\bCRO audit\b/i,
 ];
+
+/**
+ * Market statistics nobody can source ("you're already losing 70%", "20–30%
+ * no-show rate", "3–7% at every audit") and stances the persona contradicts
+ * ("if your CRM is the bottleneck (most are), we replace it"; the persona
+ * connects or extends a stack before replacing it). Industry pages argue with
+ * them; indexed as canonical they would read as research, or as a fact about
+ * the visitor's own business, and could become calculate_operational_impact
+ * inputs. Applied to industry copy only: case studies are reported outcomes
+ * with their own caveat, and pricing records quote published specs (uptime).
+ */
+const FRAMING_SENTENCE: readonly RegExp[] = [
+  /\d\s?%/,
+  /\blosing \d/i,
+  /\bmost (?:are|do|teams|crms)\b/i,
+  /\b(?:one|two|three) in (?:three|four|five|ten)\b/i,
+  /\b(?:three-quarters|two-thirds|half) (?:of )?your\b/i,
+  /\bwe replace it\b/i,
+];
+
+/**
+ * Limits of named third-party products. "Tally caps at 2 users" and "2
+ * concurrent users on Silver and 10 on Gold" contradict TallyPrime's own
+ * editions (Silver is single-user, Gold multi-user), and because "tally" is
+ * an industry tag and an erp synonym they ranked first for any Tally
+ * question. Savin cannot vouch for another vendor's licensing, so a sentence,
+ * heading or FAQ that states one is left out.
+ */
+const THIRD_PARTY_LIMIT: readonly RegExp[] = [
+  /\bcaps? at \d+\b/i,
+  /\b(?:Tally|Zoho|SAP)\b[^.]*\b\d+ (?:concurrent )?users?\b/i,
+];
+
+const INDUSTRY_SENTENCE: readonly RegExp[] = [...CLAIM_SENTENCE, ...FRAMING_SENTENCE, ...THIRD_PARTY_LIMIT];
+
+function matchesAny(text: string, patterns: readonly RegExp[]): boolean {
+  return patterns.some((re) => re.test(text));
+}
 
 function stripSentences(text: string, patterns: readonly RegExp[]): string {
   return splitSentences(text)
-    .filter((s) => !patterns.some((re) => re.test(s)))
+    .filter((s) => !matchesAny(s, patterns))
     .join(" ");
 }
 
@@ -122,12 +170,38 @@ function stripClaims(text: string): string {
   return stripSentences(text, CLAIM_SENTENCE);
 }
 
+function stripIndustryCopy(text: string): string {
+  return stripSentences(text, INDUSTRY_SENTENCE);
+}
+
+/**
+ * Deliverable descriptions are lists, and a statistic tacked on as the last
+ * item ("…, WhatsApp Click-to-Chat from PDP, and a checkout that doesn't lose
+ * 15% of users at the OTP step") should cost that item, not the deliverable.
+ * Only that "A, B, and <claim>" shape is trimmed: cutting at an arbitrary
+ * comma could leave a fragment ("NRI buyers from US, UK, UAE"), so any other
+ * flagged sentence goes whole.
+ */
+function stripDeliverable(text: string): string {
+  return splitSentences(text)
+    .map((s) => {
+      if (!matchesAny(s, INDUSTRY_SENTENCE)) return s;
+      const cut = s.lastIndexOf(", and ");
+      const head = cut > 0 ? s.slice(0, cut) : "";
+      return head.includes(",") && !matchesAny(head, INDUSTRY_SENTENCE) ? sentence(head) : "";
+    })
+    .filter(Boolean)
+    .join(" ");
+}
+
 /**
  * Industry FAQ answers are dropped whole when they carry a price (every
  * industry price contradicts lib/offer.ts), an unverifiable "we've shipped"
- * claim, a compliance claim, or a promise of "live examples".
+ * claim, a compliance claim, a promise of "live examples", or a claim about
+ * a third-party product's limits (the whole answer is then a vendor
+ * comparison Savin cannot stand behind).
  */
-const FAQ_EXCLUDE = /₹|\bwe(?:'|’)ve\b|\bHIPAA\b|\bBAA\b|\bSOC\s?2?\b|live examples/i;
+const FAQ_EXCLUDE: readonly RegExp[] = [/₹|\bwe(?:'|’)ve\b|\bHIPAA\b|\bBAA\b|\bSOC\s?2?\b|live examples/i, ...THIRD_PARTY_LIMIT];
 const COST_QUESTION = /\bwhat does (?:this|it) cost\b/i;
 /** Below this, a claim-stripped answer no longer answers its question. */
 const MIN_ANSWER_CHARS = 80;
@@ -164,6 +238,38 @@ function isDenied(record: KnowledgeRecord): boolean {
 const DETAILS = en.contact.details;
 const PRICING = getPricingContent(en);
 const PRICING_COPY = getPricingCopy("en");
+
+/** "A, B and C". */
+function listJoin(items: readonly string[]): string {
+  return items.length < 2 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/**
+ * When the paid sprint is required. The site's own copy disagrees: the
+ * process steps and the discovery FAQ put a sprint before any build, while the
+ * pricing page's engagement path goes audit → proposal → fixed quote for every
+ * plan ("nothing is billed before the quote is fixed") and requires a sprint
+ * only for Enterprise. The model used to pick either, so a ₹25,000 Launch
+ * visitor could be told to pay ₹15,000 first. Enterprise is the one case
+ * every source agrees on; for the other plans this follows the pricing page,
+ * where visitors compare plans. The owner should confirm the rule and
+ * reconcile offer.ts, locales process.steps and pricing-copy.ts.
+ */
+const DISCOVERY_RULE = TIER_TO_SYSTEM.Enterprise
+  ? `Enterprise scopes always start with the paid ${DISCOVERY.name}. For the other plans (${listJoin(
+      PRICING.tiers.map((tier) => tier.name).filter((name) => name !== "Enterprise"),
+    )}) the pricing page's path runs free audit → scoped proposal → fixed quote, with nothing billed before the quote, so there the sprint is optional, never a precondition.`
+  : "";
+
+/**
+ * TIER_TO_SYSTEM prints systems next to each tier, which reads as a bundle
+ * price, and the two published lists do not add up: Growth starts at ₹55,000
+ * but RevSite Pro at ₹60,000, and Scale's ₹2,00,000 ceiling is below the
+ * minimum of its three systems. Both figures are published, so the model may
+ * quote either, but never derive one list from the other or sum systems.
+ */
+const TIER_LISTS_ARE_SEPARATE =
+  "Tier ranges and service-system ranges are separate published lists: a tier's range is not the sum of its systems' ranges. When asked about a named system, quote that system's own range; never add systems together or infer one list from the other.";
 
 const PRICE_CAVEAT = PRICING.note
   ? `Published starting range in INR. ${clean(PRICING.note)}`
@@ -224,7 +330,7 @@ add({
   body: [
     AUDIT.supportLine,
     `The site's name for it is the ${AUDIT.name}; it is the free first step of every engagement.`,
-    `The button reads "${CTA_LABEL}": there is no scheduler, so the visitor sends a request and a person replies.`,
+    `There is no scheduler: the visitor requests the audit on WhatsApp (${DETAILS.phone}) or by email (${DETAILS.email}) and a person replies.`,
     `After a request: ${AFTER_ENQUIRY.join(" ")}`,
     `Some older copy said 30 minutes; the reconciled offer is ${AUDIT.durationLong}.`,
   ].join(" "),
@@ -241,9 +347,10 @@ add({
   body: [
     DISCOVERY.summary,
     DISCOVERY.note,
-    `It comes after the free ${AUDIT.name}, never instead of it, and only when a build is worth scoping.`,
+    `It comes after the free ${AUDIT.name}, never instead of it.`,
     TIER_TO_SYSTEM.Enterprise ? `Enterprise: ${TIER_TO_SYSTEM.Enterprise.note}` : "",
-    "Where another page quotes a different discovery length or price, this reconciled offer is the current one.",
+    DISCOVERY_RULE,
+    "Where another page quotes a different discovery length or price, or implies that every build starts with a sprint, this reconciled offer is the current one.",
   ].filter(Boolean).join(" "),
   path: "/pricing#quote",
   tags: ["discovery", "sprint", "paid", "scoping", "blueprint", "credited", "pricing", "cost"],
@@ -272,9 +379,10 @@ add({
   id: "offer:tier-to-system",
   kind: "offer",
   title: "How the pricing tiers map to the service systems",
-  body: Object.entries(TIER_TO_SYSTEM)
-    .map(([tier, { systems, note }]) => `${tier}: ${systems.join(" + ")}. ${sentence(note)}`)
-    .join(" "),
+  body: [
+    ...Object.entries(TIER_TO_SYSTEM).map(([tier, { systems, note }]) => `${tier}: ${systems.join(" + ")}. ${sentence(note)}`),
+    TIER_LISTS_ARE_SEPARATE,
+  ].join(" "),
   path: "/pricing",
   tags: ["pricing", "tiers", "plans", "systems", "mapping", "cost"],
   confidence: "canonical",
@@ -395,6 +503,15 @@ for (const slug of INDUSTRY_SLUGS) {
   // Every industry page features all three cases; only name one that is
   // actually from this industry, so healthcare is not "proven" by skincare.
   const ownCase = en.caseStudies.items.find((item) => CASE_INDUSTRY[item.id] === slug);
+  // Audience bullets are qualifiers ("Conversion rate below 1.2%"); one that
+  // carries a figure is dropped rather than read back as a market fact.
+  const audience = data.audience.bullets.filter((bullet) => !matchesAny(bullet, INDUSTRY_SENTENCE));
+  // A statistic or a vendor claim in a pain heading ("20–30% no-show rate",
+  // "Tally caps at 2 users") drops the heading only: the scenario under it
+  // usually stands on its own once its own figures are stripped.
+  const pains = data.pains.items
+    .map((pain) => [matchesAny(pain.title, INDUSTRY_SENTENCE) ? "" : sentence(pain.title), stripIndustryCopy(pain.body)].filter(Boolean).join(" "))
+    .filter(Boolean);
 
   add({
     id: `industry:${slug}`,
@@ -404,9 +521,9 @@ for (const slug of INDUSTRY_SLUGS) {
       // The card description repeats the hero subtitle (with a city list that
       // reads like a client roster), so only the card's audience tag is kept.
       card ? sentence(card.tag) : "",
-      stripClaims(data.hero.subtitle),
-      `${data.audience.title}: ${data.audience.bullets.join("; ")}.`,
-      `${data.pains.title}: ${data.pains.items.map((pain) => `${pain.title}. ${stripClaims(pain.body)}`).join(" ")}`,
+      stripIndustryCopy(data.hero.subtitle),
+      audience.length ? `${data.audience.title}: ${audience.join("; ")}.` : "",
+      pains.length ? `${data.pains.title}: ${pains.join(" ")}` : "",
       services.length ? `Related service systems: ${services.join(", ")}.` : "",
       ownCase ? `Case study from this industry: ${ownCase.industry}, ${ownCase.location} (search for details).` : "",
     ].filter(Boolean).join(" "),
@@ -420,7 +537,12 @@ for (const slug of INDUSTRY_SLUGS) {
     id: `industry:${slug}-build`,
     kind: "industry",
     title: `${data.build.title} (${data.serviceType})`,
-    body: data.build.deliverables.map((d) => `${d.label}: ${stripClaims(d.description)}`).join(" "),
+    body: data.build.deliverables
+      .map((d) => {
+        const description = stripDeliverable(d.description);
+        return description ? `${d.label}: ${description}` : sentence(d.label);
+      })
+      .join(" "),
     path: `/industries/${slug}`,
     tags: [...tags, "deliverables", "build", "scope"],
     confidence: "canonical",
@@ -428,8 +550,8 @@ for (const slug of INDUSTRY_SLUGS) {
   });
 
   data.faq.forEach((faq, index) => {
-    if (COST_QUESTION.test(faq.q) || FAQ_EXCLUDE.test(faq.q) || FAQ_EXCLUDE.test(faq.a)) return;
-    const answer = stripClaims(faq.a);
+    if (COST_QUESTION.test(faq.q) || matchesAny(faq.q, FAQ_EXCLUDE) || matchesAny(faq.a, FAQ_EXCLUDE)) return;
+    const answer = stripIndustryCopy(faq.a);
     if (answer.length < MIN_ANSWER_CHARS) return;
     add({
       id: `industry_faq:${slug}-q${index + 1}`,
@@ -536,8 +658,13 @@ add({
   title: `${PRICING_COPY.railTitle}: ${PRICING_COPY.quoteTitle.join(" ")}`,
   body: [
     PRICING_COPY.quoteIntro,
+    // "Nothing is billed before the quote is fixed" is not true of Enterprise,
+    // whose scope starts with the paid sprint; see DISCOVERY_RULE.
+    /\bnothing is billed before\b/i.test(PRICING_COPY.quoteIntro) && TIER_TO_SYSTEM.Enterprise
+      ? `The one exception is Enterprise: those scopes start with the paid ${DISCOVERY.name} (${DISCOVERY.price}, credited in full against the build).`
+      : "",
     ...PRICING_COPY.steps.map((step) => `${step.label}: ${step.title}. ${step.body}`),
-  ].join(" "),
+  ].filter(Boolean).join(" "),
   path: "/pricing#quote",
   tags: ["process", "steps", "quote", "proposal", "fixed price", "demos", "launch", "hosting", "support"],
   confidence: "canonical",
@@ -666,7 +793,8 @@ add({
 add({
   id: "contact:enquiry-industries",
   kind: "contact",
-  title: "Industries listed on the enquiry form",
+  // Not "the enquiry form": the form sends nothing (see the CTA_LABEL note).
+  title: "Industries named on the contact page",
   body: `${en.contact.form.industries.join(", ")}.`,
   path: "/contact",
   tags: ["industries", "sectors", "who", "serve"],
@@ -807,14 +935,38 @@ add({
   kind: "absence",
   title: "No online booking or scheduler",
   body: [
-    `There is no calendar or booking system on the site. The button reads "${CTA_LABEL}" because the visitor sends a request and a person replies: ${AFTER_ENQUIRY[0]}`,
+    `There is no calendar or booking system on the site; a person replies to a WhatsApp or email request: ${AFTER_ENQUIRY[0]}`,
     "Nothing can be booked, reserved or confirmed through the site.",
     `To request the ${AUDIT.label}, the visitor messages ${DETAILS.phone} on WhatsApp or emails ${DETAILS.email}; the contact page lists both.`,
   ].join(" "),
   path: "/contact",
   tags: ["booking", "book", "schedule", "scheduler", "calendar", "appointment", "slot", "meeting", "call"],
   confidence: "canonical",
-  source: "lib/offer.ts#CTA_LABEL",
+  source: "lib/offer.ts#AFTER_ENQUIRY",
+});
+
+/* The eight capabilities carry no price; only the named systems and the
+ * website tiers do. Without this record "IoT sensor price" returned the
+ * capability pages next to the website tiers, and nothing stopped a
+ * Tally-to-WhatsApp integration being quoted as a ₹55,000 Growth site. */
+const OPERATIONS_SYSTEMS = en.services.items.filter((item) => /\b(?:automation|ERP)\b/i.test(item.kicker));
+add({
+  id: "absence:capability-pricing",
+  kind: "absence",
+  title: "No published price for AI, IoT, integration, custom software or data work",
+  body: [
+    "The site publishes no price for AI agents, industrial IoT and sensors, API and system integrations, custom software, data and analytics, or automation outside the named service systems.",
+    `That work is scoped and quoted after the free ${AUDIT.duration} audit.`,
+    `The published INR ranges belong to the ${PRICING.tiers.length} pricing tiers, which are website and platform scopes (${PRICING.tiers.map((tier) => `${tier.name}: ${clean(tier.scope)}`).join("; ")}), and to the ${en.services.items.length} named service systems.`,
+    OPERATIONS_SYSTEMS.length
+      ? `The named systems that cover operations work are ${listJoin(OPERATIONS_SYSTEMS.map((item) => `${item.name} (${item.kicker})`))}; search for their ranges.`
+      : "",
+    "A website tier, or a system that does not cover the work, is not a price for it.",
+  ].filter(Boolean).join(" "),
+  path: "/pricing",
+  tags: ["price", "cost", "quote", "minimum", "ai", "agents", "automation", "integration", "integrate", "api", "iot", "sensors", "machines", "custom software", "data", "capability"],
+  confidence: "canonical",
+  source: "none published (locales/en.json#pricing.tiers + locales/en.json#services.items)",
 });
 
 add({
@@ -1139,9 +1291,11 @@ export const CONTACT_CHANNELS: Readonly<{
  * between requests (and between deploys that do not touch the copy).
  */
 function buildFactSheet(): string {
+  // "maps to", not a bare parenthesis: the tier ranges are not bundle prices
+  // for the systems listed (see TIER_LISTS_ARE_SEPARATE).
   const tiers = PRICING.tiers.map((tier) => {
     const systems = TIER_TO_SYSTEM[tier.name]?.systems.join(" + ");
-    return `- ${tier.name}: ${tier.priceRange}${systems ? ` (${systems})` : ""}`;
+    return `- ${tier.name}: ${tier.priceRange}${systems ? ` (maps to ${systems})` : ""}`;
   });
   const cases = en.caseStudies.items.map((item) => `- ${item.industry}, ${item.location}: ${item.title}`);
   return [
@@ -1153,20 +1307,27 @@ function buildFactSheet(): string {
     `- ${EN_ABOUT.identityBody[0] ?? EN_ABOUT.intro}`,
     `- Location as published: ${DETAILS.location}.`,
     "",
-    `WHAT SAVIN SAYS IT BUILDS (${SERVICES_EN.capabilities.length} capabilities)`,
+    `WHAT SAVIN SAYS IT BUILDS (${SERVICES_EN.capabilities.length} capabilities; only the named service systems below carry published prices)`,
     ...SERVICES_EN.capabilities.map((capability) => `- ${capability.name}: ${capability.build}`),
-    `- Named service systems, each with a published INR range: ${en.services.items.map((item) => item.name).join(", ")} (search for details).`,
+    // The kickers say what each system is, so "RevSite Pro" is not read as a
+    // price for connected-process work.
+    `- Named service systems, each with its own published INR range: ${en.services.items.map((item) => `${item.name} (${item.kicker})`).join(", ")}. Search for details.`,
     "",
     "HOW AN ENGAGEMENT STARTS",
     `1. ${AUDIT.label} (canonical name: "${AUDIT.name}"). ${AFTER_ENQUIRY[1]} ${AFTER_ENQUIRY[2]}`,
-    `2. Only if a build is worth scoping: the ${DISCOVERY.name}, a paid ${DISCOVERY.duration} working session, ${DISCOVERY.price}. ${DISCOVERY.note} It never replaces the free audit.`,
-    `- There is no online scheduler; nothing can be booked. The button reads "${CTA_LABEL}". Visitors request the audit themselves on WhatsApp or by email, or from the contact page, which lists both. ${AFTER_ENQUIRY[0]}`,
-    "- Older pages may still say 30 minutes or quote other discovery prices; the figures above are the reconciled offer.",
+    `2. The ${DISCOVERY.name}: a paid ${DISCOVERY.duration} working session, ${DISCOVERY.price}. ${DISCOVERY.note} It never replaces the free audit. ${DISCOVERY_RULE}`,
+    // No button label and no "from the contact page": see the CTA_LABEL note.
+    `- There is no online scheduler; nothing can be booked. Visitors request the audit themselves on WhatsApp or by email (the contact page lists both). ${AFTER_ENQUIRY[0]}`,
+    "- Older pages may still say 30 minutes, quote other discovery prices or put a sprint before every build; the rules above are the reconciled offer.",
     "",
     "PRICING (published INR starting ranges; the final quote follows the free audit)",
     ...tiers,
     ...(TIER_TO_SYSTEM.Enterprise ? [`- Enterprise scope: ${TIER_TO_SYSTEM.Enterprise.note}`] : []),
-    `- Entry points: a scoped site from ${ENTRY.site.display} (${ENTRY.site.tier}); a complete system from ${ENTRY.system.display} (${ENTRY.system.service}); retainers from ${ENTRY.retainer.display} per ${ENTRY.retainer.per}.`,
+    `- ${TIER_LISTS_ARE_SEPARATE}`,
+    // "A complete system" alone, under an identity line about ERP and
+    // industrial systems, read as the floor for connected-process work. The
+    // scope in brackets mirrors TIER_TO_SYSTEM.Growth.note.
+    `- Entry points: a scoped website from ${ENTRY.site.display} (${ENTRY.site.tier}); a complete revenue system (website + WhatsApp lead capture + on-page SEO + analytics) from ${ENTRY.system.display} (${ENTRY.system.service}); retainers from ${ENTRY.retainer.display} per ${ENTRY.retainer.per}. None of these prices process, integration, IoT or AI work.`,
     "- No prices in other currencies are published.",
     "",
     `CASE STUDIES (${cases.length} anonymised client projects, reported outcomes; search for details)`,
@@ -1179,6 +1340,7 @@ function buildFactSheet(): string {
     "- A street or office address.",
     "- Certifications, compliance attestations, partnerships or awards.",
     "- Verified ratings, review scores, client counts or aggregate results.",
+    "- Prices for AI agents, industrial IoT, integrations, custom software, data work, or automation outside the named service systems. That work is scoped after the free audit; never price it from a website tier.",
     "",
     "CONTACT (the visitor sends the message; nothing is sent for them)",
     `- Email: ${CONTACT_CHANNELS.email}`,

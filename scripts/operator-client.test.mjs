@@ -59,7 +59,8 @@ export async function load(url, context, next) {
 );
 
 const { createNdjsonParser, toOperatorEvent } = await import("../src/components/operator/ndjson.ts");
-const { parseMarkdown, parseInline, safeHref, markdownToPlainText } = await import("../src/components/operator/markdown-ast.ts");
+const { parseMarkdown, parseInline, safeHref, markdownToPlainText, inlineText } = await import("../src/components/operator/markdown-ast.ts");
+const { textDir, scriptLang, localeDir } = await import("../src/components/operator/text-dir.ts");
 const transcript = await import("../src/components/operator/transcript.ts");
 // Server modules, for the seam tests only: the panel never imports these.
 const tools = await import("../src/lib/operator/tools.ts");
@@ -260,9 +261,13 @@ test("markdown: unordered and ordered lists", () => {
   assert.equal(parseMarkdown("* * *").length, 0, "a thematic break is not a bullet");
 });
 
+/** Savin's published channels (en.json contact.details), as OperatorPanel derives them. */
+const OWN = { whatsappDigits: "918305838352", email: "savingroup@gmail.com" };
+
 test("markdown: allowed links are kept; everything else becomes text", () => {
   const kept = parseMarkdown(
     "[Plans](/in/en/pricing#plans) [Site](https://www.savingroup.in/in/en/about) [Chat](https://wa.me/918305838352?text=Hi) [Mail](mailto:savingroup@gmail.com)",
+    OWN,
   );
   assert.deepEqual(hrefs(kept), [
     "/in/en/pricing#plans",
@@ -282,7 +287,7 @@ test("markdown: allowed links are kept; everything else becomes text", () => {
     "http://www.savingroup.in/in/en",
     "data:text/html,<script>alert(1)</script>",
   ]) {
-    const blocks = parseMarkdown(`Go [click here](${target}) now`);
+    const blocks = parseMarkdown(`Go [click here](${target}) now`, OWN);
     assert.deepEqual(hrefs(blocks), [], target);
     assert.deepEqual(blocks, [{ type: "paragraph", children: [{ type: "text", text: "Go click here now" }] }], target);
   }
@@ -290,13 +295,55 @@ test("markdown: allowed links are kept; everything else becomes text", () => {
   assert.equal(safeHref("/in/en/contact"), "/in/en/contact");
   assert.equal(safeHref("//evil"), null);
   assert.equal(safeHref("/\t/evil"), null);
-  assert.equal(safeHref("mailto:"), null);
+  assert.equal(safeHref("mailto:", OWN), null);
   assert.equal(safeHref("https://www.savingroup.in"), "https://www.savingroup.in");
 });
 
+test("markdown: WhatsApp and email links reach only Savin's published channels", () => {
+  // A pasted document (or a digit slip) cannot put a look-alike "contact Savin" link in a reply.
+  for (const source of [
+    "[+91 83058 38352](https://wa.me/447700900123?text=hi)",
+    "[https://www.savingroup.in/contact](https://wa.me/15550001111)",
+    "[Chat](https://wa.me/918305838352&phone=447700900123)",
+    "[Chat](https://wa.me/918305838352?text=hi&phone=447700900123)",
+    "[Chat](https://wa.me/91830583835)",
+    "[savingroup@gmail.com](mailto:attacker@evil.test?bcc=x@evil.test&subject=Brief)",
+    "[Mail us](mailto:savingroup@gmail.com?bcc=x@evil.test)",
+    "[Mail us](mailto:savingroup@gmail.com,x@evil.test)",
+    "[Mail us](mailto:savingroup%40gmail.com)",
+  ]) {
+    assert.deepEqual(hrefs(parseMarkdown(source, OWN)), [], source);
+  }
+  assert.deepEqual(
+    parseMarkdown("Send it to [+91 83058 38352](https://wa.me/447700900123) now", OWN),
+    [{ type: "paragraph", children: [{ type: "text", text: "Send it to +91 83058 38352 now" }] }],
+    "the label stays, as plain text",
+  );
+
+  // Fail closed: without the published channels, no wa.me or mailto link at all.
+  assert.deepEqual(hrefs(parseMarkdown("[Chat](https://wa.me/918305838352) [Mail](mailto:savingroup@gmail.com) savingroup@gmail.com https://wa.me/918305838352")), []);
+  assert.equal(safeHref("https://wa.me/918305838352"), null);
+  assert.equal(safeHref("mailto:savingroup@gmail.com"), null);
+  assert.equal(safeHref("https://wa.me/918305838352", { whatsappDigits: "", email: "" }), null);
+  assert.equal(safeHref("mailto:SaVinGroup@Gmail.com", OWN), "mailto:SaVinGroup@Gmail.com", "email case does not matter");
+  assert.equal(safeHref("https://wa.me/918305838352/?text=Hello%20Savin", OWN), "https://wa.me/918305838352/?text=Hello%20Savin");
+
+  // A label that reads as a destination must name the href's own target.
+  assert.deepEqual(hrefs(parseMarkdown("[+91 83058 38352](https://wa.me/918305838352)", OWN)), ["https://wa.me/918305838352"]);
+  assert.deepEqual(hrefs(parseMarkdown("[+44 7700 900123](https://wa.me/918305838352)", OWN)), []);
+  assert.deepEqual(hrefs(parseMarkdown("[SaVinGroup@gmail.com](mailto:savingroup@gmail.com)", OWN)), ["mailto:savingroup@gmail.com"]);
+  assert.deepEqual(hrefs(parseMarkdown("[help@savin.example](mailto:savingroup@gmail.com)", OWN)), []);
+  assert.deepEqual(hrefs(parseMarkdown("[savingroup@gmail.com](/in/en/contact)", OWN)), []);
+  assert.deepEqual(hrefs(parseMarkdown("[https://www.savingroup.in/in/en/pricing](/in/en/pricing)", OWN)), ["/in/en/pricing"]);
+  assert.deepEqual(hrefs(parseMarkdown("[https://www.savingroup.in/in/en/pricing](/in/en/privacy)", OWN)), []);
+  assert.deepEqual(hrefs(parseMarkdown("[Talk to us on WhatsApp](https://wa.me/918305838352)", OWN)), ["https://wa.me/918305838352"], "free text labels are fine");
+});
+
 test("markdown: bare allowed URLs and emails are linked; others stay text", () => {
-  const blocks = parseMarkdown("WhatsApp https://wa.me/918305838352. Or email savingroup@gmail.com, or see https://evil.example/x");
+  const blocks = parseMarkdown("WhatsApp https://wa.me/918305838352. Or email savingroup@gmail.com, or see https://evil.example/x", OWN);
   assert.deepEqual(hrefs(blocks), ["https://wa.me/918305838352", "mailto:savingroup@gmail.com"]);
+  const foreign = "write to bob@evil.test or https://wa.me/447700900123 now";
+  assert.deepEqual(parseMarkdown(foreign, OWN), [{ type: "paragraph", children: [{ type: "text", text: foreign }] }], "a foreign address or number stays text");
   assert.match(markdownToPlainText("See [pricing](javascript:x) and https://evil.example"), /^See pricing and https:\/\/evil\.example$/);
 });
 
@@ -318,6 +365,51 @@ test("markdown: code fences, quotes, breaks and tables-as-text", () => {
   assert.equal(table[0].type, "paragraph");
   assert.equal(table[0].children[0].text, "| a | b |");
   assert.deepEqual(parseMarkdown("<b>html</b> ![logo](/x.png)"), [{ type: "paragraph", children: [{ type: "text", text: "<b>html</b> logo" }] }]);
+});
+
+/* -------------------------------------------------------------------------- */
+/*                            Direction and language                          */
+/* -------------------------------------------------------------------------- */
+
+test("text-dir: direction follows the letters, not the first strong character", () => {
+  // Arabic that opens with a Latin product name is still Arabic (dir="auto" made these LTR).
+  assert.equal(textDir("Excel ليس المشكلة هنا؛ المشكلة أن الطلب نفسه يُكتب مرتين.", "ltr"), "rtl");
+  assert.equal(textDir("Tally: يحتاج إلى واجهة API مفعّلة.", "ltr"), "rtl");
+  assert.equal(textDir("Tally و Excel لا يتواصلان، ونعيد إدخال كل طلب مرتين.", "ltr"), "rtl");
+  // English on an Arabic page stays LTR, also with an Arabic word in it.
+  assert.equal(textDir("When an order changes after production starts, sales calls.", "rtl"), "ltr");
+  assert.equal(textDir("Our Dubai team calls it الطلب", "rtl"), "ltr");
+  assert.equal(textDir("नमस्ते, हम Tally इस्तेमाल करते हैं", "rtl"), "ltr");
+  // Links and code do not vote.
+  assert.equal(textDir("See https://www.savingroup.in/ae/ar/pricing and `ERP_ORDER_ID` — ما رأيك؟", "ltr"), "rtl");
+  // No letters: the page decides.
+  assert.equal(textDir("", "rtl"), "rtl");
+  assert.equal(textDir("12 345 🙂 ?", "rtl"), "rtl");
+  assert.equal(textDir("12 345", "ltr"), "ltr");
+  assert.equal(localeDir("ar"), "rtl");
+  assert.equal(localeDir("en"), "ltr");
+  assert.equal(localeDir("xx"), "ltr");
+
+  // As <Markdown> judges a block: from its inline text with code left out.
+  const [block] = parseMarkdown("`Excel` ليس المشكلة");
+  assert.equal(inlineText(block.children, { code: false }).trim(), "ليس المشكلة");
+  assert.equal(inlineText(block.children), "Excel ليس المشكلة");
+  const [list] = parseMarkdown("- Tally: يحتاج إلى واجهة API مفعّلة.\n- مجموعة واتساب: لا يوجد سجل تدقيق.\n- Excel stays for reports");
+  assert.deepEqual(list.items.map((item) => textDir(inlineText(item, { code: false }), "rtl")), ["rtl", "rtl", "ltr"], "each item on its own");
+});
+
+test("text-dir: lang is set only when the text's script is not the page's", () => {
+  assert.equal(scriptLang("हम ऑर्डर Excel में ट्रैक करते हैं", "en"), "hi");
+  assert.equal(scriptLang("हम ऑर्डर Excel में ट्रैक करते हैं", "hi"), undefined);
+  assert.equal(scriptLang("અમે ઓર્ડર Excel માં રાખીએ છીએ", "en"), "gu");
+  assert.equal(scriptLang("Excel ليس المشكلة", "en"), "ar");
+  assert.equal(scriptLang("Excel ليس المشكلة", "ar"), undefined);
+  assert.equal(scriptLang("我们用 Excel 跟踪订单", "en"), "zh");
+  // Latin on a non-Latin page reads as English; on a Latin page it inherits (Latin alone cannot tell en from es).
+  assert.equal(scriptLang("We track orders in Excel", "hi"), "en");
+  assert.equal(scriptLang("We use 订单", "zh"), "en");
+  assert.equal(scriptLang("We track orders in Excel", "es"), undefined);
+  assert.equal(scriptLang("123 🙂", "hi"), undefined);
 });
 
 /* -------------------------------------------------------------------------- */
@@ -568,4 +660,37 @@ test("seam: every event the route emits comes out of the NDJSON reader intact", 
   parser.end();
   assert.equal(parser.skipped, 0);
   assert.deepEqual(received, events);
+});
+
+/* -------------------------------------------------------------------------- */
+/*                              Stored transcript                             */
+/* -------------------------------------------------------------------------- */
+
+test("stored transcript: an exchange cut off by a reload comes back with Retry, not '(stopped)'", () => {
+  const question = { id: "su", role: "user", parts: [{ kind: "text", text: "question" }], page: { pathname: "/in/en" } };
+  const partial = { id: "sa", role: "assistant", parts: [{ kind: "text", text: "partial" }] };
+
+  const stored = transcript.storedMessages([question, partial], true);
+  assert.equal(stored.at(-1).interrupted, true);
+  assert.equal(stored.at(-1).stopped, undefined, "the visitor stopped nothing");
+  assert.equal(partial.interrupted, undefined, "the live message is not mutated");
+  const idle = [question, partial];
+  assert.equal(transcript.storedMessages(idle, false), idle, "a finished thread is stored as is");
+  assert.deepEqual(transcript.storedMessages([question], true), [question], "nothing to mark before the first token");
+
+  const restored = transcript.parseStoredTranscript(JSON.stringify({ v: 1, messages: stored }));
+  assert.deepEqual(restored, stored);
+  assert.equal(transcript.isUnfinished(restored), true, "mid-reply reload");
+  assert.equal(transcript.isUnfinished([question]), true, "reload before the first token, or after an unstored error");
+  assert.equal(transcript.isUnfinished([question, partial]), false);
+  assert.equal(transcript.isUnfinished([question, { ...partial, stopped: true }]), false, "a reply the visitor stopped is finished");
+  assert.equal(transcript.isUnfinished([]), false);
+  // Retry drops the partial reply (back to the last user message); typing on instead still builds a valid request.
+  assertAccepted(restored.slice(0, 1), "retry after an interrupted reply");
+  assertAccepted([...restored, userMsg("follow-up")], "a new message after an interrupted reply");
+
+  assert.equal(transcript.parseStoredTranscript(JSON.stringify({ v: 1, messages: [{ ...partial, interrupted: "yes" }] })), null);
+  assert.equal(transcript.parseStoredTranscript(JSON.stringify({ v: 2, messages: [] })), null);
+  assert.equal(transcript.parseStoredTranscript("{not json"), null);
+  assert.equal(transcript.parseStoredTranscript(null), null);
 });

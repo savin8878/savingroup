@@ -1,7 +1,8 @@
 /**
  * Offline tests for the Operator's artifact-view logic: graph layering and
- * edge routing, the list-view reading order, and the brief / X-Ray text
- * formats with their WhatsApp and mailto caps.
+ * edge routing, the list-view reading order, the brief / X-Ray text formats
+ * with their WhatsApp and mailto caps, the impact card's number formats and
+ * localized assumptions, and the grouping of (possibly malformed) artifacts.
  *
  *   node --test --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/operator-views.test.mjs
  *
@@ -56,7 +57,10 @@ export async function load(url, context, next) {
 
 const layout = await import("../src/components/operator/views/graph-layout.ts");
 const format = await import("../src/components/operator/views/brief-format.ts");
-const { getViewsCopy, fill } = await import("../src/components/operator/views/views-copy.ts");
+const { getViewsCopy, fill, splitAround } = await import("../src/components/operator/views/views-copy.ts");
+const impactFormat = await import("../src/components/operator/views/impact-format.ts");
+const { groupArtifacts, itemKey } = await import("../src/components/operator/views/group-artifacts.ts");
+const { computeImpact } = await import("../src/lib/operator/impact.ts");
 
 const { layoutGraph, toRailOrder, routeEdges, edgeKey, channelSize, pointAlong } = layout;
 
@@ -343,4 +347,158 @@ test("copy: every locale merges over English and fills placeholders", () => {
   assert.equal(fill(en.sim.stepOf, { n: 3, total: 8 }), "Step 3 of 8");
   assert.equal(format.fileSlug("Acme — Stores X-Ray", "x"), "acme-stores-x-ray");
   assert.equal(format.fileSlug("业务透视", "business-x-ray"), "business-x-ray");
+});
+
+test("copy: the edge words follow each language's word order", () => {
+  for (const locale of ["en", "es", "fr", "de", "ar", "hi", "zh", "gu"]) {
+    const { edgeTo, between } = getViewsCopy(locale).graph;
+    assert.ok(edgeTo.includes("{to}"), locale);
+    assert.ok(between.indexOf("{from}") >= 0 && between.indexOf("{from}") < between.indexOf("{to}"), locale);
+  }
+  // Hindi and Gujarati postpositions follow the noun: "Tally की ओर", never "की ओर Tally".
+  assert.deepEqual(splitAround(getViewsCopy("hi").graph.edgeTo, "to"), ["", " की ओर"]);
+  assert.deepEqual(splitAround(getViewsCopy("gu").graph.edgeTo, "to"), ["", " તરફ"]);
+  assert.deepEqual(splitAround(en.graph.edgeTo, "to"), ["to ", ""]);
+  assert.equal(fill(getViewsCopy("hi").graph.between, { from: "बिक्री", to: "Tally" }), "बिक्री से Tally तक");
+  assert.deepEqual(splitAround("towards", "to"), ["towards ", ""], "a template without the placeholder reads as a prefix");
+});
+
+test("copy: hints name the controls by their labels, and Spanish addresses Savin as ustedes", () => {
+  const de = getViewsCopy("de").sim;
+  assert.ok(de.manualHint.includes(de.previous) && de.manualHint.includes(de.next), "voice control: say what you see");
+  const es = getViewsCopy("es").brief.greeting;
+  assert.ok(!/\b(os|vosotros|vuestro)\b/i.test(es), es);
+});
+
+/* ------------------------------------------------------------------------ */
+/*                               Impact card                                */
+/* ------------------------------------------------------------------------ */
+
+// The lead's seeded estimate: rows 82.5 + 44, total 126.5.
+const impactInput = {
+  title: "Daily order-change reconciliation",
+  activities: [
+    { label: "Reconcile order sheet with Tally", people: 5, minutesPerOccurrence: 45, occurrences: 1, per: "day", assumed: [], source: "visitor" },
+    { label: "Chase production on WhatsApp", people: 2, minutesPerOccurrence: 10, occurrences: 6, per: "day", assumed: [], source: "visitor" },
+  ],
+  workingDaysPerMonth: { value: 22, source: "assumption" },
+  reductionPercent: { value: 60, source: "assumption" },
+  hourlyCost: { amount: 450, currency: "INR", source: "assumption" },
+};
+const ARABIC_INDIC = /[٠-٩۰-۹]/;
+
+test("impact: hours show at the server's precision, so the total reads as the sum of its rows", () => {
+  const impact = computeImpact(impactInput);
+  assert.deepEqual(impact.rows.map((row) => row.hoursPerMonth), [82.5, 44]);
+  const f = impactFormat.impactFormat("en", "in");
+  assert.deepEqual(impact.rows.map((row) => f.hours(row.hoursPerMonth)), ["82.5", "44"]);
+  assert.equal(f.hours(impact.totalHoursPerMonth), "126.5", "the footer and the big numeral, not 127");
+  assert.equal(f.hours(impact.totalHoursPerYear), "1,518");
+  assert.equal(impactFormat.rowsDisagreeWithTotal(impact), false);
+  // Rows and total are rounded separately upstream; the card flags it rather than recomputing.
+  assert.equal(impactFormat.rowsDisagreeWithTotal({ rows: [{ label: "a", hoursPerMonth: 10 }, { label: "b", hoursPerMonth: 10 }], totalHoursPerMonth: 20.1 }), true);
+  assert.equal(impactFormat.rowsDisagreeWithTotal({ rows: [{ label: "a", hoursPerMonth: 0.1 }, { label: "b", hoursPerMonth: 0.2 }], totalHoursPerMonth: 0.3 }), false);
+});
+
+test("impact: digits are Latin in every Arabic market; en-IN keeps lakh grouping", () => {
+  for (const country of ["sa", "qa", "kw", "bh", "om", "jo", "eg", "iq", "ae"]) {
+    const f = impactFormat.impactFormat("ar", country);
+    for (const text of [f.hours(126.5), f.input(45), f.money(56925, "SAR"), f.rate(12.5, "SAR")]) {
+      assert.ok(!ARABIC_INDIC.test(text), `ar-${country}: ${text}`);
+    }
+    assert.equal(f.hours(126.5), "126.5", country);
+  }
+  assert.equal(impactFormat.impactFormat("en", "in").input(123456), "1,23,456");
+  assert.equal(impactFormat.impactFormat("en", "in").money(56925, "INR"), "₹56,925");
+});
+
+test("impact: inputs echo at the precision the server used", () => {
+  const f = impactFormat.impactFormat("en", "ie");
+  assert.equal(f.rate(22.5, "EUR"), "€22.50", "not €23");
+  assert.equal(f.rate(450, "EUR"), "€450");
+  assert.equal(f.money(1234.4, "EUR"), "€1,234");
+  assert.equal(f.input(0.04), "0.04", "not 0");
+  assert.equal(f.input(2.5), "2.5");
+  assert.equal(f.rate(22.5, "NOT-A-CODE"), "NOT-A-CODE 22.5", "an unknown code still shows the amount");
+  assert.match(impactFormat.impactFormat("fr", "fr").rate(22.5, "EUR"), /^22,50\s€$/);
+});
+
+test("impact: assumptions are listed in the visitor's language, from the same flags as the server's", () => {
+  const impact = computeImpact(impactInput);
+  assert.equal(impact.assumptions.length, 3);
+  const hi = getViewsCopy("hi");
+  const lines = impactFormat.assumptionLines(impact, hi.impact, impactFormat.impactFormat("hi", "in"), "hi");
+  assert.deepEqual(lines, ["प्रति माह 22 कार्यदिवस", "प्रस्तावित बदलाव से इस समय का 60% कम होगा", "स्टाफ़ की लागत ₹450 प्रति घंटा"]);
+
+  // Only the numbers the visitor did not state are listed, one by one.
+  const assumedActivity = {
+    ...impactInput,
+    activities: [
+      { ...impactInput.activities[0], assumed: ["minutesPerOccurrence"], source: "assumption" },
+      { ...impactInput.activities[1], people: 1, assumed: ["people", "occurrences"], source: "assumption" },
+    ],
+  };
+  const withActivities = computeImpact(assumedActivity);
+  const enLines = impactFormat.assumptionLines(withActivities, en.impact, impactFormat.impactFormat("en", "in"), "en");
+  assert.equal(enLines.length, withActivities.assumptions.length);
+  assert.equal(enLines[0], "⁦Reconcile order sheet with Tally⁩: 45 min each time", "the label is LTR-isolated; the visitor's 5 people are not called assumed");
+  assert.equal(enLines[1], "⁦Chase production on WhatsApp⁩: 1 person, 6× / day");
+  const ar = getViewsCopy("ar");
+  const arLines = impactFormat.assumptionLines(withActivities, ar.impact, impactFormat.impactFormat("ar", "sa"), "ar");
+  assert.ok(arLines[0].includes("45 دقيقة في كل مرة") && arLines[1].includes("شخص واحد، "), arLines.join(" | "));
+  assert.ok(arLines.every((line) => !ARABIC_INDIC.test(line)));
+  assert.equal(impactFormat.assumptionLines(withActivities, getViewsCopy("zh").impact, impactFormat.impactFormat("zh", "cn"), "zh")[1], "⁦Chase production on WhatsApp⁩：1 人，每天 6 次");
+
+  // A transcript stored before `assumed` existed: `source` alone marks all three numbers.
+  const legacy = { ...impactInput.activities[0], source: "assumption" };
+  delete legacy.assumed;
+  assert.deepEqual([...impactFormat.assumedFields(legacy)], ["people", "minutesPerOccurrence", "occurrences"]);
+  assert.deepEqual([...impactFormat.assumedFields({ ...legacy, source: "visitor" })], []);
+  assert.deepEqual([...impactFormat.assumedFields({ assumed: ["occurrences", "bogus", "people"], source: "assumption" })], ["people", "occurrences"]);
+  const legacyImpact = { input: { ...impactInput, activities: [legacy] }, assumptions: ["old line", ...impact.assumptions] };
+  assert.equal(impactFormat.assumptionLines(legacyImpact, en.impact, impactFormat.impactFormat("en", "in"), "en")[0], "⁦Reconcile order sheet with Tally⁩: 5 people, 45 min each time, 1× / day");
+
+  // A kind of assumption this client cannot phrase: fall back to the server's list rather than hide one.
+  const unknown = { ...impact, assumptions: [...impact.assumptions, "4.33 weeks per month (assumed)"] };
+  assert.equal(impactFormat.assumptionLines(unknown, en.impact, impactFormat.impactFormat("en", "in"), "en"), null);
+});
+
+test("impact: every locale has its own people form for every plural category it uses", () => {
+  for (const locale of ["es", "fr", "de", "ar", "hi", "zh", "gu"]) {
+    const templates = getViewsCopy(locale).impact.peopleCount;
+    for (const category of new Intl.PluralRules(locale).resolvedOptions().pluralCategories) {
+      const template = templates[category] ?? templates.other;
+      assert.notEqual(template, en.impact.peopleCount[category] ?? en.impact.peopleCount.other, `${locale}/${category} falls back to English`);
+    }
+  }
+  const f = impactFormat.impactFormat("en", "");
+  assert.equal(impactFormat.peopleText(1, en.impact.peopleCount, "en", f.input), "1 person");
+  assert.equal(impactFormat.peopleText(1.5, en.impact.peopleCount, "en", f.input), "1.5 people");
+  assert.equal(impactFormat.peopleText(2, getViewsCopy("ar").impact.peopleCount, "ar", f.input), "شخصان");
+});
+
+/* ------------------------------------------------------------------------ */
+/*                              Artifact grouping                           */
+/* ------------------------------------------------------------------------ */
+
+const mapArtifact = (id, view) => ({ type: "graph", id, graph: { title: id, view, nodes: [], edges: [] } });
+
+test("groupArtifacts pairs a current map with a proposed one, and drops sources", () => {
+  const items = groupArtifacts([mapArtifact("p", "proposed"), { type: "sources", id: "s", sources: [] }, mapArtifact("c", "current"), { type: "impact", id: "i", impact: {} }]);
+  assert.equal(items.length, 2);
+  assert.equal(items[0].kind, "pair");
+  assert.equal(items[0].today.id, "c", "Today is the current map whatever the order");
+  assert.equal(items[0].connected.id, "p");
+  assert.deepEqual(items.map(itemKey), ["c+p", "i"]);
+  // Two maps of the same kind stay separate.
+  assert.deepEqual(groupArtifacts([mapArtifact("a", "current"), mapArtifact("b", "current")]).map((item) => item.kind), ["single", "single"]);
+});
+
+test("groupArtifacts never throws on a malformed restored transcript", () => {
+  // The shape that crashed the page: a graph artifact without its graph, next to a valid one.
+  const restored = [{ type: "graph", id: "old1", map: {} }, mapArtifact("old2", "proposed")];
+  assert.deepEqual(groupArtifacts(restored).map((item) => item.kind), ["single", "single"]);
+  assert.deepEqual(groupArtifacts([{ type: "graph", id: "x", graph: null }, { type: "graph", id: "y", graph: "current" }]).map(itemKey), ["x", "y"]);
+  assert.deepEqual(groupArtifacts([null, undefined, mapArtifact("z", "current")]).map(itemKey), ["z"]);
+  assert.deepEqual(groupArtifacts([]), []);
 });

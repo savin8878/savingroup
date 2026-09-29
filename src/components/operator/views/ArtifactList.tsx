@@ -14,7 +14,12 @@
 //   row under the message text.
 //
 // Each block renders inside a <ViewBoundary>, so an artifact that makes its
-// view throw costs that one block, not the panel.
+// view throw costs that one block, not the panel. The grouping itself
+// (group-artifacts.ts) tolerates malformed restored artifacts, and the whole
+// list sits in one more boundary besides: nothing a stored transcript holds
+// may unmount the panel, because the layout has no error boundary and the
+// store survives a reload, so one throw here would take the site down on
+// every open of the launcher in that tab.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Locale } from "@/lib/i18n";
@@ -25,32 +30,9 @@ import { ImpactCard } from "./ImpactCard";
 import { SimulationTimeline } from "./SimulationTimeline";
 import { ViewBoundary } from "./ViewBoundary";
 import { WorkflowGraph } from "./WorkflowGraph";
+import { groupArtifacts, itemKey, type ArtifactItem, type GraphArtifact } from "./group-artifacts";
 import { getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
-
-type GraphArtifact = Extract<Artifact, { type: "graph" }>;
-type Item =
-  | { kind: "single"; artifact: Exclude<Artifact, { type: "sources" }> }
-  | { kind: "pair"; today: GraphArtifact; connected: GraphArtifact };
-
-/** Drop sources, then fold each adjacent current + proposed map into a pair. */
-function groupArtifacts(artifacts: Artifact[]): Item[] {
-  const visible = artifacts.filter((artifact): artifact is Exclude<Artifact, { type: "sources" }> => artifact.type !== "sources");
-  const items: Item[] = [];
-  for (let i = 0; i < visible.length; i++) {
-    const artifact = visible[i];
-    const next = visible[i + 1];
-    // `?.`: restored transcripts are only envelope-checked, and this runs outside any ViewBoundary.
-    if (artifact.type === "graph" && next?.type === "graph" && artifact.graph?.view !== next.graph?.view) {
-      const [today, connected] = artifact.graph.view === "current" ? [artifact, next] : [next, artifact];
-      items.push({ kind: "pair", today, connected });
-      i += 1;
-    } else {
-      items.push({ kind: "single", artifact });
-    }
-  }
-  return items;
-}
 
 function GraphPair({ today, connected, locale }: { today: GraphArtifact; connected: GraphArtifact; locale: Locale }) {
   const copy = getViewsCopy(locale).graph;
@@ -89,7 +71,7 @@ export interface ArtifactListProps {
   country: string;
 }
 
-function renderItem(item: Item, locale: Locale, country: string) {
+function renderItem(item: ArtifactItem, locale: Locale, country: string) {
   if (item.kind === "pair") return <GraphPair today={item.today} connected={item.connected} locale={locale} />;
   const { artifact } = item;
   switch (artifact.type) {
@@ -108,17 +90,25 @@ function renderItem(item: Item, locale: Locale, country: string) {
   }
 }
 
-export function ArtifactList({ artifacts, locale, country }: ArtifactListProps) {
-  const items = useMemo(() => groupArtifacts(artifacts), [artifacts]);
+function ArtifactBlocks({ artifacts, locale, country }: ArtifactListProps) {
+  const items = useMemo(() => groupArtifacts(Array.isArray(artifacts) ? artifacts : []), [artifacts]);
   if (!items.length) return null;
   return (
     <div className={s.list}>
       {items.map((item) => (
-        <ViewBoundary key={item.kind === "pair" ? `${item.today.id}+${item.connected.id}` : item.artifact.id} locale={locale}>
+        <ViewBoundary key={itemKey(item)} locale={locale}>
           {renderItem(item, locale, country)}
         </ViewBoundary>
       ))}
     </div>
+  );
+}
+
+export function ArtifactList(props: ArtifactListProps) {
+  return (
+    <ViewBoundary locale={props.locale}>
+      <ArtifactBlocks {...props} />
+    </ViewBoundary>
   );
 }
 

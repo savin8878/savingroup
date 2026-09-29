@@ -8,11 +8,15 @@
 // over-long visitor message, more than OPERATOR_LIMITS.maxTurns turns).
 // scripts/operator-client.test.mjs holds that guarantee in place.
 //
-// Pure (type-only imports, no React, no DOM) so Node's type stripping can
+// Also the stored form of the conversation (sessionStorage) and what a
+// restore makes of it.
+//
+// Pure (no React, no DOM; ./ndjson is pure too) so Node's type stripping can
 // load it in the tests.
 
 import type { Artifact, ClientTurn, OperatorRequest, PageRef } from "@/lib/operator/protocol";
 import { OPERATOR_LIMITS } from "@/lib/operator/protocol";
+import { isArtifactEnvelope } from "./ndjson";
 
 export type UIPart = { kind: "text"; text: string } | { kind: "artifact"; artifact: Artifact };
 
@@ -24,6 +28,20 @@ export interface UIMessage {
   page?: PageRef;
   /** Assistant messages the visitor stopped mid-stream. */
   stopped?: boolean;
+  /**
+   * Assistant messages cut off by a reload or navigation mid-stream (set
+   * only in the stored copy). Not "stopped": the visitor pressed nothing, so
+   * the restored panel offers Retry instead of saying they stopped it.
+   */
+  interrupted?: boolean;
+  /**
+   * Assistant messages that ended in the "refusal" error: the AI service
+   * declined the reply. A marker only; useOperatorChat empties its parts, so
+   * nothing that streamed before the decline is kept. It is stored like any
+   * message, so the decline survives a reload, and buildTurns leaves the
+   * declined exchange out of every later request.
+   */
+  refused?: boolean;
 }
 
 /** Cut to `max` UTF-16 units without splitting a surrogate pair. */
@@ -80,11 +98,25 @@ export function capArtifacts(artifacts: Artifact[], cap: number): Artifact[] {
  * ending with a user turn, at most `maxTurns`, every field within limits.
  * Empty assistant messages (an error before any output, a stop before the
  * first token) are skipped; the two user turns that then meet are merged.
+ * A declined (`refused`) reply is dropped together with the visitor turn it
+ * answered.
  */
 export function buildTurns(messages: UIMessage[], fallbackPathname: string): ClientTurn[] {
   const turns: ClientTurn[] = [];
   for (const message of messages) {
     const previous = turns[turns.length - 1];
+    if (message.role === "assistant" && message.refused) {
+      // Never resent, whatever it holds: output cut off by a decline is
+      // incomplete and is discarded, not treated as an answer (Anthropic's
+      // refusal guidance). Nor is the visitor turn it declined, which was
+      // everything unanswered since the last reply: kept, it would be merged
+      // into their next message like any unanswered text, most likely be
+      // declined again, and take every later turn down with it, leaving "New
+      // conversation" as the only way out. Dropping the pair keeps the turns
+      // alternating; the visitor still sees their message and the decline.
+      if (previous?.role === "user") turns.pop();
+      continue;
+    }
     if (message.role === "user") {
       const text = cleanUserText(messageText(message));
       if (!text) continue;
@@ -145,4 +177,82 @@ export function buildRequest(
   { locale, country, fallbackPathname }: { locale: string; country: string; fallbackPathname: string },
 ): OperatorRequest {
   return fitRequest({ locale, country, turns: buildTurns(messages, fallbackPathname) });
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              Stored transcript                             */
+/* -------------------------------------------------------------------------- */
+// The shape useOperatorChat keeps in sessionStorage, and what a restore makes
+// of it. Here rather than in the hook so the tests can hold it in place.
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+function isPart(value: unknown): value is UIPart {
+  if (!isRecord(value)) return false;
+  if (value.kind === "text") return typeof value.text === "string";
+  return value.kind === "artifact" && isArtifactEnvelope(value.artifact);
+}
+
+/** Loose shape check: enough that rendering cannot throw. */
+export function isUIMessage(value: unknown): value is UIMessage {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    (value.role === "user" || value.role === "assistant") &&
+    Array.isArray(value.parts) &&
+    value.parts.every(isPart) &&
+    (value.page === undefined || (isRecord(value.page) && typeof value.page.pathname === "string")) &&
+    (value.stopped === undefined || typeof value.stopped === "boolean") &&
+    (value.interrupted === undefined || typeof value.interrupted === "boolean") &&
+    (value.refused === undefined || typeof value.refused === "boolean")
+  );
+}
+
+/** A stored `{ v: 1, messages }` payload, or null when it is missing, unreadable or of another shape. */
+export function parseStoredTranscript(raw: string | null): UIMessage[] | null {
+  if (!raw) return null;
+  try {
+    const data: unknown = JSON.parse(raw);
+    if (isRecord(data) && data.v === 1 && Array.isArray(data.messages) && data.messages.every(isUIMessage)) return data.messages;
+  } catch {
+    // Not JSON: treated like any other foreign shape.
+  }
+  return null;
+}
+
+/**
+ * What to store for `messages`. A snapshot taken mid-stream is only ever
+ * restored after a reload or navigation, when that reply can no longer
+ * finish: its partial reply is marked interrupted (not stopped: the visitor
+ * pressed nothing).
+ */
+export function storedMessages(messages: UIMessage[], streaming: boolean): UIMessage[] {
+  const last = messages[messages.length - 1];
+  if (!streaming || last?.role !== "assistant") return messages;
+  return [...messages.slice(0, -1), { ...last, interrupted: true }];
+}
+
+/**
+ * A restored thread whose last exchange never finished: it ends on the
+ * visitor's own message (the tab went away before the first token, or an
+ * error arrived before any output and was never stored) or on an
+ * interrupted reply. The panel shows the "upstream" error for it, whose
+ * copy reads "The connection was interrupted…", so Retry is one press away
+ * instead of a question left hanging with no answer and no way to re-ask.
+ */
+export function isUnfinished(messages: UIMessage[]): boolean {
+  const last = messages[messages.length - 1];
+  return last !== undefined && !last.refused && (last.role === "user" || last.interrupted === true);
+}
+
+/**
+ * The error a restored thread reopens with (errors themselves are never
+ * stored): "upstream" for an unfinished exchange (see isUnfinished), and
+ * "refusal" for one that ended in a decline, so its explanation and Retry
+ * come back after a reload instead of a bare "(reply declined)" marker.
+ */
+export function restoredError(messages: UIMessage[]): "upstream" | "refusal" | null {
+  if (messages[messages.length - 1]?.refused) return "refusal";
+  return isUnfinished(messages) ? "upstream" : null;
 }

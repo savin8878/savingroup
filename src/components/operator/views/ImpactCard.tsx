@@ -9,26 +9,19 @@
 // then listed again under the figures, then capped by a disclaimer that this
 // is not a quote.
 //
-// Numbers use Intl with the route's language AND country, so en + IN groups
-// in lakhs (1,23,456) as Indian readers expect; a tag Intl rejects falls
-// back to the bare language, then to English.
+// Numbers and the assumption lines come from impact-format.ts: Latin
+// digits in every market, hours at the server's one decimal everywhere
+// (so the total reads as the sum of its rows), inputs at the precision the
+// server used, and assumptions in the visitor's language.
 
 import { useId, useMemo } from "react";
 import { Info } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import type { ImpactActivity, ImpactResult, ValueSource } from "@/lib/operator/protocol";
+import { assumedFields, assumptionLines, impactFormat, rowsDisagreeWithTotal } from "./impact-format";
+import { textAttrs } from "./text-attrs";
 import { fill, getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
-
-function numberFormat(locale: string, country: string, options: Intl.NumberFormatOptions): Intl.NumberFormat {
-  const tags = [country ? `${locale}-${country.toUpperCase()}` : "", locale, "en"].filter(Boolean);
-  for (const tag of tags) {
-    try {
-      return new Intl.NumberFormat(tag, options);
-    } catch {}
-  }
-  return new Intl.NumberFormat(undefined, options);
-}
 
 export interface ImpactCardProps {
   impact: ImpactResult;
@@ -45,29 +38,24 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
   const assumptionsId = `op-${uid}-assumptions`;
   const captionId = `op-${uid}-caption`;
 
-  const format = useMemo(() => {
-    const whole = numberFormat(locale, country, { maximumFractionDigits: 0 });
-    const fine = numberFormat(locale, country, { maximumFractionDigits: 1 });
-    return {
-      /** Hours: one decimal below 100, whole numbers above. */
-      hours: (n: number) => (Math.abs(n) < 100 ? fine : whole).format(n),
-      count: (n: number) => fine.format(n),
-      /** Currency when the code is one Intl knows (INR → ₹), else "CODE 1,234". */
-      money: (amount: number, currency: string) => {
-        try {
-          return numberFormat(locale, country, { style: "currency", currency, minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
-        } catch {
-          return `${currency} ${whole.format(amount)}`;
-        }
-      },
-    };
-  }, [locale, country]);
+  const format = useMemo(() => impactFormat(locale, country), [locale, country]);
+  // Localized lines, or the server's English ones when the two lists disagree (see assumptionLines).
+  const localized = useMemo(() => assumptionLines(impact, c, format, locale), [impact, c, format, locale]);
+  const assumptions = localized ?? impact.assumptions;
+  const roundingGap = rowsDisagreeWithTotal(impact);
 
   const sourceTag = (source: ValueSource) => (
     <span className={s.tag} data-tone={source === "assumption" ? "quiet" : undefined}>{source === "assumption" ? c.assumed : c.yours}</span>
   );
-  const frequency = (activity: ImpactActivity) => fill(c.per[activity.per] ?? c.per.month, { n: format.count(activity.occurrences) });
+  const frequency = (activity: ImpactActivity) => fill(c.per[activity.per] ?? c.per.month, { n: format.input(activity.occurrences) });
   const rateAssumed = input.hourlyCost?.source === "assumption";
+  // An assumed number in the table: dashed underline, like the dashed "Assumed" tags, and said aloud.
+  const cell = (text: string, assumed: boolean) => (assumed ? (
+    <>
+      <span className={s.assumedValue}>{text}</span>
+      <span className={s.srOnly}> ({c.assumed})</span>
+    </>
+  ) : text);
 
   return (
     <figure className={s.view} aria-labelledby={titleId}>
@@ -75,7 +63,7 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
         <div className={s.headTop}>
           <span className={s.eyebrow}>{copy.eyebrows.estimate}</span>
         </div>
-        <h3 id={titleId} className={s.title} dir="auto">{input.title}</h3>
+        <h3 id={titleId} className={s.title} {...textAttrs(input.title, locale)}>{input.title}</h3>
       </header>
 
       <div className={s.figures}>
@@ -93,7 +81,7 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
             <p className={s.figureValue}><span>{format.hours(impact.releasedHoursPerMonth)}</span><small>{c.hours}</small></p>
             {input.reductionPercent && (
               <span className={s.figureNote}>
-                {fill(c.reduction, { pct: format.count(input.reductionPercent.value) })}
+                {fill(c.reduction, { pct: format.input(input.reductionPercent.value) })}
                 {sourceTag(input.reductionPercent.source)}
               </span>
             )}
@@ -108,7 +96,7 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
             <p className={s.figureValue}><span>{format.money(impact.monthlyCost.amount, impact.monthlyCost.currency)}</span></p>
             {input.hourlyCost && (
               <span className={s.figureNote}>
-                <span>{fill(c.rate, { amount: format.money(input.hourlyCost.amount, input.hourlyCost.currency) })}</span>
+                <span>{fill(c.rate, { amount: format.rate(input.hourlyCost.amount, input.hourlyCost.currency) })}</span>
                 {rateAssumed ? <span className={s.tag} data-tone="quiet">{c.assumedRate}</span> : sourceTag(input.hourlyCost.source)}
               </span>
             )}
@@ -123,7 +111,7 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
       )}
 
       <p className={s.metaLine}>
-        {fill(c.workingDays, { n: format.count(input.workingDaysPerMonth.value) })}
+        {fill(c.workingDays, { n: format.input(input.workingDaysPerMonth.value) })}
         {sourceTag(input.workingDaysPerMonth.source)}
       </p>
 
@@ -142,16 +130,18 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
             </thead>
             <tbody>
               {input.activities.map((activity, index) => {
+                const assumed = assumedFields(activity);
                 const row = impact.rows[index]?.label === activity.label ? impact.rows[index] : impact.rows.find((item) => item.label === activity.label);
                 return (
                   <tr key={index}>
                     <td>
-                      <span dir="auto">{activity.label}</span>
-                      {activity.source === "assumption" && <span className={s.tag} data-tone="quiet">{c.assumed}</span>}
+                      {/* The cell keeps the page direction (its tag is our copy); the model's label is isolated. */}
+                      <span {...textAttrs(activity.label, locale)}>{activity.label}</span>
+                      {assumed.size > 0 && <span className={s.tag} data-tone="quiet">{c.assumed}</span>}
                     </td>
-                    <td className={s.num}>{format.count(activity.people)}</td>
-                    <td className={s.num}>{fill(c.minutes, { n: format.count(activity.minutesPerOccurrence) })}</td>
-                    <td className={s.num}>{frequency(activity)}</td>
+                    <td className={s.num}>{cell(format.input(activity.people), assumed.has("people"))}</td>
+                    <td className={s.num}>{cell(fill(c.minutes, { n: format.input(activity.minutesPerOccurrence) }), assumed.has("minutesPerOccurrence"))}</td>
+                    <td className={s.num}>{cell(frequency(activity), assumed.has("occurrences"))}</td>
                     <td className={s.num}>{row ? format.hours(row.hoursPerMonth) : "—"}</td>
                   </tr>
                 );
@@ -162,17 +152,23 @@ export function ImpactCard({ impact, locale, country }: ImpactCardProps) {
                 <td colSpan={4}>{c.total}</td>
                 <td className={s.num}>{format.hours(impact.totalHoursPerMonth)}</td>
               </tr>
+              {roundingGap && (
+                <tr>
+                  <td colSpan={5} className={s.tableNote}>{c.roundingNote}</td>
+                </tr>
+              )}
             </tfoot>
           </table>
         </div>
       )}
 
-      {impact.assumptions.length > 0 && (
+      {assumptions.length > 0 && (
         <div className={s.assumptions}>
           <span className={s.micro} id={assumptionsId}>{c.assumptions}</span>
           <ol aria-labelledby={assumptionsId}>
-            {impact.assumptions.map((item, index) => (
-              <li key={index}><span aria-hidden="true">A{index + 1}</span><span dir="auto">{item}</span></li>
+            {assumptions.map((item, index) => (
+              // Localized lines read in the page's direction (labels inside are isolated); the server's English fallback gets its own.
+              <li key={index}><span aria-hidden="true">A{index + 1}</span><span {...(localized ? {} : textAttrs(item, locale))}>{item}</span></li>
             ))}
           </ol>
         </div>

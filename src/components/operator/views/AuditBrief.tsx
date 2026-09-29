@@ -30,6 +30,7 @@ import {
   mailtoLength,
   whatsAppLength,
 } from "./brief-format";
+import { listAttrs, textAttrs } from "./text-attrs";
 import { getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
 
@@ -119,6 +120,19 @@ export interface AuditBriefProps {
   locale: Locale;
 }
 
+/**
+ * A list field (friction, unknowns): the list takes the direction of all its
+ * items, which places the bullets; an item in another script reads its own way.
+ */
+function BulletList({ items, locale }: { items: string[]; locale: Locale }) {
+  const attrs = listAttrs(items, locale);
+  return (
+    <ul {...attrs.list}>
+      {items.map((item, index) => <li key={index} {...attrs.items[index]}>{item}</li>)}
+    </ul>
+  );
+}
+
 export function AuditBrief({ brief, locale }: AuditBriefProps) {
   const copy = getViewsCopy(locale);
   const b = copy.brief;
@@ -133,6 +147,8 @@ export function AuditBrief({ brief, locale }: AuditBriefProps) {
   const whatsAppDisplay = hasWhatsApp ? formatWhatsAppNumber(digits) : "";
 
   const entries = useMemo(() => briefEntries(brief, b), [brief, b]);
+  // The company as the field list shows it (one line), for the heading.
+  const company = entries.find((entry) => entry.field === "company")?.value;
   const links = useMemo(() => {
     const subject = briefSubject(brief, b);
     return {
@@ -165,7 +181,11 @@ export function AuditBrief({ brief, locale }: AuditBriefProps) {
         <div className={s.headTop}>
           <span className={s.eyebrow}>{copy.eyebrows.brief}</span>
         </div>
-        <h3 id={titleId} className={s.title} dir="auto">{briefSubject(brief, b)}</h3>
+        {/* briefSubject's text, built here so our title keeps the page direction and the company name reads its own way. */}
+        <h3 id={titleId} className={s.title}>
+          {b.title}
+          {typeof company === "string" && <> — <span {...textAttrs(company, locale)}>{company}</span></>}
+        </h3>
       </header>
 
       <p className={s.notice} id={noticeId} role="note">
@@ -174,34 +194,38 @@ export function AuditBrief({ brief, locale }: AuditBriefProps) {
       </p>
 
       <dl className={s.fields}>
-        {entries.map((entry) => (
-          <div key={entry.field}>
-            <dt className={s.micro}>{entry.label}</dt>
-            {/* Capability names are our localized labels, so they follow the page direction; everything else is conversation text. */}
-            <dd dir={entry.field === "relevantCapabilities" ? undefined : "auto"}>
-              {entry.field === "relevantCapabilities" && Array.isArray(entry.value) ? (
-                <span className={s.chips}>{entry.value.map((name) => <span key={name} className={s.chip}>{name}</span>)}</span>
-              ) : entry.field === "contact" ? (
-                <span className={s.contact}>
-                  {contactParts.map(([label, value, ltr]) => (
-                    <span key={label}>
-                      <span className={s.srOnly}>{label}: </span>
-                      {ltr ? <span dir="ltr" className={s.ltr}>{value}</span> : value}
-                    </span>
-                  ))}
-                </span>
-              ) : Array.isArray(entry.value) ? (
-                entry.field === "currentSystems" ? (
-                  entry.value.join(", ")
-                ) : (
-                  <ul>{entry.value.map((item, index) => <li key={index}>{item}</li>)}</ul>
-                )
-              ) : (
-                entry.value
-              )}
-            </dd>
-          </div>
-        ))}
+        {entries.map((entry) => {
+          // Conversation text reads its own way. Capability names are our
+          // localized labels and the contact line mixes our labels with its
+          // parts, so those dd's keep the page direction (the parts, like a
+          // list's items, carry their own).
+          const text = entry.field === "relevantCapabilities" || entry.field === "contact"
+            ? null
+            : Array.isArray(entry.value) ? (entry.field === "currentSystems" ? entry.value.join(", ") : null) : entry.value;
+          return (
+            <div key={entry.field}>
+              <dt className={s.micro}>{entry.label}</dt>
+              <dd {...(text === null ? {} : textAttrs(text, locale))}>
+                {entry.field === "relevantCapabilities" && Array.isArray(entry.value) ? (
+                  <span className={s.chips}>{entry.value.map((name) => <span key={name} className={s.chip}>{name}</span>)}</span>
+                ) : entry.field === "contact" ? (
+                  <span className={s.contact}>
+                    {contactParts.map(([label, value, ltr]) => (
+                      <span key={label}>
+                        <span className={s.srOnly}>{label}: </span>
+                        {ltr ? <span dir="ltr" className={s.ltr}>{value}</span> : <span {...textAttrs(value ?? "", locale)}>{value}</span>}
+                      </span>
+                    ))}
+                  </span>
+                ) : text !== null ? (
+                  text
+                ) : Array.isArray(entry.value) ? (
+                  <BulletList items={entry.value} locale={locale} />
+                ) : null}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
 
       {(links.whatsapp || links.email) && (

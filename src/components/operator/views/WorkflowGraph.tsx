@@ -43,8 +43,10 @@ import {
 import type { Locale } from "@/lib/i18n";
 import type { GraphEdge, GraphEdgeMode, GraphNode, GraphNodeKind, WorkflowGraph as WorkflowGraphData } from "@/lib/operator/protocol";
 import { channelSize, laneSpace, layoutGraph, routeEdges, toRailOrder, type Box, type GraphLayout, type RoutedEdge } from "./graph-layout";
+import { localeDir } from "../text-dir";
+import { textAttrs } from "./text-attrs";
 import { useMotionAllowed } from "./useMotionAllowed";
-import { getViewsCopy, type ViewsCopy } from "./views-copy";
+import { fill, getViewsCopy, splitAround, type ViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
 
 export const NODE_ICONS: Record<GraphNodeKind, LucideIcon> = {
@@ -74,23 +76,18 @@ type WidthBucket = "unknown" | "narrow" | "normal" | "wide";
 const bucketOf = (width: number): WidthBucket => (width < 340 ? "narrow" : width >= 720 ? "wide" : "normal");
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/**
- * Direction of a label from its first strong character (Hebrew / Arabic
- * blocks → rtl). Used where an arrow sits BETWEEN two model-written labels:
- * the page direction cannot say which way "A → B" reads when A and B are
- * English on an Arabic page.
- */
-const RTL_CHAR = /[\u0590-\u08ff\ufb1d-\ufdff\ufe70-\ufeff]/;
-const STRONG_CHAR = /[A-Za-z\u00c0-\u024f\u0370-\u052f\u0590-\u08ff\u0900-\u0dff\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af\ufb1d-\ufdff\ufe70-\ufeff]/;
-function textDirection(text: string): "rtl" | "ltr" {
-  const first = STRONG_CHAR.exec(text)?.[0];
-  return first && RTL_CHAR.test(first) ? "rtl" : "ltr";
+interface EdgeTag {
+  /** The model's edge label, or our word for the mode when it gave none (`plain`). */
+  text: string;
+  plain: boolean;
+  /** Our word before a model label ("AI · API sync"): page language, so that part reads in the page direction. */
+  prefix?: string;
 }
 
 /** The short tag an edge carries on the map; null for modes that stay untagged. */
-function tagOf(edge: GraphEdge, copy: ViewsCopy["graph"]): { text: string; plain: boolean } | null {
+function tagOf(edge: GraphEdge, copy: ViewsCopy["graph"]): EdgeTag | null {
   if (edge.mode === "manual") return edge.label ? { text: edge.label, plain: false } : { text: copy.tags.manual, plain: true };
-  if (edge.mode === "ai_assisted") return edge.label ? { text: `${copy.tags.ai} · ${edge.label}`, plain: false } : { text: copy.tags.ai, plain: true };
+  if (edge.mode === "ai_assisted") return edge.label ? { text: edge.label, plain: false, prefix: copy.tags.ai } : { text: copy.tags.ai, plain: true };
   if (edge.mode === "approval") return edge.label ? { text: edge.label, plain: false } : { text: copy.tags.approval, plain: true };
   return null;
 }
@@ -121,6 +118,7 @@ export interface WorkflowGraphProps {
 export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
   const copy = getViewsCopy(locale);
   const g = copy.graph;
+  const pageDir = localeDir(locale);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const titleId = `op-${uid}-title`;
   const frictionId = `op-${uid}-friction`;
@@ -158,11 +156,18 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
   const routes = routed && routed.layout === layout ? routed : null;
   const rowCount = layout.layers.length;
 
-  // Column width decides the row limit and the narrow fallback.
+  // Column width decides the row limit and the narrow fallback. A width of 0
+  // means hidden, not narrow: the panel stays mounted while its <dialog> is
+  // closed (display: none), and reading that as "narrow" unmounted every
+  // diagram on close and flashed the list view for a frame on each reopen.
+  // Keep the last real bucket (or "unknown", which draws the diagram).
   useEffect(() => {
     const root = rootRef.current;
     if (!root || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) => setWidth(bucketOf(entry.contentRect.width)));
+    const observer = new ResizeObserver(([entry]) => {
+      const measured = entry.contentRect.width;
+      if (measured > 0) setWidth(bucketOf(measured));
+    });
     observer.observe(root);
     return () => observer.disconnect();
   }, []);
@@ -175,6 +180,8 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
     let frame = 0;
     const measure = () => {
       frame = 0;
+      // Hidden (closed panel): zero-size boxes would replace good routes with degenerate ones.
+      if (!box.offsetWidth) return;
       const boxes = new Map<string, Box>();
       box.querySelectorAll<HTMLElement>("[data-node]").forEach((element) => {
         const id = element.dataset.node;
@@ -215,6 +222,8 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
 
   const eyebrow = graph.view === "proposed" ? copy.eyebrows.mapConnected : copy.eyebrows.mapToday;
   const showDetail = layout.widest <= 2;
+  // Screen-reader words on whichever side of the target the language puts them ("to X", "X की ओर").
+  const [toBefore, toAfter] = splitAround(g.edgeTo, "to");
 
   const railList = (
     <ol className={`${s.rail} ${view === "diagram" ? s.srOnly : ""}`}>
@@ -229,25 +238,33 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
             <div>
               <p className={s.railHead}>
                 <Icon size={14} strokeWidth={1.4} aria-hidden="true" />
-                <span className={s.railLabel} dir="auto">{node.label}</span>
+                <span className={s.railLabel} {...textAttrs(node.label, locale)}>{node.label}</span>
                 <span className={s.micro}>{g.kinds[node.kind] ?? node.kind}</span>
                 {node.friction && <span className={s.x} role="img" aria-label={g.frictionPoint}>×</span>}
               </p>
-              {node.detail && <p className={s.railDetail} dir="auto">{node.detail}</p>}
+              {node.detail && <p className={s.railDetail} {...textAttrs(node.detail, locale)}>{node.detail}</p>}
               {out.length ? (
                 <ul className={s.railEdges}>
-                  {out.map(({ edge, index }) => (
-                    <li key={index} data-mode={edge.mode}>
-                      <Swatch mode={edge.mode} />
-                      <span>
-                        <span className={s.srOnly}>{g.to} </span>
-                        <span dir="auto">{nodeById.get(edge.to)?.label ?? edge.to}</span>
-                        <span className={s.railMode}> ({g.modes[edge.mode] ?? edge.mode}{edge.label ? `: ${edge.label}` : ""})</span>
-                        {layout.plans[index]?.kind === "back" && <span className={s.railMode}> · {g.loopsBack}</span>}
-                      </span>
-                      {edge.friction && <span className={s.x} role="img" aria-label={g.frictionPoint}>×</span>}
-                    </li>
-                  ))}
+                  {out.map(({ edge, index }) => {
+                    const target = nodeById.get(edge.to)?.label ?? edge.to;
+                    return (
+                      <li key={index} data-mode={edge.mode}>
+                        <Swatch mode={edge.mode} />
+                        <span>
+                          {toBefore && <span className={s.srOnly}>{toBefore}</span>}
+                          <span {...textAttrs(target, locale)}>{target}</span>
+                          {toAfter && <span className={s.srOnly}>{toAfter}</span>}
+                          <span className={s.railMode}>
+                            {" ("}{g.modes[edge.mode] ?? edge.mode}
+                            {edge.label && <>: <span {...textAttrs(edge.label, locale)}>{edge.label}</span></>}
+                            {")"}
+                          </span>
+                          {layout.plans[index]?.kind === "back" && <span className={s.railMode}> · {g.loopsBack}</span>}
+                        </span>
+                        {edge.friction && <span className={s.x} role="img" aria-label={g.frictionPoint}>×</span>}
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : (
                 <p className={s.railEnd}>{g.end}</p>
@@ -266,8 +283,8 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
           <span className={s.eyebrow}>{eyebrow}</span>
           {controls}
         </div>
-        <h3 id={titleId} className={s.title} dir="auto">{graph.title}</h3>
-        {graph.summary && <p className={s.lede} dir="auto">{graph.summary}</p>}
+        <h3 id={titleId} className={s.title} {...textAttrs(graph.title, locale)}>{graph.title}</h3>
+        {graph.summary && <p className={s.lede} {...textAttrs(graph.summary, locale)}>{graph.summary}</p>}
       </header>
 
       {rowCount > 0 && (
@@ -358,8 +375,9 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
                             <Icon size={15} strokeWidth={1.4} aria-hidden="true" />
                             <span className={s.micro}>{g.kinds[node.kind] ?? node.kind}</span>
                           </span>
-                          <span className={s.nodeLabel} dir="auto">{node.label}</span>
-                          {showDetail && node.detail && <span className={s.nodeDetail} dir="auto">{node.detail}</span>}
+                          {/* The box is LTR for its measured coordinates; the words in a card still read their own way. */}
+                          <span className={s.nodeLabel} {...textAttrs(node.label, locale)}>{node.label}</span>
+                          {showDetail && node.detail && <span className={s.nodeDetail} {...textAttrs(node.detail, locale)}>{node.detail}</span>}
                           {node.friction && <span className={s.badge}>×</span>}
                         </div>
                       );
@@ -383,7 +401,11 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
                   >
                     {edge.friction && <b>×</b>}
                     {edge.mode === "approval" && <UserCheck size={11} strokeWidth={1.6} aria-hidden="true" />}
-                    <span dir="auto">{tag.text}</span>
+                    {tag.prefix ? (
+                      <span dir={pageDir}>{tag.prefix} · <span {...textAttrs(tag.text, locale)}>{tag.text}</span></span>
+                    ) : (
+                      <span {...(tag.plain ? { dir: pageDir } : textAttrs(tag.text, locale))}>{tag.text}</span>
+                    )}
                   </span>
                 );
               })}
@@ -398,27 +420,37 @@ export function WorkflowGraph({ graph, locale, controls }: WorkflowGraphProps) {
         <div className={s.friction}>
           <p className={s.micro} id={frictionId}>{g.friction}</p>
           <ul aria-labelledby={frictionId}>
-            {frictions.map((item) => (
-              <li key={item.key}>
-                <span className={s.x} aria-hidden="true">×</span>
-                <span>
-                  <strong dir={textDirection(item.from)}>
-                    {item.from}
-                    {item.to !== undefined && (
-                      <>
-                        {textDirection(item.from) === "rtl"
-                          ? <ArrowLeft size={11} strokeWidth={1.6} aria-hidden="true" />
-                          : <ArrowRight size={11} strokeWidth={1.6} aria-hidden="true" />}
-                        <span className={s.srOnly}> {g.to} </span>
-                        {item.to}
-                      </>
+            {frictions.map((item) => {
+              // The line reads in the direction of its own words. Between two
+              // labels the arrow must point the way THEY read: the page
+              // direction cannot say, when both are English on an Arabic page.
+              const lineDir = textAttrs([item.from, item.to ?? "", item.note].join(" "), locale).dir;
+              const pairDir = item.to === undefined ? lineDir : textAttrs(`${item.from} ${item.to}`, locale).dir;
+              return (
+                <li key={item.key}>
+                  <span className={s.x} aria-hidden="true">×</span>
+                  <span dir={lineDir}>
+                    {item.to === undefined ? (
+                      <strong {...textAttrs(item.from, locale)}>{item.from}</strong>
+                    ) : (
+                      <strong dir={pairDir}>
+                        {/* The arrow is visual; screen readers get the handoff as one phrase in the language's own word order. */}
+                        <span aria-hidden="true">
+                          <span {...textAttrs(item.from, locale)}>{item.from}</span>
+                          {pairDir === "rtl"
+                            ? <ArrowLeft size={11} strokeWidth={1.6} />
+                            : <ArrowRight size={11} strokeWidth={1.6} />}
+                          <span {...textAttrs(item.to, locale)}>{item.to}</span>
+                        </span>
+                        <span className={s.srOnly}>{fill(g.between, { from: item.from, to: item.to })}</span>
+                      </strong>
                     )}
-                  </strong>
-                  {" — "}
-                  <span dir="auto">{item.note}</span>
-                </span>
-              </li>
-            ))}
+                    {" — "}
+                    <span {...textAttrs(item.note, locale)}>{item.note}</span>
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

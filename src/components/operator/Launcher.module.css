@@ -1,0 +1,101 @@
+/* components/operator/Launcher.module.css
+
+   The Savin Operator's always-loaded styles: the --op-* theme tokens, the
+   shared .micro / .srOnly helpers and the launcher. <OperatorRoot> imports
+   this file, so it ships in every page's render-blocking stylesheet: keep it
+   to what the closed launcher needs. The panel's own rules live in
+   Operator.module.css, which only the lazily loaded panel chunk imports.
+
+   Same "industrial paper" system as the panel: square corners, 1px hairlines,
+   mono micro-labels, one burnt-orange accent, CSS-only motion, logical
+   properties throughout (ar is RTL).
+
+   Tokens live on .theme, which both the launcher and the <dialog> carry (the
+   panel imports this module for it), so the launcher is themed before the
+   panel's chunk has loaded. Views rendered inside the panel
+   (views/*.module.css) inherit the same --op-* names through the DOM and
+   must not redefine them. Tailwind utilities are not used in here on
+   purpose: several page modules shadow --muted/--accent/--surface, and the
+   `dark:` variant ignores the site's .light/.dark class toggle. */
+
+.theme {
+  --op-paper: #f5f4f0;
+  --op-surface: #fff;
+  --op-ink: #222824;
+  --op-muted: #626760;
+  --op-line: #d9ddd4;
+  --op-accent: #b8471f;
+  --op-soft: #eeeee7;
+  --op-grid: #dce0d6;
+  --op-cta: #ad431e;
+  --op-cta-hover: #8f3617;
+  --op-cta-ink: #ffffff;
+  --op-danger: #b3261e;
+  --op-ok: #2f6f4f;
+  --op-mono: var(--font-mono);
+  --op-display: var(--font-display);
+  color-scheme: light;
+  color: var(--op-ink);
+  font-family: var(--font-sans), sans-serif;
+}
+.theme *, .theme *::before, .theme *::after { box-sizing: border-box; }
+.theme :is(a, button, textarea, [tabindex="0"]):focus-visible, .launcher:focus-visible { outline: 2px solid var(--op-accent); outline-offset: 2px; border-radius: 0; }
+
+:global(.dark) .theme { --op-paper:#171e1b; --op-surface:#1e2822; --op-ink:#efefe7; --op-muted:#b0b9ad; --op-line:#374339; --op-accent:#f29b71; --op-soft:#283229; --op-grid:#354133; --op-danger:#f2a19b; --op-ok:#8fd1a8; color-scheme: dark; }
+@media (prefers-color-scheme: dark) {
+  :global(:root:not(.light)) .theme { --op-paper:#171e1b; --op-surface:#1e2822; --op-ink:#efefe7; --op-muted:#b0b9ad; --op-line:#374339; --op-accent:#f29b71; --op-soft:#283229; --op-grid:#354133; --op-danger:#f2a19b; --op-ok:#8fd1a8; color-scheme: dark; }
+}
+
+/* Micro-labels. Tracking and capitals only help Latin: Arabic letters must
+   join, Devanagari/Gujarati conjuncts break apart when spaced, Han has no case. */
+.micro { font: 500 11px/1.3 var(--op-mono), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.micro:is(:lang(hi), :lang(gu), :lang(ar), :lang(zh)) { letter-spacing: normal; text-transform: none; }
+.srOnly { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* -------------------------------------------------------------------------- */
+/*                                  Launcher                                  */
+/* -------------------------------------------------------------------------- */
+
+/* z 70: above the fixed "Pause motion" control (60), below the header (100)
+   and the skip links (102). The panel itself is a modal <dialog> in the top
+   layer, so it needs no z-index at all. */
+.launcher { position: fixed; z-index: 70; inset-block-end: max(16px, env(safe-area-inset-bottom)); inset-inline-end: max(16px, env(safe-area-inset-right)); display: inline-flex; align-items: center; gap: 12px; min-height: 48px; min-width: 48px; margin: 0; padding-block: 6px; padding-inline: 12px 14px; background: var(--op-paper); color: var(--op-ink); border: 1px solid var(--op-line); border-radius: 0; box-shadow: 0 6px 22px #16221a14; cursor: pointer; text-align: start; transition: border-color .15s, background .15s; animation: opRise .35s ease-out; }
+:global([dir="rtl"]) .launcher { inset-inline-end: max(16px, env(safe-area-inset-left)); }
+.launcher:hover { border-color: var(--op-accent); }
+.launcher:hover .launcherIcon { color: var(--op-accent); }
+.launcher[data-state="open"] { visibility: hidden; }
+.launcher[data-state="loading"] { cursor: progress; }
+.launcher[data-state="loading"] .launcherMark { animation: opPulse 1s ease-in-out infinite; }
+/* The last open failed (a dropped connection): the label asks for another try. */
+.launcher[data-state="retry"] .launcherMark { background: var(--op-danger); }
+/* Pages with a [data-motion] root also render the fixed "Pause motion"
+   button in the same corner; sit above it instead of on top of it. */
+:global(body:has([data-motion])) .launcher { inset-block-end: max(64px, env(safe-area-inset-bottom)); }
+.launcherMark { width: 7px; height: 7px; background: var(--op-accent); flex-shrink: 0; }
+.launcherText { display: grid; gap: 2px; min-width: 0; }
+.launcherLabel { color: var(--op-accent); }
+.launcherAction { font-size: 13px; font-weight: 500; line-height: 1.25; color: var(--op-ink); white-space: nowrap; }
+.launcherIcon { display: inline-flex; align-items: center; align-self: stretch; padding-inline-start: 12px; border-inline-start: 1px solid var(--op-line); color: var(--op-muted); transition: color .15s; }
+.unreadDot { position: absolute; inset-block-start: -5px; inset-inline-end: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--op-accent); border: 2px solid var(--op-paper); }
+
+/* Keyframe names are local to each CSS module: Operator.module.css keeps its
+   own copy of opPulse for the panel's status pulse. */
+@keyframes opRise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes opPulse { 50% { opacity: .25; transform: scale(.7); } }
+
+@media (max-width: 640px) {
+  :global(body:has([data-motion])) .launcher { inset-block-end: max(54px, env(safe-area-inset-bottom)); }
+}
+@media (max-width: 420px) {
+  .launcher { padding: 0; width: 48px; justify-content: center; }
+  .launcherText, .launcherMark { display: none; }
+  .launcherIcon { padding: 0; border: 0; align-self: center; }
+}
+
+/* Covers the panel as well: the <dialog> carries .theme too. */
+@media (prefers-reduced-motion: reduce) {
+  .theme, .theme *, .theme *::before, .theme *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media print {
+  .launcher { display: none !important; }
+}

@@ -27,7 +27,9 @@ export const OPERATOR_LIMITS = {
   /** Oldest turns beyond this are dropped by the client before sending. */
   maxTurns: 40,
   maxUserChars: 4000,
-  maxAssistantChars: 12000,
+  /** Replies are meant to be ~150 words. Kept low because assistant turns
+   *  come from the client unverified and reach the model as its own words. */
+  maxAssistantChars: 4000,
   maxArtifactsPerTurn: 8,
   /** Whole JSON body, measured in bytes on the server. */
   maxBodyBytes: 256_000,
@@ -167,7 +169,8 @@ export interface SimStep {
   detail?: string;
   /** Financial, contractual, production, safety-critical or destructive.
    *  The server rejects a simulation where such a step is not preceded by
-   *  an `approval` step. */
+   *  an `approval` step, and an `approval` step whose actorKind is not
+   *  "person": the panel renders every approval as a human one. */
   consequential?: boolean;
   /** Illustrative sample values shown on the step's record card. */
   sample?: Array<{ key: string; value: string }>;
@@ -188,6 +191,9 @@ export interface Simulation {
 /** Where a number came from. Estimates must say which inputs were assumed. */
 export type ValueSource = "visitor" | "assumption";
 
+/** The three numbers of an activity, each of which may be the visitor's or assumed. */
+export type ImpactField = "people" | "minutesPerOccurrence" | "occurrences";
+
 export interface ImpactActivity {
   label: string;
   people: number;
@@ -195,6 +201,10 @@ export interface ImpactActivity {
   /** Occurrences per person per `per`. */
   occurrences: number;
   per: "day" | "week" | "month";
+  /** The numbers the visitor did NOT state, in this field order. A visitor
+   *  rarely gives all three, so each one is labelled on its own. */
+  assumed: ImpactField[];
+  /** Summary of `assumed`: "assumption" when any of the three was assumed. */
   source: ValueSource;
 }
 
@@ -217,7 +227,10 @@ export interface ImpactResult {
   releasedHoursPerMonth?: number;
   monthlyCost?: { amount: number; currency: string };
   releasedMonthlyCost?: { amount: number; currency: string };
-  /** Human-readable list of every assumed input, shown under the numbers. */
+  /** English list of every assumed input, for the model. The panel builds
+   *  its own localized list from the `assumed` / `source` flags in `input`.
+   *  Rows are rounded to one decimal and every total is computed from the
+   *  rounded rows, so the figures on the card add up. */
   assumptions: string[];
 }
 
@@ -305,6 +318,13 @@ export type OperatorStatus =
   | "simulating"
   | "drafting";
 
+/**
+ * `refusal`: the reply was declined, possibly after some text had streamed.
+ * That partial must not be resent as an assistant turn (the client owns the
+ * history). `truncated`: the reply was cut off before it finished, by
+ * max_tokens or by the route's deadline; what already reached the visitor
+ * stays valid.
+ */
 export type OperatorErrorCode =
   | "bad_request"
   | "too_large"

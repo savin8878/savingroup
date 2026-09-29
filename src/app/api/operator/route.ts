@@ -11,12 +11,18 @@
 // { ok: false, error: OperatorErrorCode } with a 4xx/5xx status; 429 carries
 // Retry-After. Error messages never reach the client, only codes.
 //
+// GET /api/operator answers 204 when the Operator can take requests and 503
+// when it cannot, for a launcher baked into a prerendered page before the
+// kill switch was flipped.
+//
 // Needs ANTHROPIC_API_KEY (server-only). OPERATOR_ENABLED="false" turns the
 // route off. The in-memory rate limit is per instance; the real ceiling is a
 // Vercel Firewall rule on /api/operator (see .env.example).
 
 import Anthropic from "@anthropic-ai/sdk";
+import type { BetaMessageStream } from "@anthropic-ai/sdk/lib/BetaMessageStream";
 import type {
+  BetaContentBlock,
   BetaMessage,
   BetaMessageParam,
   BetaMessageStreamParams,
@@ -29,17 +35,20 @@ import {
   FALLBACK_BETA,
   OPERATOR_DEADLINE_MS,
   OPERATOR_EFFORT,
-  OPERATOR_FORCE_TEXT_AFTER_MS,
   OPERATOR_MAX_JSON_RETRIES,
   OPERATOR_MAX_TOKENS,
   OPERATOR_MAX_TOOL_ROUNDS,
+  OPERATOR_MIN_ROUND_MS,
   OPERATOR_MODEL,
   hasCredentials,
   isOperatorEnabled,
 } from "@/lib/operator/config";
-import { buildMessages, parseRequest } from "@/lib/operator/history";
+import { buildMessages, fitHistory, parseRequest } from "@/lib/operator/history";
+import { logOperatorError } from "@/lib/operator/log";
+import { TEXT_ONLY_NOTE, mayRetryTransient, planRound, retryWaitMs, splitAtFallback } from "@/lib/operator/loop-policy";
 import {
   OPERATOR_LIMITS,
+  type Artifact,
   type Locale,
   type OperatorErrorCode,
   type OperatorEvent,
@@ -53,10 +62,11 @@ import { OPERATOR_TOOLS, TOOL_STATUS, isOperatorToolName, runTool } from "@/lib/
 // tool loop can run for tens of seconds.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// 60 s is valid on every Vercel plan and mode. It covers the WHOLE stream, so
-// the tool loop must finish inside it (config.ts forces a text-only round
-// after OPERATOR_FORCE_TEXT_AFTER_MS). Raise only after confirming Fluid
-// compute in the Vercel dashboard.
+// Must equal OPERATOR_MAX_DURATION_S in lib/operator/config.ts, which every
+// time budget of the tool loop is derived from (Next.js only reads this
+// export as a literal; a test keeps the two equal). It covers the WHOLE
+// stream. Raise both only after confirming Fluid compute in the Vercel
+// dashboard.
 export const maxDuration = 60;
 
 /* -------------------------------------------------------------------------- */
@@ -126,11 +136,14 @@ let client: Anthropic | undefined;
 
 /**
  * One client per instance. Credentials resolve from ANTHROPIC_API_KEY or
- * ANTHROPIC_AUTH_TOKEN. One SDK retry absorbs a transient 429/529/5xx
- * without eating much of the 60 s budget.
+ * ANTHROPIC_AUTH_TOKEN. The SDK's own retries are OFF: it honours whatever
+ * Retry-After the API sends, uncapped, so one 429 carrying "retry-after: 40"
+ * would hold the visitor on "thinking" until the deadline and then end in a
+ * generic error. streamRound makes the one retry that fits the time budget
+ * (OPERATOR_TRANSIENT_RETRY in config.ts) and fails fast otherwise.
  */
 function getClient(): Anthropic {
-  client ??= new Anthropic({ maxRetries: 1 });
+  client ??= new Anthropic({ maxRetries: 0 });
   return client;
 }
 
@@ -138,8 +151,8 @@ let warnedMissingKey = false;
 
 /**
  * Maps a failure inside the stream to the code the panel shows. Messages are
- * logged, never sent. Returns null for a client disconnect: nobody is left
- * to tell.
+ * logged redacted (log.ts), never sent. Returns null for a client
+ * disconnect: nobody is left to tell.
  */
 function toErrorCode(err: unknown): OperatorErrorCode | null {
   if (err instanceof Anthropic.APIUserAbortError) return null;
@@ -151,22 +164,58 @@ function toErrorCode(err: unknown): OperatorErrorCode | null {
     return "overloaded";
   }
   if (err instanceof Anthropic.AuthenticationError || err instanceof Anthropic.PermissionDeniedError) {
-    console.error("Operator endpoint error: Anthropic rejected the credentials", err.status);
+    logOperatorError("Anthropic rejected the credentials", undefined, err.status);
     return "unavailable";
   }
   if (err instanceof Anthropic.BadRequestError) {
-    console.error("Operator endpoint error: upstream rejected the request:", err.message);
+    logOperatorError("upstream rejected the request:", err);
     return "upstream";
   }
   if (err instanceof Anthropic.APIConnectionError) return "upstream";
   // Other API failures (5xx, an `api_error` event mid-stream) are upstream
   // too; "internal" is kept for bugs in this handler.
   if (err instanceof Anthropic.APIError) {
-    console.error("Operator endpoint error: upstream failure", err.status, err.message);
+    logOperatorError("upstream failure", err, err.status);
     return "upstream";
   }
-  console.error("Operator endpoint error:", err);
+  // Includes the SDK's tool-input parse error after the last re-issue, whose
+  // message ends with the model's whole tool input: logOperatorError cuts it.
+  logOperatorError("unexpected failure:", err);
   return "internal";
+}
+
+/**
+ * Failures worth one more attempt: rate limits, overloads, 5xx and dropped
+ * connections, unless the API says not to retry. A mid-stream `error` event
+ * carries no status, only the error type.
+ */
+function isTransient(err: InstanceType<typeof Anthropic.APIError>): boolean {
+  if (err instanceof Anthropic.APIUserAbortError) return false;
+  if (err.headers?.get("x-should-retry") === "false") return false;
+  if (err instanceof Anthropic.APIConnectionError) return true;
+  const { status } = err;
+  if (status === undefined) {
+    return err.type === "overloaded_error" || err.type === "api_error" || err.type === "rate_limit_error";
+  }
+  return status === 429 || status >= 500;
+}
+
+/** Resolves after `ms`, or at once when `signal` aborts. */
+function pause(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    if (signal.aborted) return resolve();
+    const done = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", done);
+      resolve();
+    };
+    const timer = setTimeout(done, ms);
+    signal.addEventListener("abort", done, { once: true });
+  });
+}
+
+function hasText(content: readonly BetaContentBlock[]): boolean {
+  return content.some((block) => block.type === "text" && block.text.trim() !== "");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -178,10 +227,17 @@ interface LoopContext {
   country: string;
   locale: Locale;
   signal: AbortSignal;
+  /** When the response stream started; the deadline counts from here. */
+  startedAt: number;
   emit: (event: OperatorEvent) => void;
 }
 
-interface RoundCallbacks {
+interface RoundOptions {
+  signal: AbortSignal;
+  /** Epoch ms at which the route aborts; a retry must leave room before it. */
+  deadlineAt: number;
+  /** Shared by every round of one visitor message: one transient retry in all. */
+  retry: { used: boolean };
   onStatus: (status: OperatorStatus) => void;
   onText: (delta: string) => void;
   /** An earlier round already put text on screen: open this round's text with a paragraph break. */
@@ -191,42 +247,46 @@ interface RoundCallbacks {
 /**
  * One model call, streamed. Text deltas go straight to the visitor.
  *
- * With `eager_input_streaming` the SDK parses each tool input when its block
- * closes, and input it cannot parse at all rejects the iteration with a
- * plain AnthropicError. That case (only) re-issues the same round, up to
- * OPERATOR_MAX_JSON_RETRIES consecutive times; API errors are rethrown for
- * toErrorCode. Text the failed attempt already streamed cannot be taken back,
- * so the retry suppresses its own text while it repeats what is on screen
- * and only emits from where it diverges.
+ * Two kinds of failure re-issue the same call:
+ *  - A tool input the SDK cannot parse at all (the cost of
+ *    `eager_input_streaming`): it rejects the iteration with a plain
+ *    AnthropicError, up to OPERATOR_MAX_JSON_RETRIES consecutive times.
+ *  - A transient API failure, once per visitor message, only before this
+ *    attempt has shown any text and only when the wait fits the deadline.
+ * Everything else is rethrown for toErrorCode. Text a failed attempt already
+ * streamed cannot be taken back, so a retry suppresses its own text while it
+ * repeats what is on screen and only emits from where it diverges.
  */
-async function streamRound(
-  params: BetaMessageStreamParams,
-  signal: AbortSignal,
-  callbacks: RoundCallbacks,
-): Promise<BetaMessage> {
+async function streamRound(params: BetaMessageStreamParams, options: RoundOptions): Promise<BetaMessage> {
+  const { signal, deadlineAt, retry, onStatus, onText, separate } = options;
   let shown = "";
   let separated = false;
+  // Whether the current attempt has put new text on screen.
+  let wrote = false;
   const write = (delta: string) => {
     if (!delta) return;
-    if (callbacks.separate && !separated) {
+    if (separate && !separated) {
       separated = true;
-      callbacks.onText("\n\n");
+      onText("\n\n");
     }
     shown += delta;
-    callbacks.onText(delta);
+    wrote = true;
+    onText(delta);
   };
 
-  for (let attempt = 0; ; attempt++) {
+  for (let jsonRetries = 0; ; ) {
     let replaying = shown.length > 0;
     let replayed = "";
+    wrote = false;
+    let stream: BetaMessageStream | undefined;
     try {
-      const stream = getClient().beta.messages.stream(params, { signal });
+      stream = getClient().beta.messages.stream(params, { signal });
       for await (const event of stream) {
         if (event.type === "content_block_start") {
           const block = event.content_block;
-          if (block.type === "thinking" || block.type === "redacted_thinking") callbacks.onStatus("thinking");
+          if (block.type === "thinking" || block.type === "redacted_thinking") onStatus("thinking");
           else if (block.type === "tool_use") {
-            callbacks.onStatus(isOperatorToolName(block.name) ? TOOL_STATUS[block.name] : "thinking");
+            onStatus(isOperatorToolName(block.name) ? TOOL_STATUS[block.name] : "thinking");
           }
         } else if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
           if (!replaying) {
@@ -241,8 +301,26 @@ async function streamRound(
       }
       return await stream.finalMessage();
     } catch (err) {
-      if (err instanceof Anthropic.APIError || signal.aborted || attempt >= OPERATOR_MAX_JSON_RETRIES) throw err;
-      console.error("Operator endpoint error: unparseable tool input, re-issuing the round");
+      // Stop the failed attempt before anything else. A tool-input parse
+      // failure ends the iteration WITHOUT aborting the request: the SDK
+      // keeps reading the rest of the message, which the API keeps
+      // generating and billing, alongside the retry. abort() on a finished
+      // stream is a no-op.
+      stream?.abort();
+      if (signal.aborted) throw err;
+      if (err instanceof Anthropic.APIError) {
+        const wait = isTransient(err) && !retry.used && !wrote ? retryWaitMs(err.headers) : null;
+        if (wait === null || !mayRetryTransient(wait, deadlineAt - Date.now())) throw err;
+        retry.used = true;
+        logOperatorError("transient upstream failure, retrying once after", undefined, `${Math.round(wait)} ms`, err.status);
+        await pause(wait, signal);
+        if (signal.aborted) throw err;
+        continue;
+      }
+      // A re-issue the deadline would cut off anyway is only cost.
+      if (jsonRetries >= OPERATOR_MAX_JSON_RETRIES || deadlineAt - Date.now() < OPERATOR_MIN_ROUND_MS) throw err;
+      jsonRetries++;
+      logOperatorError("unparseable tool input, re-issuing the round");
     }
   }
 }
@@ -252,10 +330,14 @@ async function streamRound(
  * events as it goes and ends with exactly one done or error event; throws
  * for anything toErrorCode should classify.
  */
-async function runOperator({ messages, country, locale, signal, emit }: LoopContext): Promise<void> {
-  const startedAt = Date.now();
+async function runOperator({ messages, country, locale, signal, startedAt, emit }: LoopContext): Promise<void> {
+  const deadlineAt = startedAt + OPERATOR_DEADLINE_MS;
+  const retry = { used: false };
   let lastStatus: OperatorStatus | null = null;
   let anyText = false;
+  // Text or a visual has reached the visitor this turn.
+  let shown = false;
+  let noted = false;
 
   const onStatus = (status: OperatorStatus) => {
     if (status === lastStatus) return;
@@ -264,8 +346,13 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
   };
   const onText = (delta: string) => {
     anyText = true;
+    shown = true;
     lastStatus = null; // text hides the status line; the next status must be sent again
     emit({ type: "text", delta });
+  };
+  const onArtifact = (artifact: Artifact) => {
+    shown = true;
+    emit({ type: "artifact", artifact });
   };
 
   // Something on screen before the first upstream byte.
@@ -273,12 +360,24 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
 
   for (let round = 0; round < OPERATOR_MAX_TOOL_ROUNDS; round++) {
     if (signal.aborted) return;
+    // From the time LEFT: a round that starts is only bounded by the deadline.
+    const plan = planRound(round, Date.now() - startedAt, shown);
+    if (plan === "stop") {
+      emit({ type: "done" });
+      return;
+    }
     // After a tool round the status would still read "mapping" etc. while
     // Claude considers the result; the model may not open a thinking block.
     if (round > 0) onStatus("thinking");
-    // The last round cannot call tools, so the visitor always gets an answer
-    // in text; the same applies once the time budget is mostly spent.
-    const finalRound = round === OPERATOR_MAX_TOOL_ROUNDS - 1 || Date.now() - startedAt > OPERATOR_FORCE_TEXT_AFTER_MS;
+    const textOnly = plan === "text";
+    // Tell Claude its tools are off, once, where the API takes a system
+    // message: right after the tool results. (Not after a pause_turn
+    // continuation, where an assistant turn is last.) tool_choice stays as it
+    // is: changing it invalidates the cached conversation.
+    if (textOnly && !noted && messages.at(-1)?.role === "user") {
+      messages.push({ role: "system", content: TEXT_ONLY_NOTE });
+      noted = true;
+    }
 
     const params: BetaMessageStreamParams = {
       model: OPERATOR_MODEL,
@@ -298,17 +397,34 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
       output_config: { effort: OPERATOR_EFFORT },
       betas: [FALLBACK_BETA],
       fallbacks: "default",
-      ...(finalRound ? { tool_choice: { type: "none" as const } } : {}),
     };
+    const roundOptions: RoundOptions = { signal, deadlineAt, retry, onStatus, onText, separate: anyText };
 
-    const message = await streamRound(params, signal, { onStatus, onText, separate: anyText });
+    const message = await streamRound(params, roundOptions);
 
-    // A refusal can cut a tool_use off mid-input; never run that round's tools.
+    // The chain as a whole declined (the fallback model too, or none ran).
     if (message.stop_reason === "refusal") {
       emit({ type: "error", code: "refusal" });
       return;
     }
-    const toolUses = message.content.filter((block): block is BetaToolUseBlock => block.type === "tool_use");
+    // After a mid-output fallback, only the serving model's tool calls exist.
+    const { echoed, served } = splitAtFallback(message.content);
+    const toolUses = served.filter((block): block is BetaToolUseBlock => block.type === "tool_use");
+
+    if (textOnly && toolUses.length) {
+      // Tools are off in this round whatever the model does: nothing runs. If
+      // it also said nothing, ask once more with tool_choice "none", the one
+      // place where paying the cache miss is worth it.
+      if (!hasText(message.content) && deadlineAt - Date.now() >= OPERATOR_MIN_ROUND_MS) {
+        const forced = await streamRound({ ...params, tool_choice: { type: "none" } }, roundOptions);
+        if (forced.stop_reason === "refusal") {
+          emit({ type: "error", code: "refusal" });
+          return;
+        }
+      }
+      emit({ type: "done" });
+      return;
+    }
     // A tool input cut off at max_tokens usually still parses as a valid
     // partial object, so this is what catches it.
     if (message.stop_reason === "max_tokens" && toolUses.length) {
@@ -316,7 +432,7 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
       return;
     }
     if (message.stop_reason === "pause_turn") {
-      messages.push({ role: "assistant", content: message.content });
+      messages.push({ role: "assistant", content: echoed });
       continue;
     }
     if (!toolUses.length) {
@@ -324,12 +440,13 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
       return;
     }
 
-    // Unchanged: thinking blocks (and any fallback blocks) must round-trip.
-    messages.push({ role: "assistant", content: message.content });
+    // Thinking blocks round-trip unchanged; after a fallback, only the text
+    // of the declined partial does (splitAtFallback).
+    messages.push({ role: "assistant", content: echoed });
     const results: BetaToolResultBlockParam[] = [];
     for (const block of toolUses) {
       const outcome = runTool(block.name, block.input, { toolUseId: block.id, country, locale });
-      if (outcome.artifact) emit({ type: "artifact", artifact: outcome.artifact });
+      if (outcome.artifact) onArtifact(outcome.artifact);
       results.push({
         type: "tool_result",
         tool_use_id: block.id,
@@ -347,6 +464,19 @@ async function runOperator({ messages, country, locale, signal, emit }: LoopCont
 /* -------------------------------------------------------------------------- */
 /*                                   Route                                    */
 /* -------------------------------------------------------------------------- */
+
+/**
+ * Whether the Operator can take requests right now: 204 or 503, no body.
+ * OPERATOR_ENABLED is read per request here, while the launcher is baked
+ * into prerendered and ISR pages at build or revalidate time; the panel can
+ * ask this before it opens.
+ */
+export async function GET() {
+  return new Response(null, {
+    status: isOperatorEnabled() && hasCredentials() ? 204 : 503,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -373,13 +503,14 @@ export async function POST(req: NextRequest) {
     if (!hasCredentials()) {
       if (!warnedMissingKey) {
         warnedMissingKey = true;
-        console.error("Operator endpoint error: ANTHROPIC_API_KEY is not set");
+        logOperatorError("ANTHROPIC_API_KEY is not set");
       }
       return fail(503, "unavailable");
     }
 
-    const { locale, country, turns } = parsed.value;
-    const messages = buildMessages(turns, { locale, country });
+    const { locale, country } = parsed.value;
+    const { turns, fromStart } = fitHistory(parsed.value.turns);
+    const messages = buildMessages(turns, { locale, country, fromStart });
 
     // Aborts the upstream call when the visitor closes the panel or navigates
     // away (req.signal) or when the response stream is cancelled.
@@ -390,13 +521,18 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
+        const startedAt = Date.now();
         let closed = false;
         // Exactly one done/error per response: anything after the first
         // terminal event is dropped here, whatever path produced it.
         let terminal = false;
+        // Whether text or a visual reached the visitor: decides what a
+        // deadline means to them.
+        let shown = false;
         const emit = (event: OperatorEvent) => {
           if (closed || terminal) return;
           if (event.type === "done" || event.type === "error") terminal = true;
+          if (event.type === "text" || event.type === "artifact") shown = true;
           try {
             controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
           } catch {
@@ -413,7 +549,7 @@ export async function POST(req: NextRequest) {
           upstream.abort();
         }, OPERATOR_DEADLINE_MS);
         try {
-          await runOperator({ messages, country, locale, signal: upstream.signal, emit });
+          await runOperator({ messages, country, locale, signal: upstream.signal, startedAt, emit });
         } catch (err) {
           // An abort (disconnect or deadline) surfaces as an SDK abort error:
           // nothing to classify or log.
@@ -421,8 +557,14 @@ export async function POST(req: NextRequest) {
           if (code) emit({ type: "error", code });
         } finally {
           clearTimeout(deadline);
-          if (timedOut) emit({ type: "error", code: "upstream" });
+          // With part of the reply on screen the deadline cut it off: what
+          // is there stays valid ("truncated"). With nothing, the upstream
+          // call stalled and a plain retry is the right offer.
+          if (timedOut) emit({ type: "error", code: shown ? "truncated" : "upstream" });
           req.signal.removeEventListener("abort", abortUpstream);
+          // No upstream request outlives the response, including a failed
+          // attempt the SDK is still reading. A no-op when nothing is open.
+          upstream.abort();
           if (!closed) {
             closed = true;
             try {
@@ -448,7 +590,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("Operator endpoint error:", err);
+    logOperatorError("request failed:", err);
     return fail(500, "internal");
   }
 }

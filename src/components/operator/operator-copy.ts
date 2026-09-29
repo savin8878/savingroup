@@ -13,12 +13,19 @@
 // starter becomes the visitor's own first message when clicked, which is why
 // starters are phrased in the visitor's voice ("We track orders in Excel…").
 // Neither may state a Savin fact the knowledge index does not hold; the only
-// offer they name is the free audit (lib/offer.ts#AUDIT).
+// offer they name is the free audit (lib/offer.ts#AUDIT, its length read from
+// there). Nor may they tie the Operator's subject, process and operations
+// work, to the pricing page's tiers: those price website and platform builds
+// (knowledge.ts, "absence:capability-pricing"); everything else is scoped
+// after the audit. The statuses describe what the tool does, not where its
+// inputs came from: an estimate mixes the visitor's figures with stated
+// assumptions.
 //
 // English is the source of truth and every other locale is merged over it,
 // so a missing key never renders blank.
 
 import type { Locale } from "@/lib/i18n";
+import { AUDIT } from "@/lib/offer";
 import type { OperatorErrorCode, OperatorStatus } from "@/lib/operator/protocol";
 import type { PageContext } from "@/lib/operator/page-context";
 
@@ -67,12 +74,18 @@ export interface OperatorCopy {
   retry: string;
   startOver: string;
   reachDirectly: string;
+  /** Notice after the conversation crashed while rendering and was cleared (ConversationBoundary, first crash). */
+  conversationCleared: string;
+  /** Static stand-in when it crashes again: the conversation stays hidden until a reload. */
+  conversationBroken: string;
   whatsapp: string;
   email: string;
   retryInSeconds: (seconds: number) => string;
   retryInMinutes: (minutes: number) => string;
   /** Marker after a reply the visitor stopped, parentheses included. */
   stopped: string;
+  /** Marker in place of a reply the AI service declined (the "refusal" error), parentheses included. */
+  declined: string;
   inputLabel: string;
   placeholder: string;
   send: string;
@@ -107,7 +120,7 @@ const EN: OperatorCopy = {
     ecommerce: "When an order comes in, what still happens by hand before it ships: stock checks, confirmations, courier bookings or customer updates?",
     edtech: "From the first enquiry to enrolment and fee collection, which steps does your team still chase over calls or WhatsApp?",
     "case-studies": "Which of these results looks closest to your situation? Tell me how that process runs in your company today.",
-    pricing: "Prices depend on what needs connecting. Tell me the process that costs you the most time, and I'll help you scope it before you look at tiers.",
+    pricing: `The tiers on this page price websites and platforms; work on your operations is scoped after the free ${AUDIT.minutes}-minute audit. Which process costs your team the most time? I'll map it with you.`,
     about: "Want to see how we think? Describe one process from start to finish and I'll show you where it loses time.",
     contact: "Before you get in touch, I can map the process you want to fix, so the audit starts ahead. Which process is it?",
     city: "Running sites, suppliers or field teams here? Tell me which handoff still happens by phone, paper or WhatsApp.",
@@ -188,7 +201,7 @@ const EN: OperatorCopy = {
   status: {
     thinking: "Thinking",
     searching: "Checking Savin's published information",
-    calculating: "Calculating from your numbers",
+    calculating: "Calculating the estimate",
     mapping: "Mapping the workflow",
     simulating: "Running an illustrative simulation",
     drafting: "Drafting your brief",
@@ -208,11 +221,14 @@ const EN: OperatorCopy = {
   retry: "Try again",
   startOver: "Start a new conversation",
   reachDirectly: "You can also reach Savin directly:",
+  conversationCleared: "The conversation couldn't be displayed and was cleared.",
+  conversationBroken: "The conversation can't be displayed right now. Reload the page to start a new one.",
   whatsapp: "WhatsApp",
   email: "Email",
   retryInSeconds: (seconds) => `You can try again in about ${seconds} seconds.`,
   retryInMinutes: (minutes) => `You can try again in about ${minutes} minutes.`,
   stopped: "(stopped)",
+  declined: "(reply declined)",
   inputLabel: "Message the Operator",
   placeholder: "Describe a process: who does what, in which tool, and where it waits…",
   send: "Send",
@@ -246,7 +262,7 @@ const ES: OperatorCopy = {
     ecommerce: "Cuando entra un pedido, ¿qué se sigue haciendo a mano antes del envío: revisar el stock, confirmar, reservar la mensajería o avisar al cliente?",
     edtech: "Desde la primera consulta hasta la matrícula y el cobro de las cuotas, ¿qué pasos sigue persiguiendo tu equipo por teléfono o WhatsApp?",
     "case-studies": "¿Cuál de estos resultados se parece más a tu situación? Cuéntame cómo funciona hoy ese proceso en tu empresa.",
-    pricing: "El precio depende de lo que haya que conectar. Cuéntame el proceso que más tiempo te cuesta y te ayudo a acotarlo antes de mirar los planes.",
+    pricing: `Los planes de esta página son para webs y plataformas; el trabajo sobre tus operaciones se acota tras la auditoría gratuita de ${AUDIT.minutes} minutos. ¿Qué proceso le quita más tiempo a tu equipo? Lo mapeo contigo.`,
     about: "¿Quieres ver cómo pensamos? Describe un proceso de principio a fin y te mostraré dónde pierde tiempo.",
     contact: "Antes de escribirnos, puedo mapear el proceso que quieres arreglar para que la auditoría empiece con ventaja. ¿Qué proceso es?",
     city: "¿Gestionas centros, proveedores o equipos de campo aquí? Cuéntame qué traspaso se sigue haciendo por teléfono, en papel o por WhatsApp.",
@@ -327,7 +343,7 @@ const ES: OperatorCopy = {
   status: {
     thinking: "Pensando",
     searching: "Consultando la información publicada por Savin",
-    calculating: "Calculando con tus cifras",
+    calculating: "Calculando la estimación",
     mapping: "Mapeando el flujo de trabajo",
     simulating: "Ejecutando una simulación ilustrativa",
     drafting: "Redactando tu resumen",
@@ -347,11 +363,14 @@ const ES: OperatorCopy = {
   retry: "Reintentar",
   startOver: "Empezar una conversación nueva",
   reachDirectly: "También puedes contactar directamente con Savin:",
+  conversationCleared: "No se pudo mostrar la conversación, así que se ha borrado.",
+  conversationBroken: "Ahora mismo no se puede mostrar la conversación. Recarga la página para empezar una nueva.",
   whatsapp: "WhatsApp",
   email: "Correo",
   retryInSeconds: (seconds) => `Podrás volver a intentarlo en unos ${seconds} segundos.`,
   retryInMinutes: (minutes) => `Podrás volver a intentarlo en unos ${minutes} minutos.`,
   stopped: "(detenida)",
+  declined: "(respuesta rechazada)",
   inputLabel: "Escribe al Operator",
   placeholder: "Describe un proceso: quién hace qué, con qué herramienta y dónde se queda esperando…",
   send: "Enviar",
@@ -385,7 +404,7 @@ const FR: OperatorCopy = {
     ecommerce: "Quand une commande arrive, que fait-on encore à la main avant l’expédition : vérification du stock, confirmations, réservation du transporteur, suivi client ?",
     edtech: "De la première demande à l’inscription et à l’encaissement des frais, quelles étapes votre équipe relance-t-elle encore par téléphone ou WhatsApp ?",
     "case-studies": "Lequel de ces résultats ressemble le plus à votre situation ? Dites-moi comment ce processus fonctionne aujourd’hui chez vous.",
-    pricing: "Le prix dépend de ce qu’il faut connecter. Décrivez-moi le processus qui vous coûte le plus de temps, et je vous aide à le cadrer avant de comparer les formules.",
+    pricing: `Les formules de cette page concernent les sites web et les plateformes ; le travail sur vos opérations se cadre après l’audit gratuit de ${AUDIT.minutes} minutes. Quel processus prend le plus de temps à votre équipe ? Je le cartographie avec vous.`,
     about: "Envie de voir notre façon de penser ? Décrivez un processus du début à la fin et je vous montrerai où il perd du temps.",
     contact: "Avant de nous contacter, je peux cartographier le processus à corriger pour que l’audit démarre avec une longueur d’avance. De quel processus s’agit-il ?",
     city: "Vous gérez des sites, des fournisseurs ou des équipes terrain ici ? Dites-moi quelle passation se fait encore par téléphone, sur papier ou par WhatsApp.",
@@ -466,7 +485,7 @@ const FR: OperatorCopy = {
   status: {
     thinking: "Réflexion",
     searching: "Consultation des informations publiées par Savin",
-    calculating: "Calcul à partir de vos chiffres",
+    calculating: "Calcul de l’estimation",
     mapping: "Cartographie du flux de travail",
     simulating: "Simulation illustrative en cours",
     drafting: "Rédaction de votre synthèse",
@@ -486,11 +505,14 @@ const FR: OperatorCopy = {
   retry: "Réessayer",
   startOver: "Commencer une nouvelle conversation",
   reachDirectly: "Vous pouvez aussi contacter Savin directement :",
+  conversationCleared: "La conversation n’a pas pu s’afficher et a été effacée.",
+  conversationBroken: "La conversation ne peut pas s’afficher pour le moment. Rechargez la page pour en commencer une nouvelle.",
   whatsapp: "WhatsApp",
   email: "E-mail",
   retryInSeconds: (seconds) => `Vous pourrez réessayer dans environ ${seconds} secondes.`,
   retryInMinutes: (minutes) => `Vous pourrez réessayer dans environ ${minutes} minutes.`,
   stopped: "(arrêtée)",
+  declined: "(réponse refusée)",
   inputLabel: "Écrire à l’Operator",
   placeholder: "Décrivez un processus : qui fait quoi, avec quel outil, et où ça attend…",
   send: "Envoyer",
@@ -524,7 +546,7 @@ const DE: OperatorCopy = {
     ecommerce: "Wenn eine Bestellung eingeht, was passiert vor dem Versand noch von Hand: Bestandsprüfung, Bestätigungen, Versandbuchung oder Kundeninfos?",
     edtech: "Von der ersten Anfrage über die Anmeldung bis zum Gebühreneinzug: Welchen Schritten läuft Ihr Team noch per Telefon oder WhatsApp hinterher?",
     "case-studies": "Welches dieser Ergebnisse kommt Ihrer Situation am nächsten? Beschreiben Sie mir, wie dieser Prozess heute bei Ihnen läuft.",
-    pricing: "Der Preis hängt davon ab, was verbunden werden muss. Nennen Sie mir den Prozess, der Sie die meiste Zeit kostet, und ich helfe Ihnen, ihn einzugrenzen, bevor Sie Pakete vergleichen.",
+    pricing: `Die Pakete auf dieser Seite gelten für Websites und Plattformen; die Arbeit an Ihren Abläufen wird nach dem kostenlosen ${AUDIT.minutes}-minütigen Audit eingegrenzt. Welcher Prozess kostet Ihr Team die meiste Zeit? Ich bilde ihn mit Ihnen ab.`,
     about: "Möchten Sie sehen, wie wir denken? Beschreiben Sie einen Prozess von Anfang bis Ende, und ich zeige Ihnen, wo er Zeit verliert.",
     contact: "Bevor Sie uns schreiben, kann ich den Prozess abbilden, den Sie verbessern möchten, damit das Audit mit Vorsprung startet. Um welchen Prozess geht es?",
     city: "Sie koordinieren hier Standorte, Lieferanten oder Außendienstteams? Sagen Sie mir, welche Übergabe noch per Telefon, Papier oder WhatsApp läuft.",
@@ -605,7 +627,7 @@ const DE: OperatorCopy = {
   status: {
     thinking: "Denkt nach",
     searching: "Prüft die von Savin veröffentlichten Informationen",
-    calculating: "Rechnet mit Ihren Zahlen",
+    calculating: "Berechnet die Schätzung",
     mapping: "Bildet den Ablauf ab",
     simulating: "Führt eine beispielhafte Simulation aus",
     drafting: "Entwirft Ihr Briefing",
@@ -625,11 +647,14 @@ const DE: OperatorCopy = {
   retry: "Erneut versuchen",
   startOver: "Neues Gespräch beginnen",
   reachDirectly: "Sie erreichen Savin auch direkt:",
+  conversationCleared: "Das Gespräch konnte nicht angezeigt werden und wurde gelöscht.",
+  conversationBroken: "Das Gespräch kann gerade nicht angezeigt werden. Laden Sie die Seite neu, um ein neues zu beginnen.",
   whatsapp: "WhatsApp",
   email: "E-Mail",
   retryInSeconds: (seconds) => `Sie können es in etwa ${seconds} Sekunden erneut versuchen.`,
   retryInMinutes: (minutes) => `Sie können es in etwa ${minutes} Minuten erneut versuchen.`,
   stopped: "(angehalten)",
+  declined: "(Antwort abgelehnt)",
   inputLabel: "Nachricht an den Operator",
   placeholder: "Beschreiben Sie einen Prozess: Wer macht was, mit welchem Tool, und wo wartet es…",
   send: "Senden",
@@ -663,7 +688,7 @@ const AR: OperatorCopy = {
     ecommerce: "عندما يصل طلب، ما الذي لا يزال يتم يدويًا قبل الشحن: فحص المخزون، أو التأكيدات، أو حجز شركة الشحن، أو إبلاغ العميل؟",
     edtech: "من الاستفسار الأول إلى التسجيل وتحصيل الرسوم، ما الخطوات التي لا يزال فريقك يلاحقها بالمكالمات أو واتساب؟",
     "case-studies": "أيّ هذه النتائج أقرب إلى وضعك؟ أخبرني كيف تسير هذه العملية في شركتك اليوم.",
-    pricing: "يعتمد السعر على ما يحتاج إلى ربط. أخبرني بالعملية التي تستهلك معظم وقتك، وسأساعدك في تحديد نطاقها قبل أن تقارن الباقات.",
+    pricing: `باقات هذه الصفحة مخصّصة للمواقع الإلكترونية والمنصّات، أما العمل على عملياتك فيُحدَّد نطاقه بعد التدقيق المجاني لمدة ${AUDIT.minutes} دقيقة. ما العملية التي تستهلك معظم وقت فريقك؟ سأرسم خريطتها معك.`,
     about: "هل تريد أن ترى طريقة تفكيرنا؟ صف عملية واحدة من بدايتها إلى نهايتها، وسأريك أين تُهدر الوقت.",
     contact: "قبل أن تتواصل معنا، يمكنني رسم خريطة العملية التي تريد إصلاحها حتى يبدأ التدقيق بخطوة متقدّمة. ما هذه العملية؟",
     city: "هل تدير هنا مواقع أو موردين أو فرقًا ميدانية؟ أخبرني بأي تسليم لا يزال يتم بالهاتف أو الورق أو واتساب.",
@@ -744,7 +769,7 @@ const AR: OperatorCopy = {
   status: {
     thinking: "يفكّر",
     searching: "يراجع المعلومات التي نشرتها Savin",
-    calculating: "يحسب بناءً على أرقامك",
+    calculating: "يحسب التقدير",
     mapping: "يرسم مسار العمل",
     simulating: "يشغّل محاكاة توضيحية",
     drafting: "يصوغ ملخّصك",
@@ -764,11 +789,14 @@ const AR: OperatorCopy = {
   retry: "حاول مرة أخرى",
   startOver: "ابدأ محادثة جديدة",
   reachDirectly: "يمكنك أيضًا التواصل مع Savin مباشرة:",
+  conversationCleared: "تعذّر عرض المحادثة، لذا تم مسحها.",
+  conversationBroken: "لا يمكن عرض المحادثة الآن. أعد تحميل الصفحة لبدء محادثة جديدة.",
   whatsapp: "واتساب",
   email: "البريد الإلكتروني",
   retryInSeconds: (seconds) => `يمكنك المحاولة مجددًا بعد نحو ${seconds} ثانية.`,
   retryInMinutes: (minutes) => `يمكنك المحاولة مجددًا بعد نحو ${minutes} دقيقة.`,
   stopped: "(أُوقف)",
+  declined: "(حُجب الرد)",
   inputLabel: "راسل Operator",
   placeholder: "صف عملية: من يفعل ماذا، وبأي أداة، وأين تتوقف في انتظار أحد…",
   send: "إرسال",
@@ -802,7 +830,7 @@ const HI: OperatorCopy = {
     ecommerce: "ऑर्डर आने के बाद शिपिंग से पहले क्या अब भी हाथ से होता है: स्टॉक जाँचना, कन्फ़र्मेशन, कूरियर बुकिंग या ग्राहक को अपडेट देना?",
     edtech: "पहली पूछताछ से एडमिशन और फ़ीस वसूली तक, आपकी टीम किन कदमों के लिए अब भी कॉल या WhatsApp पर पीछे लगी रहती है?",
     "case-studies": "इनमें से कौन-सा नतीजा आपकी स्थिति से सबसे ज़्यादा मिलता है? बताइए कि आपकी कंपनी में वह प्रोसेस आज कैसे चलती है।",
-    pricing: "कीमत इस पर निर्भर करती है कि क्या-क्या जोड़ना है। वह प्रोसेस बताइए जिसमें सबसे ज़्यादा समय जाता है, और प्लान देखने से पहले मैं उसका दायरा तय करने में मदद करूँगा।",
+    pricing: `इस पेज के प्लान वेबसाइट और प्लेटफ़ॉर्म के लिए हैं; आपके ऑपरेशन से जुड़े काम का दायरा ${AUDIT.minutes} मिनट के मुफ़्त ऑडिट के बाद तय होता है। आपकी टीम का सबसे ज़्यादा समय किस प्रोसेस में जाता है? मैं आपके साथ उसे मैप करूँगा।`,
     about: "देखना चाहते हैं कि हम कैसे सोचते हैं? कोई एक प्रोसेस शुरू से आख़िर तक बताइए, और मैं दिखाऊँगा कि उसमें समय कहाँ बर्बाद होता है।",
     contact: "संपर्क करने से पहले, मैं उस प्रोसेस को मैप कर सकता हूँ जिसे आप ठीक करना चाहते हैं, ताकि ऑडिट एक कदम आगे से शुरू हो। वह कौन-सी प्रोसेस है?",
     city: "यहाँ साइट, सप्लायर या फ़ील्ड टीमें संभालते हैं? बताइए कौन-सा हैंडऑफ़ अब भी फ़ोन, कागज़ या WhatsApp पर होता है।",
@@ -883,7 +911,7 @@ const HI: OperatorCopy = {
   status: {
     thinking: "सोच रहा है",
     searching: "Savin की प्रकाशित जानकारी देख रहा है",
-    calculating: "आपके आँकड़ों से गणना कर रहा है",
+    calculating: "अनुमान की गणना कर रहा है",
     mapping: "वर्कफ़्लो मैप कर रहा है",
     simulating: "उदाहरण के तौर पर सिमुलेशन चला रहा है",
     drafting: "आपका ब्रीफ़ तैयार कर रहा है",
@@ -903,11 +931,14 @@ const HI: OperatorCopy = {
   retry: "फिर कोशिश करें",
   startOver: "नई बातचीत शुरू करें",
   reachDirectly: "आप Savin से सीधे भी संपर्क कर सकते हैं:",
+  conversationCleared: "बातचीत दिखाई नहीं जा सकी, इसलिए उसे मिटा दिया गया।",
+  conversationBroken: "बातचीत अभी दिखाई नहीं जा सकती। नई बातचीत शुरू करने के लिए पेज फिर से लोड करें।",
   whatsapp: "WhatsApp",
   email: "ईमेल",
   retryInSeconds: (seconds) => `लगभग ${seconds} सेकंड बाद फिर कोशिश कर सकते हैं।`,
   retryInMinutes: (minutes) => `लगभग ${minutes} मिनट बाद फिर कोशिश कर सकते हैं।`,
   stopped: "(रोका गया)",
+  declined: "(जवाब नहीं दिया गया)",
   inputLabel: "Operator को संदेश भेजें",
   placeholder: "कोई प्रोसेस बताइए: कौन क्या करता है, किस टूल में, और काम कहाँ रुकता है…",
   send: "भेजें",
@@ -941,7 +972,7 @@ const ZH: OperatorCopy = {
     ecommerce: "订单进来后，发货前还有哪些事靠手工完成：查库存、确认订单、预约快递，还是通知客户？",
     edtech: "从首次咨询到报名和收费，您的团队还有哪些环节要靠电话或 WhatsApp 反复跟进？",
     "case-studies": "这些成果中，哪一个最接近您的情况？说说这个流程在贵公司现在是怎么运转的。",
-    pricing: "价格取决于需要打通什么。告诉我最耗时的那个流程，在您比较套餐之前，我先帮您把范围理清楚。",
+    pricing: `本页的套餐针对网站和平台；运营方面的工作会在 ${AUDIT.minutes} 分钟的免费审计之后确定范围。哪个流程最耗费您团队的时间？我来和您一起梳理。`,
     about: "想看看我们的思路？从头到尾描述一个流程，我来指出它在哪里浪费时间。",
     contact: "在联系我们之前，我可以先梳理您想改进的流程，让审计一开始就领先一步。是哪个流程？",
     city: "您在这里管理多个站点、供应商或外勤团队吗？告诉我哪个交接环节仍然靠电话、纸质单据或 WhatsApp。",
@@ -1022,7 +1053,7 @@ const ZH: OperatorCopy = {
   status: {
     thinking: "思考中",
     searching: "正在查阅 Savin 公开发布的信息",
-    calculating: "正在根据您的数据计算",
+    calculating: "正在计算估算结果",
     mapping: "正在绘制工作流程",
     simulating: "正在运行示意性模拟",
     drafting: "正在起草您的需求简报",
@@ -1042,11 +1073,14 @@ const ZH: OperatorCopy = {
   retry: "重试",
   startOver: "开始新的对话",
   reachDirectly: "您也可以直接联系 Savin：",
+  conversationCleared: "无法显示此对话，已将其清除。",
+  conversationBroken: "目前无法显示对话。请刷新页面，开始新的对话。",
   whatsapp: "WhatsApp",
   email: "电子邮件",
   retryInSeconds: (seconds) => `大约 ${seconds} 秒后可以重试。`,
   retryInMinutes: (minutes) => `大约 ${minutes} 分钟后可以重试。`,
   stopped: "（已停止）",
+  declined: "（已拒绝回答）",
   inputLabel: "给 Operator 发消息",
   placeholder: "描述一个流程：谁做什么、用什么工具、在哪里卡住等待……",
   send: "发送",
@@ -1080,7 +1114,7 @@ const GU: OperatorCopy = {
     ecommerce: "ઓર્ડર આવ્યા પછી શિપિંગ પહેલાં હજુ શું હાથથી થાય છે: સ્ટોક તપાસ, કન્ફર્મેશન, કુરિયર બુકિંગ કે ગ્રાહકને અપડેટ?",
     edtech: "પહેલી પૂછપરછથી એડમિશન અને ફી વસૂલી સુધી, તમારી ટીમ કયાં પગલાં માટે હજુ કૉલ કે WhatsApp પર પાછળ પડે છે?",
     "case-studies": "આમાંથી કયું પરિણામ તમારી પરિસ્થિતિને સૌથી વધુ મળતું આવે છે? તમારી કંપનીમાં એ પ્રોસેસ આજે કેવી રીતે ચાલે છે તે જણાવો.",
-    pricing: "કિંમત શું જોડવાનું છે તેના પર આધાર રાખે છે. જે પ્રોસેસમાં સૌથી વધુ સમય જાય છે તે જણાવો, અને પ્લાન જોતા પહેલાં હું તેનો વ્યાપ નક્કી કરવામાં મદદ કરીશ.",
+    pricing: `આ પેજના પ્લાન વેબસાઇટ અને પ્લેટફોર્મ માટે છે; તમારા ઓપરેશન્સ સંબંધિત કામનો વ્યાપ ${AUDIT.minutes} મિનિટના મફત ઓડિટ પછી નક્કી થાય છે. તમારી ટીમનો સૌથી વધુ સમય કઈ પ્રોસેસમાં જાય છે? હું તમારી સાથે તેને મેપ કરીશ.`,
     about: "અમે કેવી રીતે વિચારીએ છીએ તે જોવું છે? કોઈ એક પ્રોસેસ શરૂઆતથી અંત સુધી વર્ણવો, અને હું બતાવીશ કે તેમાં સમય ક્યાં વેડફાય છે.",
     contact: "સંપર્ક કરતા પહેલાં, તમે જે પ્રોસેસ સુધારવા માગો છો તેને હું મેપ કરી શકું છું, જેથી ઑડિટ એક ડગલું આગળથી શરૂ થાય. એ કઈ પ્રોસેસ છે?",
     city: "અહીં સાઇટ, સપ્લાયર કે ફીલ્ડ ટીમો સંભાળો છો? કયો હેન્ડઑફ હજુ ફોન, કાગળ કે WhatsApp પર થાય છે તે જણાવો.",
@@ -1161,7 +1195,7 @@ const GU: OperatorCopy = {
   status: {
     thinking: "વિચારી રહ્યું છે",
     searching: "Savinની પ્રકાશિત માહિતી તપાસી રહ્યું છે",
-    calculating: "તમારા આંકડા પરથી ગણતરી કરી રહ્યું છે",
+    calculating: "અંદાજની ગણતરી કરી રહ્યું છે",
     mapping: "વર્કફ્લો મેપ કરી રહ્યું છે",
     simulating: "ઉદાહરણરૂપ સિમ્યુલેશન ચલાવી રહ્યું છે",
     drafting: "તમારું બ્રીફ તૈયાર કરી રહ્યું છે",
@@ -1181,11 +1215,14 @@ const GU: OperatorCopy = {
   retry: "ફરી પ્રયાસ કરો",
   startOver: "નવી વાતચીત શરૂ કરો",
   reachDirectly: "તમે Savinનો સીધો સંપર્ક પણ કરી શકો છો:",
+  conversationCleared: "વાતચીત બતાવી શકાઈ નહીં, તેથી તેને સાફ કરી દેવામાં આવી.",
+  conversationBroken: "વાતચીત અત્યારે બતાવી શકાતી નથી. નવી વાતચીત શરૂ કરવા માટે પેજ ફરીથી લોડ કરો.",
   whatsapp: "WhatsApp",
   email: "ઇમેઇલ",
   retryInSeconds: (seconds) => `લગભગ ${seconds} સેકન્ડ પછી ફરી પ્રયાસ કરી શકશો.`,
   retryInMinutes: (minutes) => `લગભગ ${minutes} મિનિટ પછી ફરી પ્રયાસ કરી શકશો.`,
   stopped: "(રોકાયેલું)",
+  declined: "(જવાબ આપવામાં આવ્યો નથી)",
   inputLabel: "Operatorને સંદેશ મોકલો",
   placeholder: "કોઈ પ્રોસેસ વર્ણવો: કોણ શું કરે છે, કયા ટૂલમાં, અને કામ ક્યાં અટકે છે…",
   send: "મોકલો",

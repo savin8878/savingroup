@@ -23,8 +23,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { OPERATOR_ENDPOINT } from "@/lib/operator/protocol";
 import type { OperatorErrorCode, OperatorEvent, OperatorStatus } from "@/lib/operator/protocol";
-import { createNdjsonParser, isArtifactEnvelope, isOperatorErrorCode } from "./ndjson";
-import { buildRequest, cleanUserText, hasContent, type UIMessage, type UIPart } from "./transcript";
+import { createNdjsonParser, isOperatorErrorCode } from "./ndjson";
+import { forgetStoredTranscript, STORAGE_KEY } from "./storage";
+import { buildRequest, cleanUserText, hasContent, parseStoredTranscript, restoredError, storedMessages, type UIMessage } from "./transcript";
 
 export type { UIMessage, UIPart } from "./transcript";
 
@@ -50,7 +51,6 @@ export interface OperatorChat extends OperatorChatState {
   reset: () => void;
 }
 
-export const STORAGE_KEY = "savin-operator:v1";
 const SAVE_DELAY_MS = 400;
 /** UTF-16 code units; well under the ~5M sessionStorage quota. */
 const MAX_STORED_CHARS = 400_000;
@@ -125,38 +125,13 @@ const cancelFrame = (handle: number) => {
 /*                                 Persistence                                */
 /* -------------------------------------------------------------------------- */
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
-
-function isPart(value: unknown): value is UIPart {
-  if (!isRecord(value)) return false;
-  if (value.kind === "text") return typeof value.text === "string";
-  return value.kind === "artifact" && isArtifactEnvelope(value.artifact);
-}
-
-/** Loose shape check: enough that rendering cannot throw. */
-function isUIMessage(value: unknown): value is UIMessage {
-  return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    (value.role === "user" || value.role === "assistant") &&
-    Array.isArray(value.parts) &&
-    value.parts.every(isPart) &&
-    (value.page === undefined || (isRecord(value.page) && typeof value.page.pathname === "string")) &&
-    (value.stopped === undefined || typeof value.stopped === "boolean")
-  );
-}
-
 function restoreMessages(): UIMessage[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const data: unknown = JSON.parse(raw);
-    if (isRecord(data) && data.v === 1 && Array.isArray(data.messages) && data.messages.every(isUIMessage)) {
-      return data.messages;
-    }
-    window.sessionStorage.removeItem(STORAGE_KEY);
+    const messages = parseStoredTranscript(raw);
+    if (messages) return messages;
+    if (raw) window.sessionStorage.removeItem(STORAGE_KEY);
   } catch {
     // Unreadable or blocked storage: start fresh.
   }
@@ -176,11 +151,7 @@ function persist(messages: UIMessage[], streaming: boolean) {
       window.sessionStorage.removeItem(STORAGE_KEY);
       return;
     }
-    // A snapshot taken mid-stream is only ever restored after a reload,
-    // when that reply can no longer finish: mark it as cut short.
-    let list = messages;
-    const last = list[list.length - 1];
-    if (streaming && last.role === "assistant") list = [...list.slice(0, -1), { ...last, stopped: true }];
+    let list = storedMessages(messages, streaming);
     const serialize = (value: UIMessage[]) => JSON.stringify({ v: 1, messages: value });
     let json = serialize(list);
     while (json.length > MAX_STORED_CHARS && list.length > 1) {
@@ -211,11 +182,18 @@ export function useOperatorChat({ locale, country }: { locale: string; country: 
 
   // The panel is client-only (next/dynamic, ssr:false), so reading storage
   // in the initializer cannot cause a hydration mismatch and avoids a flash
-  // of the empty state.
-  const [messages, setMessages] = useState<UIMessage[]>(restoreMessages);
+  // of the empty state. Read once, shared by both initial states below.
+  const [restored] = useState(restoreMessages);
+  const [messages, setMessages] = useState<UIMessage[]>(restored);
   const [streaming, setStreaming] = useState(false);
   const [status, setStatus] = useState<OperatorStatus | null>(null);
-  const [error, setError] = useState<OperatorChatError | null>(null);
+  // An exchange the last page never finished comes back with the
+  // "interrupted" error and its Retry, a declined one with the refusal
+  // (errors themselves are not stored).
+  const [error, setError] = useState<OperatorChatError | null>(() => {
+    const code = restoredError(restored);
+    return code ? { code } : null;
+  });
 
   // Refs mirror what async code must read without waiting for a render.
   const messagesRef = useRef(messages);
@@ -306,7 +284,20 @@ export function useOperatorChat({ locale, country }: { locale: string; country: 
       flush();
       const draft = draftRef.current;
       const complete = draft !== null && hasContent(draft);
-      if (draft && !complete) commit(messagesRef.current.filter((m) => m.id !== draft.id));
+      if (outcome.kind === "error" && outcome.code === "refusal") {
+        // Declined: what already streamed goes, text and visuals alike, and
+        // an empty `refused` marker takes its place (a new one if the decline
+        // came before any output). The partial is an incomplete answer the
+        // service withdrew, possibly because of what it was saying, and the
+        // Operator never sees it again (transcript.ts#buildTurns): keeping
+        // it on screen would show the visitor a reply the conversation no
+        // longer contains. The marker is what outlives a reload.
+        const marker: UIMessage = { id: draft?.id ?? newId("a"), role: "assistant", parts: [], refused: true };
+        const list = messagesRef.current;
+        commit(draft ? list.map((m) => (m.id === draft.id ? marker : m)) : [...list, marker]);
+      } else if (draft && !complete) {
+        commit(messagesRef.current.filter((m) => m.id !== draft.id));
+      }
       if (outcome.kind === "error") setError({ code: outcome.code, retryAfter: outcome.retryAfter });
       else if (!complete) setError({ code: "upstream" }); // "done" with nothing in it
       settle();
@@ -436,11 +427,7 @@ export function useOperatorChat({ locale, country }: { locale: string; country: 
     commit([]);
     setError(null);
     settle();
-    try {
-      window.sessionStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // Nothing to clear.
-    }
+    forgetStoredTranscript();
   }, [commit, settle]);
 
   // Debounced save; `pagehide` catches a reload or navigation inside the

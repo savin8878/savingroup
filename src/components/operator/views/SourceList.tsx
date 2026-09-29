@@ -17,6 +17,7 @@ import Link from "next/link";
 import { CornerDownRight } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import type { Artifact, KnowledgeSource } from "@/lib/operator/protocol";
+import { textAttrs } from "./text-attrs";
 import { getViewsCopy } from "./views-copy";
 import s from "./Views.module.css";
 
@@ -54,17 +55,19 @@ export function SourceList({ artifacts, locale }: SourceListProps) {
       <ul aria-labelledby={labelId}>
         {sources.map((source) => {
           const caveat = source.confidence !== "canonical" && source.caveat ? source.caveat : null;
+          // Record titles and caveats are the site's English knowledge base: LTR and lang="en" on /ae/ar.
+          const title = textAttrs(source.title, locale);
           return (
             <li key={source.id}>
               {isSitePath(source.href) ? (
                 <Link href={source.href} prefetch={false}>
                   <CornerDownRight size={12} strokeWidth={1.6} className={s.dirIcon} aria-hidden="true" />
-                  <span dir="auto">{source.title}</span>
+                  <span {...title}>{source.title}</span>
                 </Link>
               ) : (
-                <span dir="auto">{source.title}</span>
+                <span {...title}>{source.title}</span>
               )}
-              {caveat && <span className={s.caveat} dir="auto">{caveat}</span>}
+              {caveat && <span className={s.caveat} {...textAttrs(caveat, locale)}>{caveat}</span>}
             </li>
           );
         })}
